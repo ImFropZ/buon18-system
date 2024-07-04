@@ -1,45 +1,43 @@
 "use client";
 
+import type { Response } from "@models";
+import type { Me, Login } from "@providers";
 import type { AuthProvider } from "@refinedev/core";
 import Cookies from "js-cookie";
 
-const mockUsers = [
-  {
-    name: "John Doe",
-    email: "johndoe@mail.com",
-    roles: ["admin"],
-    avatar: "https://i.pravatar.cc/150?img=1",
-  },
-  {
-    name: "Jane Doe",
-    email: "janedoe@mail.com",
-    roles: ["editor"],
-    avatar: "https://i.pravatar.cc/150?img=1",
-  },
-];
-
 export const authProvider: AuthProvider = {
-  login: async ({ email, username, password, remember }) => {
-    // Suppose we actually send a request to the back end here.
-    const user = mockUsers[0];
-
-    if (user) {
-      Cookies.set("auth", JSON.stringify(user), {
-        expires: 30, // 30 days
-        path: "/",
+  login: async ({ email, password }) => {
+    const response = await fetch("http://localhost:8080/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((res) => res.json())
+      .then((data: Response<Login>) => data.data)
+      .catch((err) => {
+        console.error(err);
       });
+
+    if (response == null) {
       return {
-        success: true,
-        redirectTo: "/",
+        success: false,
+        error: {
+          name: "LoginError",
+          message: "Invalid username or password",
+        },
       };
     }
 
+    // Store in cookies
+    const { token, refreshToken } = response;
+    const auth = JSON.stringify({ token, refreshToken });
+    Cookies.set("auth", auth, { path: "/" });
+
     return {
-      success: false,
-      error: {
-        name: "LoginError",
-        message: "Invalid username or password",
-      },
+      success: true,
+      redirectTo: "/",
     };
   },
   logout: async () => {
@@ -66,16 +64,36 @@ export const authProvider: AuthProvider = {
   getPermissions: async () => {
     const auth = Cookies.get("auth");
     if (auth) {
-      const parsedUser = JSON.parse(auth);
-      return parsedUser.roles;
+      const profile = await fetch("http://localhost:8080/me")
+        .then((res) => res.json())
+        .then((data: Response<Me>) => data.data)
+        .catch((err) => {
+          console.error("GET PERMISSIONS:" + err);
+        });
+
+      if (profile == null) {
+        return null;
+      }
+
+      return profile.role;
     }
     return null;
   },
   getIdentity: async () => {
     const auth = Cookies.get("auth");
     if (auth) {
-      const parsedUser = JSON.parse(auth);
-      return parsedUser;
+      const profile = await fetch("http://localhost:8080/me")
+        .then((res) => res.json())
+        .then((data: Response<Me>) => data.data)
+        .catch((err) => {
+          console.error("GET INDENTITY:" + err);
+        });
+
+      if (profile == null) {
+        return null;
+      }
+
+      return profile;
     }
     return null;
   },
