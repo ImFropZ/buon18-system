@@ -8,7 +8,7 @@ import Cookies from "js-cookie";
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }: LoginForm) => {
-    const response = await fetch("http://localhost:8080/login", {
+    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,7 +65,7 @@ export const authProvider: AuthProvider = {
   getPermissions: async () => {
     const auth = Cookies.get("auth");
     if (auth) {
-      const profile = await fetch("http://localhost:8080/me")
+      const profile = await fetch(process.env.NEXT_PUBLIC_API_URL + "/me")
         .then((res) => res.json())
         .then((data: Response<Me>) => data.data)
         .catch((err) => {
@@ -83,7 +83,7 @@ export const authProvider: AuthProvider = {
   getIdentity: async () => {
     const auth = Cookies.get("auth");
     if (auth) {
-      const profile = await fetch("http://localhost:8080/me")
+      const profile = await fetch(process.env.NEXT_PUBLIC_API_URL + "/me")
         .then((res) => res.json())
         .then((data: Response<Me>) => data.data)
         .catch((err) => {
