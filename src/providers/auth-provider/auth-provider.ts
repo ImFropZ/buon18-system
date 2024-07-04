@@ -1,12 +1,13 @@
 "use client";
 
 import type { Response } from "@models";
+import { LoginForm } from "@models/auth";
 import type { Me, Login } from "@providers";
 import type { AuthProvider } from "@refinedev/core";
 import Cookies from "js-cookie";
 
 export const authProvider: AuthProvider = {
-  login: async ({ email, password }) => {
+  login: async ({ email, password }: LoginForm) => {
     const response = await fetch("http://localhost:8080/login", {
       method: "POST",
       headers: {

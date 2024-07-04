@@ -51,7 +51,7 @@ export default function CategoryList() {
         },
       },
     ],
-    []
+    [],
   );
 
   const { edit, show, create } = useNavigation();
@@ -101,7 +101,7 @@ export default function CategoryList() {
                     {!header.isPlaceholder &&
                       flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                   </th>
                 ))}

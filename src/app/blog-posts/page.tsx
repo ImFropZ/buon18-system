@@ -34,7 +34,7 @@ export default function BlogPostList() {
 
           try {
             const category = meta.categoryData?.data?.find(
-              (item) => item.id == getValue<any>()?.id
+              (item) => item.id == getValue<any>()?.id,
             );
 
             return category?.title ?? "Loading...";
@@ -91,7 +91,7 @@ export default function BlogPostList() {
         },
       },
     ],
-    []
+    [],
   );
 
   const { edit, show, create } = useNavigation();
@@ -154,7 +154,7 @@ export default function BlogPostList() {
                     {!header.isPlaceholder &&
                       flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                   </th>
                 ))}

@@ -26,7 +26,6 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Suspense>
-          <GitHubBanner />
           <RefineKbarProvider>
             <DevtoolsProvider>
               <Refine

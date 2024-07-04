@@ -9,7 +9,11 @@ export default async function Login() {
     redirect(data?.redirectTo || "/");
   }
 
-  return <AuthPage type="login" />;
+  return (
+    <div className="fixed inset-0 grid place-content-center">
+      <AuthPage />
+    </div>
+  );
 }
 
 async function getData() {
