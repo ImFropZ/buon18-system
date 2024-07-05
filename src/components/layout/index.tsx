@@ -3,15 +3,57 @@
 import type { PropsWithChildren } from "react";
 import { Breadcrumb } from "../breadcrumb";
 import { Menu } from "../menu";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@components/ui/resizable";
+import React from "react";
 
-export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
+interface LayoutProps extends PropsWithChildren {
+  defaultCollapse?: boolean;
+  defaultLayout?: number[];
+}
+
+export const Layout: React.FC<LayoutProps> = ({
+  children,
+  defaultCollapse = false,
+  defaultLayout = [8, 92],
+}) => {
+  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapse);
+
   return (
-    <div className="layout">
-      <Menu />
-      <div className="content">
-        <Breadcrumb />
-        <div>{children}</div>
-      </div>
-    </div>
+    <ResizablePanelGroup
+      direction="horizontal"
+      className="fixed inset-0 rounded-lg border"
+      onLayout={(sizes: number[]) => {
+        document.cookie = `nav:layout=${JSON.stringify(sizes)}`;
+      }}
+    >
+      <ResizablePanel
+        defaultSize={defaultLayout[0] || 8}
+        minSize={7}
+        maxSize={10}
+        collapsible
+        collapsedSize={3}
+        onCollapse={() => {
+          setIsCollapsed(true);
+          document.cookie = "nav:collapse=true";
+        }}
+        onExpand={() => {
+          setIsCollapsed(false);
+          document.cookie = "nav:collapse=false";
+        }}
+      >
+        <Menu isCollapsed={isCollapsed} />
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel defaultSize={defaultLayout[1] || 92}>
+        <div>
+          <Breadcrumb />
+          <div>{children}</div>
+        </div>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 };

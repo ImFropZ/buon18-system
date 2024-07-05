@@ -1,27 +1,26 @@
 "use client";
 
-import { useLogout, useMenu } from "@refinedev/core";
-import Link from "next/link";
+import { Nav } from "@components/nav";
+import { NAVIGATIONS_ICON } from "@data/navigation";
+import { useMenu } from "@refinedev/core";
+import { Home } from "lucide-react";
 
-export const Menu = () => {
-  const { mutate: logout } = useLogout();
+interface MenuProps {
+  isCollapsed: boolean;
+}
+
+export const Menu = ({ isCollapsed }: MenuProps) => {
   const { menuItems, selectedKey } = useMenu();
 
   return (
-    <nav className="menu">
-      <ul>
-        {menuItems.map((item) => (
-          <li key={item.key}>
-            <Link
-              href={item.route ?? "/"}
-              className={selectedKey === item.key ? "active" : ""}
-            >
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <button onClick={() => logout()}>Logout</button>
-    </nav>
+    <Nav
+      isCollapsed={isCollapsed}
+      links={menuItems.map((item) => ({
+        icon: NAVIGATIONS_ICON[item.name] || Home,
+        title: item.label || "",
+        variant: selectedKey === item.key ? "default" : "ghost",
+        href: item.route || "/",
+      }))}
+    />
   );
 };

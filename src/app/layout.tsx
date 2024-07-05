@@ -8,6 +8,7 @@ import React, { Suspense } from "react";
 import { authProvider } from "@providers/auth-provider";
 import { dataProvider } from "@providers/data-provider";
 import "@styles/global.css";
+import { Home, Users } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Refine",
@@ -40,17 +41,15 @@ export default function RootLayout({
                     edit: "/blog-posts/edit/:id",
                     show: "/blog-posts/show/:id",
                     meta: {
+                      label: "Blog Posts",
                       canDelete: true,
                     },
                   },
                   {
-                    name: "categories",
-                    list: "/categories",
-                    create: "/categories/create",
-                    edit: "/categories/edit/:id",
-                    show: "/categories/show/:id",
+                    name: "accounts",
+                    list: "/accounts",
                     meta: {
-                      canDelete: true,
+                      label: "Accounts",
                     },
                   },
                 ]}

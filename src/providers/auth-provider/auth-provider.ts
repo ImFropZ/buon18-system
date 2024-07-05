@@ -67,7 +67,7 @@ export const authProvider: AuthProvider = {
     if (auth) {
       const profile = await fetch(process.env.NEXT_PUBLIC_API_URL + "/me")
         .then((res) => res.json())
-        .then((data: Response<Me>) => data.data)
+        .then((data: Response<{ user: Me }>) => data.data)
         .catch((err) => {
           console.error("GET PERMISSIONS:" + err);
         });
@@ -76,7 +76,7 @@ export const authProvider: AuthProvider = {
         return null;
       }
 
-      return profile.role;
+      return profile.user.role;
     }
     return null;
   },

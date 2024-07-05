@@ -1,22 +1,18 @@
 "use client";
 
-import { useNavigation } from "@refinedev/core";
+import { Account } from "@models/account";
+import { useMany, useNavigation } from "@refinedev/core";
 import { useTable } from "@refinedev/react-table";
 import { ColumnDef, flexRender } from "@tanstack/react-table";
 import React from "react";
 
-export default function CategoryList() {
+export default function BlogPostList() {
   const columns = React.useMemo<ColumnDef<any>[]>(
     () => [
       {
         id: "id",
         accessorKey: "id",
         header: "ID",
-      },
-      {
-        id: "title",
-        accessorKey: "title",
-        header: "Title",
       },
       {
         id: "actions",
@@ -34,17 +30,10 @@ export default function CategoryList() {
             >
               <button
                 onClick={() => {
-                  show("categories", getValue() as string);
+                  show("blog_posts", getValue() as string);
                 }}
               >
                 Show
-              </button>
-              <button
-                onClick={() => {
-                  edit("categories", getValue() as string);
-                }}
-              >
-                Edit
               </button>
             </div>
           );
@@ -54,12 +43,15 @@ export default function CategoryList() {
     [],
   );
 
-  const { edit, show, create } = useNavigation();
+  const { show, create } = useNavigation();
 
   const {
     getHeaderGroups,
     getRowModel,
     setOptions,
+    refineCore: {
+      tableQueryResult: { data: tableData },
+    },
     getState,
     setPageIndex,
     getCanPreviousPage,
@@ -72,10 +64,20 @@ export default function CategoryList() {
     columns,
   });
 
+  const { data: accountData } = useMany<Account>({
+    resource: "accounts",
+    ids:
+      tableData?.data?.map((item) => item?.category?.id).filter(Boolean) ?? [],
+    queryOptions: {
+      enabled: !!tableData?.data,
+    },
+  });
+
   setOptions((prev) => ({
     ...prev,
     meta: {
       ...prev.meta,
+      accountData,
     },
   }));
 
@@ -88,8 +90,8 @@ export default function CategoryList() {
           justifyContent: "space-between",
         }}
       >
-        <h1>List</h1>
-        <button onClick={() => create("categories")}>Create</button>
+        <h1>{"List"}</h1>
+        <button onClick={() => create("blog_posts")}>{"Create"}</button>
       </div>
       <div style={{ maxWidth: "100%", overflowY: "scroll" }}>
         <table>
@@ -147,7 +149,7 @@ export default function CategoryList() {
           </strong>
         </span>
         <span>
-          | Go:{" "}
+          | {"Go"}:{" "}
           <input
             type="number"
             defaultValue={getState().pagination.pageIndex + 1}
@@ -165,7 +167,7 @@ export default function CategoryList() {
         >
           {[10, 20, 30, 40, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
-              Show {pageSize}
+              {"Show"} {pageSize}
             </option>
           ))}
         </select>
