@@ -21,6 +21,10 @@ export function AuthPage() {
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(LoginFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   function onSubmit(data: LoginForm) {

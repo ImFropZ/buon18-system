@@ -1,6 +1,6 @@
 export interface Login {
   token: string;
-  refreshToken: string;
+  refresh_token: string;
 }
 
 export interface Me {
