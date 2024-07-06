@@ -6,7 +6,7 @@ import { useList } from "@refinedev/core";
 import React from "react";
 import { DataTable } from "@components/ui/data-table";
 
-export default function BlogPostList() {
+export default function AccountList() {
   const { data } = useList<Account>({
     resource: "accounts",
   });
