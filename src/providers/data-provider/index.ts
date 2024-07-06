@@ -1,36 +1,52 @@
 "use client";
 
 import { Response } from "@models";
-import { DataProvider } from "@refinedev/core";
+import { Account } from "@models/account";
+import { DataProvider, HttpError } from "@refinedev/core";
+import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+const axiosInstance = axios.create();
+
+axiosInstance.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        const customError: HttpError = {
+            ...error,
+            message: error.response?.data?.message,
+            statusCode: error.response?.status,
+        };
+
+        return Promise.reject(customError);
+    },
+);
 
 export const dataProvider: DataProvider = {
     getList: async function ({ resource, pagination, sorters, meta }) {
         const auth = Cookies.get("auth");
         const { token } = JSON.parse(auth || "{}");
 
-        const resources = await fetch(`${API_URL}/${resource}`, {
-            method: "GET",
+        if (!token) {
+            return {
+                data: [],
+                total: 0,
+            };
+        }
+
+        const result = await axiosInstance.get<Response<{ "total": number, "accounts": Account[] }>>(`${API_URL}/${resource}`, {
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
             },
-        })
-            .then((res) => res.json())
-            .then((data) => data.data)
-            .catch((err) => {
-                return {
-                    total: 0,
-                    data: [] as any[],
-                };
-            })
+        }).then((response) => response.data);
 
         return {
-            data: resources[resource] || [],
-            total: resources.total || 0,
-        };
+            data: result.data.accounts || [],
+            total: result.data.total || 0,
+        } as any;
     },
     create: async function ({ resource, variables, meta }) {
         throw new Error("Method not implemented.");
