@@ -34,6 +34,7 @@ export const Layout: React.FC<LayoutProps> = ({
         defaultSize={defaultLayout[0] || 8}
         minSize={7}
         maxSize={10}
+        className="min-w-14"
         collapsible
         collapsedSize={3}
         onCollapse={() => {
@@ -49,9 +50,9 @@ export const Layout: React.FC<LayoutProps> = ({
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel defaultSize={defaultLayout[1] || 92}>
-        <div>
+        <div className="flex h-full flex-col">
           <Breadcrumb />
-          <div>{children}</div>
+          <div className="flex-1">{children}</div>
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
