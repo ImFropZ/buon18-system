@@ -34,9 +34,9 @@ export const Layout: React.FC<LayoutProps> = ({
         defaultSize={defaultLayout[0] || 8}
         minSize={7}
         maxSize={10}
-        className="min-w-14"
+        className="min-w-12"
         collapsible
-        collapsedSize={3}
+        collapsedSize={2}
         onCollapse={() => {
           setIsCollapsed(true);
           document.cookie = "nav:collapse=true";
