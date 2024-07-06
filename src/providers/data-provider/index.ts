@@ -58,7 +58,25 @@ export const dataProvider: DataProvider = {
         throw new Error("Method not implemented.");
     },
     getOne: async function ({ resource, id, meta }) {
-        throw new Error("Method not implemented.");
+        const auth = Cookies.get("auth");
+        const { token } = JSON.parse(auth || "{}");
+
+        if (!token) {
+            return {
+                data: [],
+                total: 0,
+            };
+        }
+
+        const result = await axiosInstance.get<Response<{ "total": number, "account": Account }>>(`${API_URL}/${resource}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then((response) => response.data);
+
+        return {
+            data: result.data.account
+        } as any;
     },
     getApiUrl: function () { return API_URL; },
 } 
