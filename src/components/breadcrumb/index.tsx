@@ -1,24 +1,35 @@
 "use client";
 
+import {
+  Breadcrumb as Bc,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { useBreadcrumb } from "@refinedev/core";
-import Link from "next/link";
+import React from "react";
 
-export const Breadcrumb = () => {
+export function Breadcrumb() {
   const { breadcrumbs } = useBreadcrumb();
+  const size = breadcrumbs.length;
 
   return (
-    <ul className="breadcrumb">
-      {breadcrumbs.map((breadcrumb) => {
-        return (
-          <li key={`breadcrumb-${breadcrumb.label}`}>
-            {breadcrumb.href ? (
-              <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
-            ) : (
-              <span>{breadcrumb.label}</span>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+    <Bc className="p-2">
+      <BreadcrumbList>
+        {breadcrumbs.map((breadcrumb, i) => {
+          return (
+            <React.Fragment key={i}>
+              <BreadcrumbItem>
+                <BreadcrumbLink href={breadcrumb.href}>
+                  {breadcrumb.label}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              {size - 1 == i ? null : <BreadcrumbSeparator />}
+            </React.Fragment>
+          );
+        })}
+      </BreadcrumbList>
+    </Bc>
   );
-};
+}
