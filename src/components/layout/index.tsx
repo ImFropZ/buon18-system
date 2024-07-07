@@ -55,7 +55,7 @@ export const Layout: React.FC<LayoutProps> = ({
           <ResizablePanel defaultSize={defaultLayout[1] || 92}>
             <div className="flex h-full flex-col">
               <Breadcrumb />
-              <div className="flex-1 p-2">{children}</div>
+              <div className="flex-1 px-2">{children}</div>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>

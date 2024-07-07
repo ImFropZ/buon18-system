@@ -5,9 +5,9 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useBreadcrumb } from "@refinedev/core";
+import { ChevronRight } from "lucide-react";
 import React from "react";
 
 export function Breadcrumb() {
@@ -15,17 +15,19 @@ export function Breadcrumb() {
   const size = breadcrumbs.length;
 
   return (
-    <Bc className="p-2">
+    <Bc className="px-4 py-2">
       <BreadcrumbList>
         {breadcrumbs.map((breadcrumb, i) => {
           return (
             <React.Fragment key={i}>
-              <BreadcrumbItem>
+              <BreadcrumbItem className="text-base">
                 <BreadcrumbLink href={breadcrumb.href}>
                   {breadcrumb.label}
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              {size - 1 == i ? null : <BreadcrumbSeparator />}
+              {size - 1 == i ? null : (
+                <ChevronRight className="relative translate-y-[2px]" />
+              )}
             </React.Fragment>
           );
         })}
