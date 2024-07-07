@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@components/ui/button";
 import { Account } from "@models/account";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit, Eye } from "lucide-react";
@@ -34,20 +33,24 @@ export function columns({ show, edit }: AccountColumnProps) {
 
         return (
           <div className="flex justify-center gap-2">
-            <Button
-              variant={"outline"}
+            <button
               onClick={show ? () => show(id) : () => {}}
-              className="h-auto px-1 py-1"
+              className="group/button h-auto rounded px-2 py-[1px] outline outline-[1px] outline-primary/50 hover:outline-primary"
             >
-              <Eye size={16} />
-            </Button>
-            <Button
-              variant={"outline"}
+              <Eye
+                size={18}
+                className="text-primary/50 group-hover/button:text-primary"
+              />
+            </button>
+            <button
               onClick={edit ? () => edit(id) : () => {}}
-              className="h-auto px-1 py-1"
+              className="group/button h-auto rounded px-2 py-[1px] outline outline-[1px] outline-primary/50 hover:outline-primary"
             >
-              <Edit size={16} />
-            </Button>
+              <Edit
+                size={18}
+                className="text-primary/50 group-hover/button:text-primary"
+              />
+            </button>
           </div>
         );
       },

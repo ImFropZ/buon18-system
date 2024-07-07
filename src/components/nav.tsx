@@ -24,9 +24,9 @@ export function Nav({ links, isCollapsed }: NavProps) {
   return (
     <div
       data-collapsed={isCollapsed}
-      className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2"
+      className="group flex h-full flex-col gap-4 py-2 data-[collapsed=true]:py-2"
     >
-      <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+      <nav className="flex h-full flex-col gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
         {links.map((link, index) =>
           isCollapsed ? (
             <Link
@@ -72,9 +72,9 @@ export function Nav({ links, isCollapsed }: NavProps) {
         {isCollapsed ? (
           <Button
             onClick={() => logout()}
-            className="h-9 w-9"
+            className="mt-auto h-9 w-9"
             size={"icon"}
-            variant={"ghost"}
+            variant={"outline"}
           >
             <LogOut className="h-4 w-4" />
             <span className="sr-only">Logout</span>
@@ -82,9 +82,9 @@ export function Nav({ links, isCollapsed }: NavProps) {
         ) : (
           <Button
             onClick={() => logout()}
-            variant={"ghost"}
+            variant={"outline"}
             size={"sm"}
-            className="justify-start"
+            className="mt-auto justify-start"
           >
             <LogOut className="mr-2 h-4 w-4" />
             Logout
