@@ -1,6 +1,6 @@
 "use client";
 
-import { Nav } from "@components/nav";
+import { Nav } from "@components/Nav";
 import { NAVIGATIONS_ICON } from "@data/navigation";
 import { useMenu } from "@refinedev/core";
 import { Home } from "lucide-react";
