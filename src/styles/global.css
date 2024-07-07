@@ -7,6 +7,11 @@
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
+    --background-hex: #ffffff;
+    --background-hex-0: #ffffff00;
+    --foreground-hex: #1a202c;
+    --foreground-hex-0: #1a202c00;
+
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
 
@@ -38,6 +43,11 @@
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
+
+    --background-hex: #1a202c;
+    --background-hex-0: #1a202c00;
+    --foreground-hex: #ffffff;
+    --foreground-hex-0: #ffffff00;
 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -72,5 +82,34 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  .loader {
+    width: 90px;
+    height: 14px;
+    --c: var(--foreground-hex) 92%, var(--foreground-hex-0);
+    background:
+      radial-gradient(circle closest-side, var(--c)) calc(100% / -4) 0,
+      radial-gradient(circle closest-side, var(--c)) calc(100% / 4) 0;
+    background-size: calc(100% / 2) 100%;
+    animation: l14 1.5s infinite;
+  }
+}
+
+@keyframes l14 {
+  0% {
+    background-position:
+      calc(100% / -4) 0,
+      calc(100% / 4) 0;
+  }
+  50% {
+    background-position:
+      calc(100% / -4) -14px,
+      calc(100% / 4) 14px;
+  }
+  100% {
+    background-position:
+      calc(100% / 4) -14px,
+      calc(3 * 100% / 4) 14px;
   }
 }

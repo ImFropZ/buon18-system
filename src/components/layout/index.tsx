@@ -23,38 +23,43 @@ export const Layout: React.FC<LayoutProps> = ({
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapse);
 
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      className="fixed inset-0 rounded-lg border"
-      onLayout={(sizes: number[]) => {
-        document.cookie = `nav:layout=${JSON.stringify(sizes)}`;
-      }}
-    >
-      <ResizablePanel
-        defaultSize={defaultLayout[0] || 8}
-        minSize={7}
-        maxSize={10}
-        className="min-w-12"
-        collapsible
-        collapsedSize={2}
-        onCollapse={() => {
-          setIsCollapsed(true);
-          document.cookie = "nav:collapse=true";
-        }}
-        onExpand={() => {
-          setIsCollapsed(false);
-          document.cookie = "nav:collapse=false";
-        }}
-      >
-        <Menu isCollapsed={isCollapsed} />
-      </ResizablePanel>
-      <ResizableHandle />
-      <ResizablePanel defaultSize={defaultLayout[1] || 92}>
-        <div className="flex h-full flex-col">
-          <Breadcrumb />
-          <div className="flex-1">{children}</div>
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+    <div className="fixed inset-0 grid grid-rows-[auto,1fr]">
+      <div className="p-2">Logo</div>
+      <div className="relative h-full">
+        <ResizablePanelGroup
+          direction="horizontal"
+          className="absolute inset-0 rounded-lg border"
+          onLayout={(sizes: number[]) => {
+            document.cookie = `nav:layout=${JSON.stringify(sizes)}`;
+          }}
+        >
+          <ResizablePanel
+            defaultSize={defaultLayout[0] || 8}
+            minSize={7}
+            maxSize={10}
+            className="min-w-12"
+            collapsible
+            collapsedSize={2}
+            onCollapse={() => {
+              setIsCollapsed(true);
+              document.cookie = "nav:collapse=true";
+            }}
+            onExpand={() => {
+              setIsCollapsed(false);
+              document.cookie = "nav:collapse=false";
+            }}
+          >
+            <Menu isCollapsed={isCollapsed} />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={defaultLayout[1] || 92}>
+            <div className="flex h-full flex-col">
+              <Breadcrumb />
+              <div className="flex-1 p-2">{children}</div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+    </div>
   );
 };

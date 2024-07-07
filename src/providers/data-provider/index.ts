@@ -68,14 +68,19 @@ export const dataProvider: DataProvider = {
             };
         }
 
-        const result = await axiosInstance.get<Response<{ "total": number, "account": Account }>>(`${API_URL}/${resource}/${id}`, {
+        const result = await axiosInstance.get<Response<{ [key in string]: object }>>(`${API_URL}/${resource}/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         }).then((response) => response.data);
 
+        // Remove the last character from the resource name ussuallly 's'
+        const tmpResource = resource.split("");
+        tmpResource.pop();
+        resource = tmpResource.join("");
+
         return {
-            data: result.data.account
+            data: result.data[resource] || {} // Remove the last character from the resource name ussuallly 's'
         } as any;
     },
     getApiUrl: function () { return API_URL; },

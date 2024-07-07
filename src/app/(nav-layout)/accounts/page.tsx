@@ -2,18 +2,35 @@
 
 import { Account } from "@models/account";
 import { columns } from "@components/table/accounts/columns";
-import { useList } from "@refinedev/core";
+import { useList, useNavigation } from "@refinedev/core";
 import React from "react";
 import { DataTable } from "@components/ui/data-table";
 
 export default function AccountList() {
-  const { data } = useList<Account>({
+  const { show, edit } = useNavigation();
+  const { data, isLoading } = useList<Account>({
     resource: "accounts",
   });
 
   return (
-    <div className="mx-auto px-2">
-      <DataTable columns={columns({})} data={data?.data || []} />
+    <div className="mx-auto">
+      {isLoading ? (
+        <div className="grid place-content-center pt-10">
+          <div className="loader"></div>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns({
+            show: (id) => {
+              show("accounts", id);
+            },
+            edit: (id) => {
+              edit("accounts", id);
+            },
+          })}
+          data={data?.data || []}
+        />
+      )}
     </div>
   );
 }

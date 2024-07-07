@@ -6,8 +6,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Edit, Eye } from "lucide-react";
 
 interface AccountColumnProps {
-  show?: () => void;
-  edit?: () => void;
+  show?: (id: string | number) => void;
+  edit?: (id: string | number) => void;
 }
 
 export function columns({ show, edit }: AccountColumnProps) {
@@ -29,19 +29,21 @@ export function columns({ show, edit }: AccountColumnProps) {
       header: () => {
         return <div className="w-full text-center">Action</div>;
       },
-      cell: () => {
+      cell: ({ row }) => {
+        const { id } = row.original;
+
         return (
           <div className="flex justify-center gap-2">
             <Button
               variant={"outline"}
-              onClick={show}
+              onClick={show ? () => show(id) : () => {}}
               className="h-auto px-1 py-1"
             >
               <Eye size={16} />
             </Button>
             <Button
               variant={"outline"}
-              onClick={edit}
+              onClick={edit ? () => edit(id) : () => {}}
               className="h-auto px-1 py-1"
             >
               <Edit size={16} />
