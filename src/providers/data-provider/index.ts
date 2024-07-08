@@ -52,7 +52,27 @@ export const dataProvider: DataProvider = {
         throw new Error("Method not implemented.");
     },
     update: async function ({ resource, id, variables, meta }) {
-        throw new Error("Method not implemented.");
+        const auth = Cookies.get("auth");
+        const { token } = JSON.parse(auth || "{}");
+
+        if (!token) {
+            return {
+                data: [],
+                total: 0,
+            };
+        }
+
+        await axiosInstance.patch<Response<{ [key in string]: object }>>(`${API_URL}/${resource}/${id}`, variables, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then((response) => response.data);
+
+        const { data } = await this.getOne({ resource, id, meta })
+
+        return {
+            data,
+        } as any;
     },
     deleteOne: async function ({ resource, id, variables, meta }) {
         throw new Error("Method not implemented.");

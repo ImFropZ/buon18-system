@@ -4,7 +4,7 @@ import { SocialMedia } from "@components";
 import { Button } from "@components/ui/button";
 import { Account } from "@models/account";
 import { useNavigation, useOne } from "@refinedev/core";
-import { ArrowLeft, List } from "lucide-react";
+import { Edit, List } from "lucide-react";
 
 import React from "react";
 
@@ -14,7 +14,7 @@ const AccountShow = ({ params }: { params: { id: string } }) => {
     id: params.id,
   });
 
-  const { list, goBack } = useNavigation();
+  const { list, edit } = useNavigation();
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden rounded-lg px-1 pb-2">
@@ -22,17 +22,17 @@ const AccountShow = ({ params }: { params: { id: string } }) => {
         <Button
           size={"icon"}
           variant={"outline"}
-          onClick={() => goBack()}
+          onClick={() => list("accounts")}
         >
-          <ArrowLeft />
+          <List />
         </Button>
         <Button
           size={"icon"}
           variant={"outline"}
-          onClick={() => list("accounts")}
+          onClick={() => edit("accounts", params.id)}
           className="ml-auto"
         >
-          <List />
+          <Edit />
         </Button>
       </div>
       {isLoading ? (

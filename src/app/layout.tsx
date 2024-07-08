@@ -38,6 +38,7 @@ export default function RootLayout({
                     name: "accounts",
                     list: "/accounts",
                     show: "/accounts/show/:id",
+                    edit: "/accounts/edit/:id",
                     meta: {
                       label: "Accounts",
                     },
