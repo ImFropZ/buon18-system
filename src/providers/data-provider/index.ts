@@ -27,15 +27,7 @@ axiosInstance.interceptors.response.use(
 
 export const dataProvider: DataProvider = {
     getList: async function ({ resource, pagination, sorters, meta }) {
-        const auth = Cookies.get("auth");
-        const { token } = JSON.parse(auth || "{}");
-
-        if (!token) {
-            return {
-                data: [],
-                total: 0,
-            };
-        }
+        const token = getAuthCookie();
 
         const result = await axiosInstance.get<Response<{ "total": number, "accounts": Account[] }>>(`${API_URL}/${resource}`, {
             headers: {
@@ -49,18 +41,23 @@ export const dataProvider: DataProvider = {
         } as any;
     },
     create: async function ({ resource, variables, meta }) {
-        throw new Error("Method not implemented.");
+        const token = getAuthCookie();
+
+        await axiosInstance.post<Response<{ [key in string]: object }>>(`${API_URL}/${resource}`, variables, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then((response) => response.data);
+
+        const { data, total } = await this.getList({ resource, meta });
+
+        return {
+            data,
+            total
+        } as any;
     },
     update: async function ({ resource, id, variables, meta }) {
-        const auth = Cookies.get("auth");
-        const { token } = JSON.parse(auth || "{}");
-
-        if (!token) {
-            return {
-                data: [],
-                total: 0,
-            };
-        }
+        const token = getAuthCookie();
 
         await axiosInstance.patch<Response<{ [key in string]: object }>>(`${API_URL}/${resource}/${id}`, variables, {
             headers: {
@@ -104,4 +101,18 @@ export const dataProvider: DataProvider = {
         } as any;
     },
     getApiUrl: function () { return API_URL; },
-} 
+}
+
+function getAuthCookie() {
+    const auth = Cookies.get("auth");
+    const { token } = JSON.parse(auth || "{}");
+
+    if (!token) {
+        return {
+            data: [],
+            total: 0,
+        };
+    }
+
+    return token;
+}

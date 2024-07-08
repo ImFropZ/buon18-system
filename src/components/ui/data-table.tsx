@@ -6,7 +6,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
 import {
   Table,
   TableBody,
@@ -15,6 +14,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "./button";
+import { Plus } from "lucide-react";
+import { CustomTooltip } from "@components/CustomTooltip";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -24,7 +26,8 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+  create,
+}: DataTableProps<TData, TValue> & { create: () => void }) {
   const table = useReactTable({
     data,
     columns,
@@ -32,8 +35,20 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <div>
+      <div className="mb-2 flex">
+        <CustomTooltip content={<p>Create</p>}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={create}
+            className="ml-auto"
+          >
+            <Plus />
+          </Button>
+        </CustomTooltip>
+      </div>
+      <Table className="border">
         <TableHeader className="relative">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="flex w-full">

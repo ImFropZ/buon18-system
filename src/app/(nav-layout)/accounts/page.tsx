@@ -7,7 +7,7 @@ import React from "react";
 import { DataTable } from "@components/ui/data-table";
 
 export default function AccountList() {
-  const { show, edit } = useNavigation();
+  const { show, edit, create } = useNavigation();
   const { data, isLoading } = useList<Account>({
     resource: "accounts",
   });
@@ -20,6 +20,9 @@ export default function AccountList() {
         </div>
       ) : (
         <DataTable
+          create={() => {
+            create("accounts");
+          }}
           columns={columns({
             show: (id) => {
               show("accounts", id);
