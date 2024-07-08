@@ -1,23 +1,8 @@
 "use client";
 
 import { Button } from "@components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@components/ui/form";
+import { Form, FormField } from "@components/ui/form";
 import { Input } from "@components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@components/ui/select";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Account, AccountEditSchema } from "@models/account";
@@ -26,6 +11,8 @@ import { Check, Eye, List, Plus, Trash2, Undo2 } from "lucide-react";
 import { SocialMedia as SheetSocialMedia } from "@components/sheet/SocialMedia";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { InputFormField, SelectFormField } from "@components/form";
+import { CustomTooltip } from "@components";
 
 const AccountEdit = ({ params }: { params: { id: string } }) => {
   const { mutate } = useUpdate<Account>();
@@ -51,7 +38,10 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
       {
         id: params.id,
         resource: "accounts",
-        values: data,
+        values: {
+          ...data,
+          delete_social_media_ids: socialMediaDeleteIds,
+        },
       },
       {
         onSuccess: () => show("accounts", params.id),
@@ -63,36 +53,41 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
     <Sheet>
       <Form {...form}>
         <form
-          onError={(err) => console.log(err)}
           onSubmit={form.handleSubmit(onSubmit)}
           className="relative flex h-full flex-col overflow-hidden rounded-lg px-1 pb-2"
         >
           <div className="flex gap-2">
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              onClick={() => list("accounts")}
-            >
-              <List />
-            </Button>
-            <Button
-              type="button"
-              size="icon"
-              variant="outline"
-              onClick={() => show("accounts", params.id)}
-              className="ml-auto"
-            >
-              <Eye />
-            </Button>
-            <Button
-              type="submit"
-              size="icon"
-              variant="outline"
-              className="hover:bg-green-500 hover:text-secondary"
-            >
-              <Check />
-            </Button>
+            <CustomTooltip content={<p>Account List</p>}>
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                onClick={() => list("accounts")}
+              >
+                <List />
+              </Button>
+            </CustomTooltip>
+            <CustomTooltip content={<p>View Account</p>}>
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                onClick={() => show("accounts", params.id)}
+                className="ml-auto"
+              >
+                <Eye />
+              </Button>
+            </CustomTooltip>
+            <CustomTooltip content={<p>Confirm</p>}>
+              <Button
+                type="submit"
+                size="icon"
+                variant="outline"
+                className="hover:bg-green-500 hover:text-secondary"
+              >
+                <Check />
+              </Button>
+            </CustomTooltip>
           </div>
           {isLoading ? (
             <div className="grid place-content-center pt-10">
@@ -107,16 +102,11 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                     control={form.control}
                     name="code"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="text-primary"
-                            defaultValue={data?.data.code || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <InputFormField
+                        field={field}
+                        defaultValue={data?.data.code || ""}
+                        errorField={form.formState.errors.code}
+                      />
                     )}
                   />
                 </div>
@@ -129,16 +119,11 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                       control={form.control}
                       name="name"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="text-primary"
-                              defaultValue={data?.data.name || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        <InputFormField
+                          field={field}
+                          defaultValue={data?.data.name || ""}
+                          errorField={form.formState.errors.name}
+                        />
                       )}
                     />
                   </div>
@@ -152,27 +137,18 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                       control={form.control}
                       name="gender"
                       render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={data?.data.gender}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Pick your gender" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Gender</SelectLabel>
-                                <SelectItem value="M">Male</SelectItem>
-                                <SelectItem value="F">Female</SelectItem>
-                                <SelectItem value="U">Unknown</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
+                        <SelectFormField
+                          field={field}
+                          errorField={form.formState.errors.gender}
+                          options={[
+                            { label: "Male", value: "M" },
+                            { label: "Female", value: "F" },
+                            { label: "Unknown", value: "U" },
+                          ]}
+                          placeholderSelect="Pick your gender"
+                          defaultSelectedValue={data?.data.gender}
+                          groupLabel="Gender"
+                        />
                       )}
                     />
                   </div>
@@ -186,17 +162,12 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                       control={form.control}
                       name="email"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="text-primary"
-                              defaultValue={data?.data.email || ""}
-                              placeholder="No Email"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        <InputFormField
+                          field={field}
+                          defaultValue={data?.data.email || ""}
+                          errorField={form.formState.errors.email}
+                          placeholder="No Email"
+                        />
                       )}
                     />
                   </div>
@@ -210,17 +181,12 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                       control={form.control}
                       name="address"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="text-primary"
-                              defaultValue={data?.data.address || ""}
-                              placeholder="No Address"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        <InputFormField
+                          field={field}
+                          defaultValue={data?.data.address || ""}
+                          errorField={form.formState.errors.address}
+                          placeholder="No Address"
+                        />
                       )}
                     />
                   </div>
@@ -234,16 +200,11 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                       control={form.control}
                       name="phone"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="text-primary"
-                              defaultValue={data?.data.phone || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        <InputFormField
+                          field={field}
+                          defaultValue={data?.data.phone || ""}
+                          errorField={form.formState.errors.phone}
+                        />
                       )}
                     />
                   </div>
@@ -257,17 +218,12 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                       control={form.control}
                       name="secondary_phone"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="text-primary"
-                              defaultValue={data?.data.secondary_phone || ""}
-                              placeholder="No Secondary Phone"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        <InputFormField
+                          field={field}
+                          defaultValue={data?.data.secondary_phone || ""}
+                          errorField={form.formState.errors.secondary_phone}
+                          placeholder="No Secondary Phone"
+                        />
                       )}
                     />
                   </div>
@@ -342,6 +298,7 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                       />
                       {socialMediaDeleteIds.includes(Number(socialMedia.id)) ? (
                         <Button
+                          type="button"
                           size="icon"
                           className="aspect-square"
                           variant="ghost"
@@ -359,6 +316,7 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                         </Button>
                       ) : (
                         <Button
+                          type="button"
                           size="icon"
                           className="aspect-square"
                           variant="destructive"
@@ -401,6 +359,7 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                           defaultValue={socialMedia.url || ""}
                         />
                         <Button
+                          type="button"
                           size="icon"
                           className="aspect-square"
                           variant="destructive"
