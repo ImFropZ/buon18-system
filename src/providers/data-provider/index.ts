@@ -72,18 +72,27 @@ export const dataProvider: DataProvider = {
         } as any;
     },
     deleteOne: async function ({ resource, id, variables, meta }) {
-        throw new Error("Method not implemented.");
+        const token = getAuthCookie();
+
+        const response = await axiosInstance.delete<Response<{ [key in string]: object }>>(`${API_URL}/${resource}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status !== 200) {
+            throw new Error("Failed to delete the account");
+        }
+
+        const { data, total } = await this.getList({ resource, meta });
+
+        return {
+            data,
+            total
+        } as any;
     },
     getOne: async function ({ resource, id, meta }) {
-        const auth = Cookies.get("auth");
-        const { token } = JSON.parse(auth || "{}");
-
-        if (!token) {
-            return {
-                data: [],
-                total: 0,
-            };
-        }
+        const token = getAuthCookie();
 
         const result = await axiosInstance.get<Response<{ [key in string]: object }>>(`${API_URL}/${resource}/${id}`, {
             headers: {

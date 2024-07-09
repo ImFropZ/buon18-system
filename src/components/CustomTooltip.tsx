@@ -9,14 +9,14 @@ import React from "react";
 
 interface CustomTooltipProps {
   children: React.ReactNode;
-  content: React.ReactNode;
+  content: string;
 }
 
 export function CustomTooltip({ children, content }: CustomTooltipProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent asChild>{content}</TooltipContent>
+      <TooltipContent>{content}</TooltipContent>
     </Tooltip>
   );
 }

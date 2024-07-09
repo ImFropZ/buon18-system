@@ -37,7 +37,7 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="mb-2 flex">
-        <CustomTooltip content={<p>Create</p>}>
+        <CustomTooltip content="Create">
           <Button
             variant="outline"
             size="icon"

@@ -57,7 +57,7 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
           className="relative flex h-full flex-col overflow-hidden rounded-lg px-1 pb-2"
         >
           <div className="flex gap-2">
-            <CustomTooltip content={<p>Account List</p>}>
+            <CustomTooltip content="Account List">
               <Button
                 type="button"
                 size="icon"
@@ -67,7 +67,7 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                 <List />
               </Button>
             </CustomTooltip>
-            <CustomTooltip content={<p>View Account</p>}>
+            <CustomTooltip content="View Account">
               <Button
                 type="button"
                 size="icon"
@@ -78,7 +78,7 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                 <Eye />
               </Button>
             </CustomTooltip>
-            <CustomTooltip content={<p>Confirm</p>}>
+            <CustomTooltip content="Confirm">
               <Button
                 type="submit"
                 size="icon"
