@@ -33,6 +33,9 @@ export const dataProvider: DataProvider = {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
+            params: {
+                ...(meta?.filters?.q ? { q: meta?.filters?.q } : {}),
+            }
         }).then((response) => response.data);
 
         return {
