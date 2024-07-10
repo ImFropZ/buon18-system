@@ -1,7 +1,6 @@
 "use client";
 
 import { Response } from "@models";
-import { Account } from "@models/account";
 import { DataProvider } from "@refinedev/core";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -40,12 +39,9 @@ axiosInstance.interceptors.request.use(async req => {
             return Promise.reject("Unauthorized");
         }
 
-        const { token: newToken, refresh_token } = result.data.data;
-
-        console.log(newToken, refreshToken)
+        const { token: newToken } = result.data.data;
 
         Cookies.set("auth", JSON.stringify({ token: newToken }), { path: "/" });
-        localStorage.setItem("refresh-token", refresh_token);
 
         req.headers.Authorization = `Bearer ${newToken}`;
     }
@@ -63,7 +59,7 @@ export const dataProvider: DataProvider = {
     getList: async function ({ resource, pagination, sorters, meta }) {
         const token = getAuthCookie();
 
-        const result = await axiosInstance.get<Response<{ "total": number, "accounts": Account[] }>>(`/${resource}`, {
+        const result = await axiosInstance.get<Response<{ "total": number } & { [x in string]: any[] }>>(`/${resource}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -74,18 +70,18 @@ export const dataProvider: DataProvider = {
         }).then((response) => response.data);
 
         return {
-            data: result.data.accounts || [],
+            data: result.data[resource] || [],
             total: result.data.total || 0,
         } as any;
     },
     create: async function ({ resource, variables, meta }) {
         const token = getAuthCookie();
 
-        await axiosInstance.post<Response<{ [key in string]: object }>>(`/${resource}`, variables, {
+        await axiosInstance.post<Response<null>>(`/${resource}`, variables, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
-        }).then((response) => response.data);
+        });
 
         const { data, total } = await this.getList({ resource, meta });
 
@@ -97,11 +93,11 @@ export const dataProvider: DataProvider = {
     update: async function ({ resource, id, variables, meta }) {
         const token = getAuthCookie();
 
-        await axiosInstance.patch<Response<{ [key in string]: object }>>(`/${resource}/${id}`, variables, {
+        await axiosInstance.patch<Response<null>>(`/${resource}/${id}`, variables, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
-        }).then((response) => response.data);
+        });
 
         const { data } = await this.getOne({ resource, id, meta })
 
@@ -112,7 +108,7 @@ export const dataProvider: DataProvider = {
     deleteOne: async function ({ resource, id, variables, meta }) {
         const token = getAuthCookie();
 
-        const response = await axiosInstance.delete<Response<{ [key in string]: object }>>(`/${resource}/${id}`, {
+        const response = await axiosInstance.delete<null>(`/${resource}/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
