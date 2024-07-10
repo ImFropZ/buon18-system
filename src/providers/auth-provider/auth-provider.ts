@@ -100,38 +100,8 @@ export const authProvider: AuthProvider = {
     return null;
   },
   onError: async (error) => {
-    const refreshToken = localStorage.getItem("refresh-token");
-    const auth = Cookies.get("auth") || "";
-    const { token } = JSON.parse(auth);
-
-    if (!token) {
-      return { logout: true };
+    return {
+      logout: true,
     }
-
-    if (error.response?.status === 401) {
-      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/refresh", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      }).then(res => res.json())
-
-      if (response.code > 399) {
-        return { logout: true };
-      }
-
-      const { token: newToken } = response.data;
-
-      Cookies.set("auth", JSON.stringify({ token: newToken }), { path: "/" });
-
-      // NOTED: using browser reload is not a good practice but it's the only way to refresh page and use new token with api
-      window.location.reload();
-
-      return {};
-    }
-
-    return { error };
   },
 };
