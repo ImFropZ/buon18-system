@@ -10,13 +10,34 @@ import { Button } from "@components/ui/button";
 import { CustomTooltip } from "@components";
 import { Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@components/ui/pagination";
+import { usePagination } from "@hooks/usePagination";
 
 export default function AccountList() {
   const searchParams = useSearchParams();
+
   const [query, setQuery] = React.useState(searchParams.get("q") || "");
+  const [limit, setLimit] = React.useState(
+    Number(searchParams.get("limit")) || 10,
+  );
+  const [offset, setOffset] = React.useState(
+    Number(searchParams.get("offset")) || 0,
+  );
+
   const { show, edit, create, list } = useNavigation();
   const { data, isLoading, refetch } = useList<Account>({
     resource: "accounts",
+    pagination: {
+      pageSize: limit,
+      current: offset / limit + 1,
+    },
     meta: {
       filters: {
         q: query,
@@ -25,6 +46,22 @@ export default function AccountList() {
   });
   const { mutate } = useDelete();
   const router = useRouter();
+  const { currentPage, back, next, go } = usePagination({
+    page: offset / limit + 1,
+    pageSize: limit,
+    totalItems: data?.total || 100,
+    onChange: (pageNumber, { pageSize }) => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("limit", pageSize.toString());
+      url.searchParams.set("offset", (pageSize * (pageNumber - 1)).toString());
+      router.push(url.toString());
+
+      setLimit(() => pageSize);
+      setOffset(() => pageSize * (pageNumber - 1));
+
+      refetch();
+    },
+  });
 
   return (
     <div className="mx-auto">
@@ -46,8 +83,11 @@ export default function AccountList() {
             <Button
               onClick={() => {
                 const url = new URL(window.location.href);
+                url.searchParams.set("offset", "0");
                 url.searchParams.set("q", query);
                 router.push(url.toString());
+                go(1);
+
                 refetch();
               }}
             >
@@ -90,6 +130,29 @@ export default function AccountList() {
             })}
             data={data?.data || []}
           />
+          <Pagination className="mt-3 flex justify-end">
+            <PaginationContent>
+              <PaginationItem
+                onClick={() => {
+                  back();
+                }}
+              >
+                <PaginationPrevious href="#" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" isActive>
+                  {currentPage}
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem
+                onClick={() => {
+                  next();
+                }}
+              >
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </>
       )}
     </div>

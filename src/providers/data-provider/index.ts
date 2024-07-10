@@ -35,6 +35,7 @@ export const dataProvider: DataProvider = {
             },
             params: {
                 ...(meta?.filters?.q ? { q: meta?.filters?.q } : {}),
+                ...(pagination ? { limit: pagination.pageSize, offset: (pagination.pageSize || 10) * ((pagination.current || 1) - 1) } : {}),
             }
         }).then((response) => response.data);
 
