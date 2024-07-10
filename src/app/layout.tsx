@@ -44,6 +44,16 @@ export default function RootLayout({
                       label: "Accounts",
                     },
                   },
+                  {
+                    name: "clients",
+                    list: "/clients",
+                    show: "/clients/show/:id",
+                    edit: "/clients/edit/:id",
+                    create: "/clients/create",
+                    meta: {
+                      label: "Clients",
+                    },
+                  },
                 ]}
                 options={{
                   syncWithLocation: true,
