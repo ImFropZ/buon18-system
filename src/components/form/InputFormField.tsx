@@ -10,21 +10,22 @@ import {
   ControllerRenderProps,
   FieldError,
   FieldErrorsImpl,
-  FieldValues,
   Merge,
 } from "react-hook-form";
+
+interface InputFormFieldProps {
+  field: ControllerRenderProps<any, string>;
+  errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
+  placeholder?: string;
+  defaultValue?: string;
+}
 
 export function InputFormField({
   field,
   errorField,
   placeholder,
   defaultValue,
-}: {
-  field: ControllerRenderProps<any, string>;
-  errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
-  placeholder?: string;
-  defaultValue?: string;
-}) {
+}: InputFormFieldProps) {
   return (
     <div className="relative">
       {errorField ? (
