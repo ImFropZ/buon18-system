@@ -8,7 +8,7 @@ import Link from "next/link";
 import React from "react";
 import type { SocialMedia } from "@models";
 
-export function SocialMedia({ id, platform, url }: SocialMedia) {
+export function SocialMedia({ platform, url }: SocialMedia) {
   return (
     <Tooltip>
       <TooltipTrigger>

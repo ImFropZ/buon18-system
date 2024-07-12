@@ -1,7 +1,7 @@
 "use client";
 
 import { Response } from "@models";
-import { DataProvider } from "@refinedev/core";
+import { DataProvider, LogicalFilter } from "@refinedev/core";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
@@ -14,7 +14,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(async req => {
     const token = getAuthCookie();
-    if (!token) {
+    if (token) {
         req.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -56,17 +56,38 @@ axiosInstance.interceptors.response.use(
 );
 
 export const dataProvider: DataProvider = {
-    getList: async function ({ resource, pagination, sorters, meta }) {
-        const token = getAuthCookie();
+    getList: async function ({ resource, pagination, filters }) {
+        const params: { [x in string]: any } = {
+            ...(pagination ? { limit: pagination.pageSize, offset: (pagination.pageSize || 10) * ((pagination.current || 1) - 1) } : {}),
+        }
+
+        filters?.forEach((filter) => {
+            if (instanceOfLogicalFilter(filter)) {
+                let op = ""
+                switch (filter.operator) {
+                    case "contains":
+                        op = "ilike";
+                        break;
+                    case "gt":
+                        op = "min";
+                        break;
+                    case "lt":
+                        op = "max";
+                        break;
+                    case "between":
+                        op = "range";
+                        break;
+                    default:
+                        break;
+                }
+                if (op) {
+                    params[`${filter.field}_${op}`] = filter.value;
+                }
+            }
+        });
 
         const result = await axiosInstance.get<Response<{ "total": number } & { [x in string]: any[] }>>(`/${resource}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            params: {
-                ...(meta?.filters?.q ? { q: meta?.filters?.q } : {}),
-                ...(pagination ? { limit: pagination.pageSize, offset: (pagination.pageSize || 10) * ((pagination.current || 1) - 1) } : {}),
-            },
+            params,
         }).then((response) => response.data);
 
         return {
@@ -105,7 +126,7 @@ export const dataProvider: DataProvider = {
             data,
         } as any;
     },
-    deleteOne: async function ({ resource, id, variables, meta }) {
+    deleteOne: async function ({ resource, id, meta }) {
         const token = getAuthCookie();
 
         const response = await axiosInstance.delete<null>(`/${resource}/${id}`, {
@@ -125,7 +146,7 @@ export const dataProvider: DataProvider = {
             total
         } as any;
     },
-    getOne: async function ({ resource, id, meta }) {
+    getOne: async function ({ resource, id }) {
         const token = getAuthCookie();
 
         const result = await axiosInstance.get<Response<{ [key in string]: object }>>(`/${resource}/${id}`, {
@@ -144,6 +165,10 @@ export const dataProvider: DataProvider = {
         } as any;
     },
     getApiUrl: function () { return API_URL; },
+}
+
+function instanceOfLogicalFilter(object: any): object is LogicalFilter {
+    return 'operator' in object;
 }
 
 function getAuthCookie() {

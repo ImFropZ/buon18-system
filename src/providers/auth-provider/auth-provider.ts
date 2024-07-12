@@ -99,7 +99,7 @@ export const authProvider: AuthProvider = {
     }
     return null;
   },
-  onError: async (error) => {
+  onError: async () => {
     return {
       logout: true,
     }
