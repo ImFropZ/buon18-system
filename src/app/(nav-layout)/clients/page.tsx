@@ -8,15 +8,21 @@ import { DataTable } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { CustomTooltip } from "@components";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { usePagination } from "@hooks/usePagination";
+import { usePagination, useDebounce } from "@hooks";
 import CustomPagination from "@components/CustomPagination";
+import { utils } from "@lib/utils";
 
 export default function ClientList() {
   const searchParams = useSearchParams();
 
-  const [query, setQuery] = React.useState(searchParams.get("q") || "");
+  const [searchName, setSearchName] = React.useState("");
+  const debouncedSearchName = useDebounce<string>({
+    value: searchName,
+    delay: utils.SEARCH_DEBOUNCE_DELAY,
+  });
+
   const [limit, setLimit] = React.useState(
     Number(searchParams.get("limit")) || 10,
   );
@@ -25,16 +31,18 @@ export default function ClientList() {
   );
 
   const { show, edit, create, list } = useNavigation();
-  const { data, isLoading, refetch } = useList<Client>({
+  const { data, isLoading } = useList<Client>({
     resource: "clients",
+    filters: [
+      {
+        field: "name",
+        operator: "contains",
+        value: debouncedSearchName,
+      },
+    ],
     pagination: {
       pageSize: limit,
       current: offset / limit + 1,
-    },
-    meta: {
-      filters: {
-        q: query,
-      },
     },
   });
   const { mutate } = useDelete();
@@ -52,24 +60,12 @@ export default function ClientList() {
           "offset",
           (pageSize * (pageNumber - 1)).toString(),
         );
-        if (query) {
-          url.searchParams.set("q", query);
-        } else {
-          url.searchParams.delete("q");
-        }
         router.push(url.toString());
 
         setLimit(() => pageSize);
         setOffset(() => pageSize * (pageNumber - 1));
-
-        refetch();
       },
     });
-
-  function handleSearch() {
-    go(1);
-    refetch();
-  }
 
   return (
     <div className="mx-auto h-full">
@@ -82,25 +78,13 @@ export default function ClientList() {
           <div className="mb-5 flex gap-3">
             <Input
               onChange={(e) => {
-                setQuery(e.target.value);
+                go(1);
+                setSearchName(e.target.value);
               }}
               className="max-w-96"
-              value={query}
-              placeholder="Search..."
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearch();
-                }
-              }}
+              value={searchName}
+              placeholder="Search Name ..."
             />
-            <Button
-              className="p-2"
-              variant="outline"
-              size="icon"
-              onClick={handleSearch}
-            >
-              <Search />
-            </Button>
             <CustomTooltip content="Create">
               <Button
                 variant="outline"

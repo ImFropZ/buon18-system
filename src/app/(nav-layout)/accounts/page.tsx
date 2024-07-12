@@ -8,16 +8,21 @@ import { DataTable } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { CustomTooltip } from "@components";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-import { usePagination } from "@hooks/usePagination";
+import { useDebounce, usePagination } from "@hooks";
 import CustomPagination from "@components/CustomPagination";
+import { utils } from "@lib/utils";
 
 export default function AccountList() {
   const searchParams = useSearchParams();
 
-  const [query, setQuery] = React.useState(searchParams.get("q") || "");
+  const [searchName, setSearchName] = React.useState("");
+  const debouncedSearchName = useDebounce<string>({
+    value: searchName,
+    delay: utils.SEARCH_DEBOUNCE_DELAY,
+  });
+
   const [limit, setLimit] = React.useState(
     Number(searchParams.get("limit")) || 10,
   );
@@ -26,16 +31,18 @@ export default function AccountList() {
   );
 
   const { show, edit, create, list } = useNavigation();
-  const { data, isLoading, refetch } = useList<Account>({
+  const { data, isLoading } = useList<Account>({
     resource: "accounts",
+    filters: [
+      {
+        field: "name",
+        operator: "contains",
+        value: debouncedSearchName,
+      },
+    ],
     pagination: {
       pageSize: limit,
       current: offset / limit + 1,
-    },
-    meta: {
-      filters: {
-        q: query,
-      },
     },
   });
   const { mutate } = useDelete();
@@ -45,7 +52,7 @@ export default function AccountList() {
     usePagination({
       page: offset / limit + 1,
       pageSize: limit,
-      totalItems: data?.total || 100,
+      totalItems: data?.total || Number.MAX_SAFE_INTEGER,
       onChange: (pageNumber, { pageSize }) => {
         const url = new URL(window.location.href);
         url.searchParams.set("limit", pageSize.toString());
@@ -53,24 +60,12 @@ export default function AccountList() {
           "offset",
           (pageSize * (pageNumber - 1)).toString(),
         );
-        if (query) {
-          url.searchParams.set("q", query);
-        } else {
-          url.searchParams.delete("q");
-        }
         router.push(url.toString());
 
         setLimit(() => pageSize);
         setOffset(() => pageSize * (pageNumber - 1));
-
-        refetch();
       },
     });
-
-  function handleSearch() {
-    go(1);
-    refetch();
-  }
 
   return (
     <div className="mx-auto h-full">
@@ -83,25 +78,13 @@ export default function AccountList() {
           <div className="mb-5 flex gap-3">
             <Input
               onChange={(e) => {
-                setQuery(e.target.value);
+                go(1);
+                setSearchName(e.target.value);
               }}
               className="max-w-96"
-              value={query}
-              placeholder="Search..."
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearch();
-                }
-              }}
+              value={searchName}
+              placeholder="Search Name ..."
             />
-            <Button
-              className="p-2"
-              variant="outline"
-              size="icon"
-              onClick={handleSearch}
-            >
-              <Search />
-            </Button>
             <CustomTooltip content="Create">
               <Button
                 variant="outline"

@@ -11,7 +11,7 @@ import { Check, List, Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { SocialMedia as SheetSocialMedia } from "@/components/sheet/SocialMedia";
-import { InputFormField, SelectFormField } from "@components/form";
+import { InputFormField } from "@components/form";
 
 export default function ClientCreate() {
   const form = useForm<Client>({

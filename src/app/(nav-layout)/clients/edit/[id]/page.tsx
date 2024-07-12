@@ -11,7 +11,7 @@ import { Check, Eye, List, Plus, Trash2, Undo2 } from "lucide-react";
 import { SocialMedia as SheetSocialMedia } from "@components/sheet/SocialMedia";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { InputFormField, SelectFormField } from "@components/form";
+import { InputFormField } from "@components/form";
 import { CustomTooltip } from "@components";
 
 const ClientEdit = ({ params }: { params: { id: string } }) => {
