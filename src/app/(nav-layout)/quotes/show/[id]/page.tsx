@@ -12,14 +12,36 @@ import {
   TableRow,
 } from "@components/ui/table";
 import { Quote } from "@models/quote";
+import { axiosInstance } from "@providers/data-provider";
 import { useNavigation, useOne } from "@refinedev/core";
 import { format } from "date-fns";
 import { Building, Edit, List, Users } from "lucide-react";
 
 import React from "react";
 
+type QuoteState = "DRAFT" | "SENT" | "ACCEPT" | "REJECT";
+
+const action = async (
+  id: string,
+  state: QuoteState,
+  onSuccess: () => unknown,
+) => {
+  const { code } = await axiosInstance
+    .post(`/quotes/${id}/status`, {
+      action: state,
+    })
+    .then((res) => res.data satisfies { code: number });
+
+  if (code !== 200) {
+    // Handle error
+    return;
+  }
+
+  onSuccess();
+};
+
 const QuoteShow = ({ params }: { params: { id: string } }) => {
-  const { data, isLoading } = useOne<Quote>({
+  const { data, isLoading, refetch } = useOne<Quote>({
     resource: "quotes",
     id: params.id,
   });
@@ -34,19 +56,49 @@ const QuoteShow = ({ params }: { params: { id: string } }) => {
         </div>
       ) : (
         <>
-          <div className="flex gap-2">
+          <div className="flex justify-end gap-2">
             <Button
               size={"icon"}
               variant={"outline"}
               onClick={() => list("quotes")}
+              className="mr-auto"
             >
               <List />
             </Button>
+            {data?.data.status.toUpperCase() === "DRAFT" && (
+              <Button
+                size={"icon"}
+                variant={"outline"}
+                onClick={() => action(params.id, "SENT", refetch)}
+                className="px-10"
+              >
+                Sent
+              </Button>
+            )}
+            {data?.data.status.toUpperCase() === "SENT" && (
+              <>
+                <Button
+                  size={"icon"}
+                  variant={"outline"}
+                  onClick={() => action(params.id, "ACCEPT", refetch)}
+                  className="px-10"
+                >
+                  Accept
+                </Button>
+                <Button
+                  size={"icon"}
+                  variant={"outline"}
+                  onClick={() => action(params.id, "REJECT", refetch)}
+                  className="px-10"
+                >
+                  Reject
+                </Button>
+              </>
+            )}
             <Button
               size={"icon"}
               variant={"outline"}
               onClick={() => edit("quotes", params.id)}
-              className="ml-auto"
             >
               <Edit />
             </Button>

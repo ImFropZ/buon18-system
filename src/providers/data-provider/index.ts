@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL
 });
 
