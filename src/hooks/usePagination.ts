@@ -4,10 +4,7 @@ export interface UsePaginationParams {
     pageSize: number; // Number of items shown per page
     totalItems: number; // Number of items
     page: number; // Init page number
-    onChange?: (page: number, {
-        pageSize,
-        totalItems
-    }: {
+    onChange?: (_page: number, _data: {
         pageSize: number;
         totalItems: number;
     }) => void;
@@ -17,9 +14,9 @@ export interface UsePaginationResult {
     totalPage: number;
     pageSize: number;
     currentPage: number;
-    next(toLast?: boolean): void;
-    back(toFirst?: boolean): void;
-    go(page: number): void;
+    next(_toLast?: boolean): void;
+    back(_toFirst?: boolean): void;
+    go(_page: number): void;
     hasNextPage: boolean;
     hasPreviousPage: boolean;
 }

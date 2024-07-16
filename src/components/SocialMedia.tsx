@@ -6,16 +6,16 @@ import {
 } from "@/components/ui/tooltip";
 import Link from "next/link";
 import React from "react";
-import type { SocialMedia } from "@models";
+import type { SocialMedia as TSocialMedia } from "@models";
 
-export function SocialMedia({ platform, url }: SocialMedia) {
+export function SocialMedia({ platform, url }: TSocialMedia) {
   return (
     <Tooltip>
       <TooltipTrigger>
         <Link
           href={url}
           target="_blank"
-          className="flex items-center justify-between gap-5 rounded-lg px-4 py-2 outline outline-[2px] outline-muted dark:hover:bg-slate-800 hover:bg-slate-200"
+          className="flex items-center justify-between gap-5 rounded-lg px-4 py-2 outline outline-[2px] outline-muted hover:bg-slate-200 dark:hover:bg-slate-800"
         >
           <h3 className="scroll-m-20 text-base font-bold capitalize tracking-tight lg:text-lg">
             {platform}
