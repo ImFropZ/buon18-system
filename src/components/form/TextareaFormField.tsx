@@ -1,6 +1,11 @@
 import { CustomErrorTooltipWrapper } from "@components/CustomTooltip";
-import { FormControl, FormItem } from "@components/ui/form";
-import { Input } from "@components/ui/input";
+import {
+  FormControl,
+  FormDescription,
+  FormItem,
+  FormLabel,
+} from "@components/ui/form";
+import { Textarea } from "@components/ui/textarea";
 import { cn } from "@lib/utils";
 import {
   ControllerRenderProps,
@@ -9,40 +14,44 @@ import {
   Merge,
 } from "react-hook-form";
 
-interface InputFormFieldProps extends React.HTMLAttributes<HTMLInputElement> {
+interface DateFormFieldProps extends React.HTMLAttributes<HTMLTextAreaElement> {
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
+  label?: string;
   placeholder?: string;
-  defaultValue?: string;
+  description?: string;
 }
 
-export function InputFormField({
+export function TextareaFormField({
   field,
   errorField,
+  label,
   placeholder,
+  description,
   defaultValue,
   ...props
-}: InputFormFieldProps) {
+}: DateFormFieldProps) {
   return (
-    <FormItem>
+    <FormItem className="w-full">
+      <FormLabel hidden={!label}>{label}</FormLabel>
       <FormControl>
         <CustomErrorTooltipWrapper
           errorMessage={errorField?.message?.toString() || ""}
         >
-          <Input
+          <Textarea
             {...props}
             {...field}
+            placeholder={placeholder}
             className={cn(
-              "mt-0 text-primary",
+              "resize-none",
               !!errorField && "outline outline-1 outline-red-600",
               props.className,
             )}
-            defaultValue={defaultValue || ""}
-            placeholder={placeholder || ""}
-            data-error={!!errorField}
+            defaultValue={defaultValue}
           />
         </CustomErrorTooltipWrapper>
       </FormControl>
+      <FormDescription hidden={!description}>{description}</FormDescription>
     </FormItem>
   );
 }

@@ -54,6 +54,16 @@ export default function RootLayout({
                       label: "Clients",
                     },
                   },
+                  {
+                    name: "quotes",
+                    list: "/quotes",
+                    show: "/quotes/show/:id",
+                    edit: "/quotes/edit/:id",
+                    create: "/quotes/create",
+                    meta: {
+                      label: "Quotes",
+                    },
+                  },
                 ]}
                 options={{
                   syncWithLocation: true,

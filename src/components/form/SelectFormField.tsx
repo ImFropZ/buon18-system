@@ -1,3 +1,4 @@
+import { CustomErrorTooltipWrapper } from "@components/CustomTooltip";
 import { FormControl, FormItem } from "@components/ui/form";
 import {
   Select,
@@ -8,12 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@components/ui/tooltip";
-import { TriangleAlert } from "lucide-react";
 import React from "react";
 import {
   ControllerRenderProps,
@@ -38,44 +33,33 @@ export function SelectFormField({
   groupLabel?: string;
 }) {
   return (
-    <div className="relative">
-      {errorField ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <TriangleAlert className="absolute right-full top-1/2 mr-2 -translate-y-1/2 text-red-500" />
-          </TooltipTrigger>
-          <TooltipContent asChild>
-            <p className="mb-2 rounded bg-primary px-2 text-base font-normal text-secondary outline outline-[1px]">
-              {errorField.message?.toString()}
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      ) : null}
-
-      <FormItem>
-        <Select
-          onValueChange={field.onChange}
-          defaultValue={defaultSelectedValue || ""}
-        >
-          <FormControl>
-            <SelectTrigger>
+    <FormItem>
+      <Select
+        onValueChange={field.onChange}
+        defaultValue={defaultSelectedValue || ""}
+      >
+        <FormControl>
+          <SelectTrigger>
+            <CustomErrorTooltipWrapper
+              errorMessage={errorField?.message?.toString() || ""}
+            >
               <SelectValue placeholder={placeholderSelect || ""} />
-            </SelectTrigger>
-          </FormControl>
-          <SelectContent>
-            <SelectGroup>
-              {groupLabel ? <SelectLabel>{groupLabel}</SelectLabel> : null}
-              {options.map((op) => {
-                return (
-                  <SelectItem key={op.value} value={op.value}>
-                    {op.label}
-                  </SelectItem>
-                );
-              })}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </FormItem>
-    </div>
+            </CustomErrorTooltipWrapper>
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel hidden={!groupLabel}>{groupLabel}</SelectLabel>
+            {options.map((op) => {
+              return (
+                <SelectItem key={op.value} value={op.value}>
+                  {op.label}
+                </SelectItem>
+              );
+            })}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </FormItem>
   );
 }

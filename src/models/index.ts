@@ -20,7 +20,21 @@ export const SocialMediaSchema = z.object({
 
 export type SocialMedia = z.infer<typeof SocialMediaSchema>;
 
-export const numberInString = z.string().transform((val, ctx) => {
+export const dateInString = z.string().transform((val, ctx) => {
+  const parsed = new Date(val);
+  if (isNaN(parsed.getTime())) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Invalid date",
+    });
+
+    return z.NEVER;
+  }
+
+  return parsed;
+});
+
+export const numberInString = z.any().transform((val, ctx) => {
   const parsed = Number(val);
   if (isNaN(parsed)) {
     ctx.addIssue({

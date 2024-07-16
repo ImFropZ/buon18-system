@@ -99,9 +99,14 @@ export const authProvider: AuthProvider = {
     }
     return null;
   },
-  onError: async () => {
-    return {
-      logout: true,
+  onError: async (err) => {
+    if (err.response.status === 401) {
+      Cookies.remove("auth", { path: "/" });
+      return {
+        logout: true,
+        redirectTo: "/login",
+      };
     }
+    return {}
   },
 };

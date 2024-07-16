@@ -1,8 +1,7 @@
-import { Building, LucideProps, Users } from "lucide-react";
-import { ForwardRefExoticComponent, RefAttributes } from "react";
+import { Book, Building, LucideIcon, Users } from "lucide-react";
 
-
-export const NAVIGATIONS_ICON: { [key in string]: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> } = {
+export const NAVIGATIONS_ICON: { [_ in string]: LucideIcon } = {
     'accounts': Users,
     'clients': Building,
+    'quotes': Book,
 }

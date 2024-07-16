@@ -57,7 +57,7 @@ axiosInstance.interceptors.response.use(
 
 export const dataProvider: DataProvider = {
     getList: async function ({ resource, pagination, filters }) {
-        const params: { [x in string]: any } = {
+        const params: { [_ in string]: any } = {
             ...(pagination ? { limit: pagination.pageSize, offset: (pagination.pageSize || 10) * ((pagination.current || 1) - 1) } : {}),
         }
 
@@ -86,7 +86,7 @@ export const dataProvider: DataProvider = {
             }
         });
 
-        const result = await axiosInstance.get<Response<{ "total": number } & { [x in string]: any[] }>>(`/${resource}`, {
+        const result = await axiosInstance.get<Response<{ "total": number } & { [_ in string]: any[] }>>(`/${resource}`, {
             params,
         }).then((response) => response.data);
 
@@ -149,7 +149,7 @@ export const dataProvider: DataProvider = {
     getOne: async function ({ resource, id }) {
         const token = getAuthCookie();
 
-        const result = await axiosInstance.get<Response<{ [key in string]: object }>>(`/${resource}/${id}`, {
+        const result = await axiosInstance.get<Response<{ [_ in string]: object }>>(`/${resource}/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
