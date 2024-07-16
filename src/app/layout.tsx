@@ -64,6 +64,16 @@ export default function RootLayout({
                       label: "Quotes",
                     },
                   },
+                  {
+                    name: "sales-orders",
+                    list: "/sales-orders",
+                    show: "/sales-orders/show/:id",
+                    edit: "/sales-orders/edit/:id",
+                    create: "/sales-orders/create",
+                    meta: {
+                      label: "Sales Orders",
+                    },
+                  },
                 ]}
                 options={{
                   syncWithLocation: true,

@@ -91,7 +91,7 @@ export const dataProvider: DataProvider = {
         }).then((response) => response.data);
 
         return {
-            data: result.data[resource] || [],
+            data: result.data[resource.replaceAll("-", "_")] || [],
             total: result.data.total || 0,
         } as any;
     },
@@ -161,7 +161,7 @@ export const dataProvider: DataProvider = {
         resource = tmpResource.join("");
 
         return {
-            data: result.data[resource] || {} // Remove the last character from the resource name ussuallly 's'
+            data: result.data[resource.replaceAll("-", "_")] || {} // Remove the last character from the resource name ussuallly 's'
         } as any;
     },
     getApiUrl: function () { return API_URL; },
