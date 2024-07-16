@@ -11,7 +11,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@components/ui/popover";
+} from "@components/ui/popover-dialog";
 import { cn } from "@lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -56,7 +56,7 @@ export function DateFormField({
                 type="button"
                 variant={"outline"}
                 className={cn(
-                  "w-[240px] pl-3 text-left font-normal",
+                  "flex gap-2 pl-3 text-left font-normal",
                   !field.value && "text-muted-foreground",
                   !!errorField && "outline outline-1 outline-red-600",
                   props.className,
@@ -74,7 +74,7 @@ export function DateFormField({
             </FormControl>
           </PopoverTrigger>
         </CustomErrorTooltipWrapper>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 z-50" align="start">
           <Calendar
             mode="single"
             selected={field.value}
