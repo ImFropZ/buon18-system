@@ -35,7 +35,7 @@ export const Layout: React.FC<LayoutProps> = ({
         >
           <ResizablePanel
             defaultSize={defaultLayout[0] || 8}
-            minSize={7}
+            minSize={8}
             maxSize={10}
             className="min-w-12"
             collapsible
