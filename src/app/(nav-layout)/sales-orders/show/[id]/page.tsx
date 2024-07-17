@@ -150,7 +150,7 @@ const SalesOrderShow = ({ params }: { params: { id: string } }) => {
               <p
                 className={cn(
                   !data?.data.note
-                    ? `w-full pt-10 text-center text-muted-foreground`
+                    ? `w-full pt-12 text-center text-muted-foreground`
                     : "",
                   "min-h-32",
                 )}

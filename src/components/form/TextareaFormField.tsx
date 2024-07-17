@@ -17,7 +17,7 @@ import {
 interface DateFormFieldProps extends React.HTMLAttributes<HTMLTextAreaElement> {
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
-  label?: string;
+  label?: string | React.ReactNode;
   placeholder?: string;
   description?: string;
 }

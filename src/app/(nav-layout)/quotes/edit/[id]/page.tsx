@@ -255,8 +255,14 @@ const QuoteEdit = ({ params }: { params: { id: string } }) => {
                       <TextareaFormField
                         field={field}
                         errorField={form.formState.errors.note}
-                        label="Note"
-                        placeholder="No note"
+                        label={
+                          <>
+                            {"Note - "}
+                            <i className="text-muted-foreground">Optional</i>
+                          </>
+                        }
+                        placeholder="- No note -"
+                        className="min-h-32"
                       />
                     )}
                   />

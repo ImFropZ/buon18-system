@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@components/ui/table";
+import { cn } from "@lib/utils";
 import { Quote } from "@models/quote";
 import { SalesOrderCreateSchema } from "@models/sales-order";
 import { axiosInstance } from "@providers/data-provider";
@@ -179,7 +180,16 @@ const QuoteShow = ({ params }: { params: { id: string } }) => {
                 </div>
               </div>
               <div className="flex rounded-lg p-2 px-4 outline-dashed outline-1 outline-primary/50">
-                <p>{data?.data.note || "No note provided."}</p>
+                <p
+                  className={cn(
+                    !data?.data.note
+                      ? `w-full pt-12 text-center text-muted-foreground`
+                      : "",
+                    "min-h-32",
+                  )}
+                >
+                  {data?.data.note || "- No note provided. -"}
+                </p>
               </div>
               <Table className="mx-auto my-2 w-4/5 max-w-[64rem] text-base">
                 <TableCaption className="text-base">
