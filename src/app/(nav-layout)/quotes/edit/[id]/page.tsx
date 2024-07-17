@@ -29,7 +29,6 @@ import {
   Eye,
   List,
   Minus,
-  MinusIcon,
   Plus,
   Undo,
   Users,
@@ -202,7 +201,7 @@ const QuoteEdit = ({ params }: { params: { id: string } }) => {
                             />
                           )}
                         />
-                        <MinusIcon className="mt-5" />
+                        <Minus className="mt-5" />
                         <FormField
                           control={form.control}
                           name="expiry_date"
