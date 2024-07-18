@@ -7,6 +7,7 @@ import { Dialog, DialogTrigger } from "@components/ui/dialog";
 import { UpdatePasswordProfile } from "@components/modal";
 import { UpdatePasswordSchema } from "@models/auth";
 import * as z from "zod";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -45,10 +46,12 @@ export default function ProfilePage() {
                 Update Password
               </Button>
             </DialogTrigger>
-            <div className="relative mt-20 aspect-square h-32 w-32 overflow-hidden rounded-full">
-              <img
-                src="https://placehold.co/100"
-                alt=""
+            <div className="relative mt-20 aspect-square h-32 w-32 overflow-hidden rounded-xl bg-foreground">
+              <Image
+                src="/assets/Logo_Icon-01.png"
+                alt="418 logo"
+                width={320}
+                height={320}
                 className="h-full w-full"
               />
             </div>

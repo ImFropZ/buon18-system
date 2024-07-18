@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useLogin } from "@refinedev/core";
 import { LoginForm, LoginFormSchema } from "@models/auth";
 import { LucideLockKeyhole, LucideMail } from "lucide-react";
+import Image from "next/image";
 
 export function AuthPage() {
   const { mutate: login } = useLogin<LoginForm>();
@@ -37,6 +38,15 @@ export function AuthPage() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="mx-auto flex w-[24rem] flex-col gap-4 rounded p-10 shadow"
       >
+        <div className="h-32 w-32 mx-auto">
+          <Image
+            src="/assets/Logo_Icon-01.png"
+            alt="418 logo"
+            width={320}
+            height={320}
+            className="h-full w-full"
+          />
+        </div>
         <FormField
           control={form.control}
           name="email"

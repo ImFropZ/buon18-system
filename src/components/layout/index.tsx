@@ -12,6 +12,7 @@ import React from "react";
 import { Button } from "@components/ui/button";
 import { UserCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface LayoutProps extends PropsWithChildren {
   defaultCollapse?: boolean;
@@ -29,7 +30,15 @@ export const Layout: React.FC<LayoutProps> = ({
   return (
     <div className="fixed inset-0 grid grid-rows-[auto,1fr]">
       <div className="flex items-center justify-between p-2 px-5">
-        <h1>Logo</h1>
+        <div className="h-10">
+          <Image
+            src="/assets/Logo_Icon-01.png"
+            alt="418 logo"
+            width={64}
+            height={64}
+            className="h-full w-full"
+          />
+        </div>
         <Button
           onClick={() => {
             router.push("/profile");
