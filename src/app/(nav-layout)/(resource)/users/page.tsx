@@ -1,6 +1,6 @@
 "use client";
 
-import { UserSchema } from "@models/user";
+import { UserCreateSchema, UserSchema } from "@models/user";
 import { columns } from "@components/table/users/columns";
 import { useDelete, useList, useNavigation } from "@refinedev/core";
 import { DataTable } from "@components/ui/data-table";
@@ -14,10 +14,23 @@ import { utils } from "@lib/utils";
 import React from "react";
 import CustomPagination from "@components/CustomPagination";
 import * as z from "zod";
+import { Dialog, DialogTrigger } from "@components/ui/dialog";
+import { User } from "@components/modal/User";
+import { axiosInstance } from "@providers/data-provider";
+
+const createUserData = async (data: z.infer<typeof UserCreateSchema>) => {
+  const result = UserCreateSchema.safeParse(data);
+  if (result.success) {
+    return await axiosInstance
+      .post("/users", result.data)
+      .then((res) => res.data)
+      .catch((err) => err.response.data);
+  }
+};
 
 export default function UserList() {
   const searchParams = useSearchParams();
-
+  const [dialogOpen, setDialogOpen] = React.useState(false);
   const [searchName, setSearchName] = React.useState("");
   const debouncedSearchName = useDebounce<string>({
     value: searchName,
@@ -31,8 +44,8 @@ export default function UserList() {
     Number(searchParams.get("offset")) || 0,
   );
 
-  const { show, edit, create, list } = useNavigation();
-  const { data, isLoading } = useList<z.infer<typeof UserSchema>>({
+  const { create, list } = useNavigation();
+  const { data, isLoading, refetch } = useList<z.infer<typeof UserSchema>>({
     resource: "users",
     filters: [
       {
@@ -86,27 +99,41 @@ export default function UserList() {
               value={searchName}
               placeholder="Search Name ..."
             />
-            <CustomTooltip content="Create">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  create("users");
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <CustomTooltip content="Create">
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      create("users");
+                    }}
+                    className="ml-auto"
+                  >
+                    <Plus />
+                  </Button>
+                </DialogTrigger>
+              </CustomTooltip>
+              <User
+                isCreate
+                onSubmit={(d) => {
+                  createUserData(d).then((data) => {
+                    const { code } = data;
+                    if (code !== 201) {
+                      // Handle error
+                      return;
+                    }
+
+                    setDialogOpen(false);
+                    refetch();
+                  });
                 }}
-                className="ml-auto"
-              >
-                <Plus />
-              </Button>
-            </CustomTooltip>
+              />
+            </Dialog>
           </div>
           <DataTable
             columns={columns({
-              show: (id) => {
-                show("users", id);
-              },
-              edit: (id) => {
-                edit("users", id);
-              },
+              onRefresh: refetch,
               _delete: (id) => {
                 mutate(
                   {

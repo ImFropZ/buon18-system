@@ -1,6 +1,10 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+// NOTE: Disable eslint rules for this file because react-hooks/rules-of-hooks eslint doesn't like the use of hooks inside the cell function
+
 "use client";
 
 import { CustomTooltip } from "@components/CustomTooltip";
+import { User } from "@components/modal/User";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,29 +16,32 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
-import { UserSchema } from "@models/user";
+import { Dialog, DialogTrigger } from "@components/ui/dialog";
+import { cn } from "@lib/utils";
+import { UserSchema, UserUpdateSchema } from "@models/user";
+import { axiosInstance } from "@providers/data-provider";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
+import React from "react";
 import * as z from "zod";
 
 interface UserColumnProps {
-  show?: (id: string | number) => void;
-  edit?: (id: string | number) => void;
   _delete?: (id: string | number) => void;
+  onRefresh?: () => void;
 }
 
-export function columns({ _delete, show, edit }: UserColumnProps) {
+export function columns({ _delete, onRefresh }: UserColumnProps) {
   return [
     {
-      accessorKey: "id",
-      header: "ID",
+      accessorKey: "role",
+      header: "Role",
     },
     {
       accessorKey: "name",
       header: "Name",
     },
     {
-      accessorKey: "Email",
+      accessorKey: "email",
       header: "Email",
     },
     {
@@ -43,8 +50,13 @@ export function columns({ _delete, show, edit }: UserColumnProps) {
       cell: ({ row }) => {
         const { deleted } = row.original;
         return (
-          <p className="bg-primary text-center font-bold text-secondary rounded-lg">
-            {deleted ? "Disactivate" : "Activate"}
+          <p
+            className={cn(
+              "rounded-lg bg-primary text-center font-bold text-secondary",
+              deleted ? "bg-red-600 text-primary" : "",
+            )}
+          >
+            {deleted ? "Deactivate" : "Activate"}
           </p>
         );
       },
@@ -55,36 +67,50 @@ export function columns({ _delete, show, edit }: UserColumnProps) {
         return <div className="w-full text-center">Action</div>;
       },
       cell: ({ row }) => {
-        const { id } = row.original;
+        const [dialogOpen, setDialogOpen] = React.useState(false);
+        const data = row.original;
+
+        const updateUserData = async (
+          id: string,
+          data: z.infer<typeof UserUpdateSchema>,
+        ) => {
+          const result = UserUpdateSchema.safeParse(data);
+          if (result.success) {
+            return await axiosInstance
+              .patch(`/users/${id}`, result.data)
+              .then((res) => res.data)
+              .catch((err) => err.response.data);
+          }
+        };
 
         return (
           <div className="flex justify-center gap-2">
-            {show ? (
-              <CustomTooltip content="View Details">
-                <button
-                  onClick={() => show(id)}
-                  className="group/button h-auto rounded px-2 py-[1px] outline outline-[1px] outline-primary/50 hover:outline-primary"
-                >
-                  <Eye
-                    size={18}
-                    className="text-primary/50 group-hover/button:text-primary"
-                  />
-                </button>
-              </CustomTooltip>
-            ) : null}
-            {edit ? (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <CustomTooltip content="Edit">
-                <button
-                  onClick={() => edit(id)}
-                  className="group/button h-auto rounded px-2 py-[1px] outline outline-[1px] outline-primary/50 hover:outline-primary"
-                >
-                  <Edit
-                    size={18}
-                    className="text-primary/50 group-hover/button:text-primary"
-                  />
-                </button>
+                <DialogTrigger asChild>
+                  <button
+                    onClick={() => {}}
+                    className="group/button h-auto rounded px-2 py-[1px] outline outline-[1px] outline-primary/50 hover:outline-primary"
+                  >
+                    <Edit
+                      size={18}
+                      className="text-primary/50 group-hover/button:text-primary"
+                    />
+                  </button>
+                </DialogTrigger>
               </CustomTooltip>
-            ) : null}
+              <User
+                onSubmit={(d) => {
+                  updateUserData(data.id, d).then(({ code }) => {
+                    if (code === 200) {
+                      onRefresh ? onRefresh() : null;
+                      setDialogOpen(false);
+                    }
+                  });
+                }}
+                defaultValue={data}
+              />
+            </Dialog>
             {_delete ? (
               <AlertDialog>
                 <CustomTooltip content="Delete">
@@ -109,7 +135,7 @@ export function columns({ _delete, show, edit }: UserColumnProps) {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => _delete(id)}>
+                    <AlertDialogAction onClick={() => _delete(data.id)}>
                       Continue
                     </AlertDialogAction>
                   </AlertDialogFooter>

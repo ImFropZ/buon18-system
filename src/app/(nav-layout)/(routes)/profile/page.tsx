@@ -3,7 +3,6 @@
 import React from "react";
 import { axiosInstance } from "@providers/data-provider";
 import { Button } from "@components/ui/button";
-import { Edit } from "lucide-react";
 import { Dialog, DialogTrigger } from "@components/ui/dialog";
 import { UpdatePasswordProfile } from "@components/modal";
 import { UpdatePasswordSchema } from "@models/auth";

@@ -48,3 +48,14 @@ export const numberInString = z.any().transform((val, ctx) => {
   }
   return parsed;
 });
+
+export const booleanInString = z.any().transform((val, ctx) => {
+  if (val === "true") return true;
+  if (val === "false") return false;
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    message: "Not a boolean",
+  });
+
+  return z.NEVER;
+});

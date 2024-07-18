@@ -2,8 +2,7 @@
 
 import { SalesOrderSchema } from "@models/sales-order";
 import { columns } from "@components/table/sales-orders/columns";
-import { useDelete, useList, useNavigation } from "@refinedev/core";
-import React from "react";
+import { useList, useNavigation } from "@refinedev/core";
 import { DataTable } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
@@ -11,8 +10,9 @@ import { CustomTooltip } from "@components";
 import { Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePagination, useDebounce } from "@hooks";
-import CustomPagination from "@components/CustomPagination";
 import { utils } from "@lib/utils";
+import React from "react";
+import CustomPagination from "@components/CustomPagination";
 import * as z from "zod";
 
 export default function SalesOrderList() {
@@ -31,7 +31,7 @@ export default function SalesOrderList() {
     Number(searchParams.get("offset")) || 0,
   );
 
-  const { show, edit, create, list } = useNavigation();
+  const { show, edit, create } = useNavigation();
   const { data, isLoading } = useList<z.infer<typeof SalesOrderSchema>>({
     resource: "sales-orders",
     filters: [
@@ -46,7 +46,6 @@ export default function SalesOrderList() {
       current: offset / limit + 1,
     },
   });
-  const { mutate } = useDelete();
   const router = useRouter();
 
   const { currentPage, back, next, go, hasPreviousPage, hasNextPage } =
