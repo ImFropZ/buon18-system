@@ -9,6 +9,9 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import React from "react";
+import { Button } from "@components/ui/button";
+import { UserCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface LayoutProps extends PropsWithChildren {
   defaultCollapse?: boolean;
@@ -21,10 +24,20 @@ export const Layout: React.FC<LayoutProps> = ({
   defaultLayout = [8, 92],
 }) => {
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapse);
+  const router = useRouter();
 
   return (
     <div className="fixed inset-0 grid grid-rows-[auto,1fr]">
-      <div className="p-2">Logo</div>
+      <div className="flex items-center justify-between p-2 px-5">
+        <h1>Logo</h1>
+        <Button
+          onClick={() => {
+            router.push("/profile");
+          }}
+        >
+          <UserCircle />
+        </Button>
+      </div>
       <div className="relative h-full">
         <ResizablePanelGroup
           direction="horizontal"

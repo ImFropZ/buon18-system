@@ -9,7 +9,8 @@ import {
   Merge,
 } from "react-hook-form";
 
-interface InputFormFieldProps extends React.HTMLAttributes<HTMLInputElement> {
+interface InputFormFieldProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
   placeholder?: string;
@@ -37,7 +38,7 @@ export function InputFormField({
               !!errorField && "outline outline-1 outline-red-600",
               props.className,
             )}
-            defaultValue={defaultValue || ""}
+            value={field.value || defaultValue || ""}
             placeholder={placeholder || ""}
             data-error={!!errorField}
           />
