@@ -1,7 +1,7 @@
 "use client";
 
 import { CustomTooltip } from "@components";
-import { SalesOrder } from "@components/modal/SaleOrder";
+import { SalesOrder } from "@components/modal";
 import { Button } from "@components/ui/button";
 import { Dialog, DialogTrigger } from "@components/ui/dialog";
 import {
