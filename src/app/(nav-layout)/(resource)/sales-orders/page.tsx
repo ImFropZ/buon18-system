@@ -107,19 +107,6 @@ export default function SalesOrderList() {
               edit: (id) => {
                 edit("sales-orders", id);
               },
-              _delete: (id) => {
-                mutate(
-                  {
-                    resource: "sales-orders",
-                    id: id,
-                  },
-                  {
-                    onSuccess: () => {
-                      list("sales-orders");
-                    },
-                  },
-                );
-              },
             })}
             data={data?.data || []}
           />
