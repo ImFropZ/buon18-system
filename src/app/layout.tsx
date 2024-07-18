@@ -74,6 +74,13 @@ export default function RootLayout({
                       label: "Sales Orders",
                     },
                   },
+                  {
+                    name: "users",
+                    list: "/users",
+                    meta: {
+                      label: "Users",
+                    },
+                  },
                 ]}
                 options={{
                   syncWithLocation: true,

@@ -73,8 +73,8 @@ export function Nav({ links, isCollapsed }: NavProps) {
           <Button
             onClick={() => logout()}
             className="mt-auto h-9 w-9"
-            size={"icon"}
-            variant={"outline"}
+            size="icon"
+            variant="destructive"
           >
             <LogOut className="h-4 w-4" />
             <span className="sr-only">Logout</span>

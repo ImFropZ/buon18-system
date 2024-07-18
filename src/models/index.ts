@@ -20,6 +20,8 @@ export const SocialMediaSchema = z.object({
 
 export type SocialMedia = z.infer<typeof SocialMediaSchema>;
 
+export const RoleSchema = z.enum(["Admin", "Editor", "User"]);
+
 export const dateInString = z.string().transform((val, ctx) => {
   const parsed = new Date(val);
   if (isNaN(parsed.getTime())) {
