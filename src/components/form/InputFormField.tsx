@@ -38,7 +38,7 @@ export function InputFormField({
               !!errorField && "outline outline-1 outline-red-600",
               props.className,
             )}
-            value={field.value || defaultValue || ""}
+            value={field.value !== undefined ? field.value : defaultValue || ""}
             placeholder={placeholder || ""}
             data-error={!!errorField}
           />

@@ -13,6 +13,7 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { InputFormField } from "@components/form";
 import { CustomTooltip } from "@components";
+import { useToast } from "@components/ui/use-toast";
 
 const ClientEdit = ({ params }: { params: { id: string } }) => {
   const { mutate } = useUpdate<Client>();
@@ -32,6 +33,7 @@ const ClientEdit = ({ params }: { params: { id: string } }) => {
   const [socialMediaDeleteIds, setSocialMediaDeleteIds] = React.useState<
     number[]
   >([]);
+  const { toast } = useToast();
 
   const onSubmit = (data: Client) => {
     mutate(
@@ -45,6 +47,12 @@ const ClientEdit = ({ params }: { params: { id: string } }) => {
       },
       {
         onSuccess: () => show("clients", params.id),
+        onError: (error) => {
+          toast({
+            title: "Update Client Error",
+            description: error.message,
+          });
+        },
       },
     );
   };
@@ -53,7 +61,12 @@ const ClientEdit = ({ params }: { params: { id: string } }) => {
     <Sheet>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, () => {
+            toast({
+              title: "Submit Client Form Error",
+              description: "An error occurred",
+            });
+          })}
           className="relative flex h-full flex-col overflow-hidden rounded-lg px-1 pb-2"
         >
           <div className="flex gap-2">

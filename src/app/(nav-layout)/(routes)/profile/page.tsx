@@ -8,6 +8,7 @@ import { UpdatePasswordProfile } from "@components/modal";
 import { UpdatePasswordSchema } from "@models/auth";
 import * as z from "zod";
 import Image from "next/image";
+import { useToast } from "@components/ui/use-toast";
 
 export default function ProfilePage() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -17,6 +18,7 @@ export default function ProfilePage() {
     email: string;
   }>();
   const [isLoading, setIsLoading] = React.useState(true);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     getData()
@@ -60,7 +62,7 @@ export default function ProfilePage() {
             </p>
             <h1 className="text-2xl font-bold">{data?.name}</h1>
             <div className="flex min-w-96 flex-col gap-2">
-              <p className="font-bold text-xl">Email: </p>
+              <p className="text-xl font-bold">Email: </p>
               <p className="border-b-4 px-4 py-1 text-lg">{data?.email}</p>
             </div>
           </div>
@@ -69,9 +71,11 @@ export default function ProfilePage() {
       <UpdatePasswordProfile
         onSuccess={(data) => {
           updatePassword(data).then((data) => {
-            const { code } = data;
-            if (code !== 200) {
-              // Handle error
+            if (data.code !== 200) {
+              toast({
+                title: "Update Password Failed",
+                description: data.message,
+              });
               return;
             }
 

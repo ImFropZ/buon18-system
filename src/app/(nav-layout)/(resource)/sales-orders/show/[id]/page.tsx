@@ -2,6 +2,7 @@
 
 import { CustomTooltip } from "@components";
 import { Button } from "@components/ui/button";
+import { useToast } from "@components/ui/use-toast";
 import { cn } from "@lib/utils";
 import { SalesOrderSchema } from "@models/sales-order";
 import { axiosInstance } from "@providers/data-provider";
@@ -17,15 +18,20 @@ const action = async (
   id: string,
   state: SalesOrderState,
   onSuccess: () => unknown,
+  toast?: (_: any) => unknown,
 ) => {
-  const { code } = await axiosInstance
+  const result = await axiosInstance
     .post(`/sales-orders/${id}/status`, {
       action: state,
     })
-    .then((res) => res.data satisfies { code: number });
+    .then((res) => res.data satisfies { code: number })
+    .catch((err) => err.response.data);
 
-  if (code !== 200) {
-    // Handle error
+  if (result.code !== 200) {
+    toast?.({
+      title: "Update Sales Order Status Error",
+      description: result.message,
+    });
     return;
   }
 
@@ -39,8 +45,8 @@ const SalesOrderShow = ({ params }: { params: { id: string } }) => {
       id: params.id,
     },
   );
-
   const { list, edit, show } = useNavigation();
+  const { toast } = useToast();
 
   return (
     <div className="relative flex h-full flex-col gap-2 overflow-hidden rounded-lg px-1 pb-2">
@@ -62,7 +68,7 @@ const SalesOrderShow = ({ params }: { params: { id: string } }) => {
             {data?.data.status.toUpperCase() === "ON-GOING" && (
               <Button
                 variant="outline"
-                onClick={() => action(params.id, "SENT", refetch)}
+                onClick={() => action(params.id, "SENT", refetch, toast)}
                 className="px-4"
               >
                 Sent
@@ -72,14 +78,14 @@ const SalesOrderShow = ({ params }: { params: { id: string } }) => {
               <>
                 <Button
                   variant="outline"
-                  onClick={() => action(params.id, "DONE", refetch)}
+                  onClick={() => action(params.id, "DONE", refetch, toast)}
                   className="px-4"
                 >
                   Done
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => action(params.id, "CANCEL", refetch)}
+                  onClick={() => action(params.id, "CANCEL", refetch, toast)}
                   className="px-4"
                 >
                   Cancel
@@ -138,7 +144,7 @@ const SalesOrderShow = ({ params }: { params: { id: string } }) => {
                     variant="outline"
                     size="icon"
                     onClick={() => {
-                      // TODO: SHOW create sales order user
+                      show("users", data?.data.created_by_id || "");
                     }}
                   >
                     <User />

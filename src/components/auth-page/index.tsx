@@ -16,10 +16,11 @@ import { useLogin } from "@refinedev/core";
 import { LoginForm, LoginFormSchema } from "@models/auth";
 import { LucideLockKeyhole, LucideMail } from "lucide-react";
 import Image from "next/image";
+import { useToast } from "@components/ui/use-toast";
 
 export function AuthPage() {
   const { mutate: login } = useLogin<LoginForm>();
-
+  const { toast } = useToast();
   const form = useForm<LoginForm>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
@@ -29,7 +30,16 @@ export function AuthPage() {
   });
 
   function onSubmit(data: LoginForm) {
-    login(data);
+    login(data, {
+      onSuccess: ({ success, error }) => {
+        if (!success) {
+          toast({
+            title: error?.name,
+            description: error?.message,
+          });
+        }
+      },
+    });
   }
 
   return (
@@ -38,7 +48,7 @@ export function AuthPage() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="mx-auto flex w-[24rem] flex-col gap-4 rounded p-10 shadow"
       >
-        <div className="h-32 w-32 mx-auto">
+        <div className="mx-auto h-32 w-32">
           <Image
             src="/assets/Logo_Icon-01.png"
             alt="418 logo"

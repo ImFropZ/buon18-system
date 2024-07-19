@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
 import { Dialog, DialogTrigger } from "@components/ui/dialog";
+import { useToast } from "@components/ui/use-toast";
 import { cn } from "@lib/utils";
 import { UserSchema, UserUpdateSchema } from "@models/user";
 import { axiosInstance } from "@providers/data-provider";
@@ -68,6 +69,7 @@ export function columns({ _delete, onRefresh }: UserColumnProps) {
       },
       cell: ({ row }) => {
         const [dialogOpen, setDialogOpen] = React.useState(false);
+        const { toast } = useToast();
         const data = row.original;
 
         const updateUserData = async (
@@ -101,11 +103,16 @@ export function columns({ _delete, onRefresh }: UserColumnProps) {
               </CustomTooltip>
               <User
                 onSubmit={(d) => {
-                  updateUserData(data.id, d).then(({ code }) => {
-                    if (code === 200) {
-                      onRefresh ? onRefresh() : null;
-                      setDialogOpen(false);
+                  updateUserData(data.id, d).then((data) => {
+                    if (data.code !== 200) {
+                      toast({
+                        title: "Update User Error",
+                        description: data.message,
+                      });
+                      return;
                     }
+                    onRefresh?.();
+                    setDialogOpen(false);
                   });
                 }}
                 defaultValue={data}

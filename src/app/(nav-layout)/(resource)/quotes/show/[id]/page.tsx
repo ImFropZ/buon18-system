@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@components/ui/table";
+import { useToast } from "@components/ui/use-toast";
 import { cn } from "@lib/utils";
 import { Quote } from "@models/quote";
 import { SalesOrderCreateSchema } from "@models/sales-order";
@@ -29,15 +30,20 @@ const action = async (
   id: string,
   state: QuoteState,
   onSuccess: () => unknown,
+  toast?: (_: any) => unknown,
 ) => {
-  const { code } = await axiosInstance
+  const result = await axiosInstance
     .post(`/quotes/${id}/status`, {
       action: state,
     })
-    .then((res) => res.data satisfies { code: number });
+    .then((res) => res.data)
+    .catch((err) => err.response.data);
 
-  if (code !== 200) {
-    // Handle error
+  if (result.code !== 200) {
+    toast?.({
+      title: "Update Quote Status Error",
+      description: result.message,
+    });
     return;
   }
 
@@ -47,13 +53,18 @@ const action = async (
 const generateSalesOrder = async (
   quoteId: string,
   data: z.infer<typeof SalesOrderCreateSchema>,
+  toast?: (_: any) => unknown,
 ) => {
-  const { code } = await axiosInstance
+  const result = await axiosInstance
     .post(`/quotes/${quoteId}/sales-order`, data)
-    .then((res) => res.data satisfies { code: number });
+    .then((res) => res.data)
+    .catch((err) => err.response.data);
 
-  if (code > 299) {
-    // Handle error
+  if (result.code > 299) {
+    toast?.({
+      title: "Generate Sales Order Error",
+      description: result.message,
+    });
     return;
   }
 };
@@ -64,8 +75,8 @@ const QuoteShow = ({ params }: { params: { id: string } }) => {
     id: params.id,
   });
   const [dialogOpen, setDialogOpen] = React.useState(false);
-
   const { list, edit, show } = useNavigation();
+  const { toast } = useToast();
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -88,7 +99,7 @@ const QuoteShow = ({ params }: { params: { id: string } }) => {
               {data?.data.status.toUpperCase() === "DRAFT" && (
                 <Button
                   variant="outline"
-                  onClick={() => action(params.id, "SENT", refetch)}
+                  onClick={() => action(params.id, "SENT", refetch, toast)}
                   className="px-4"
                 >
                   Sent
@@ -98,14 +109,14 @@ const QuoteShow = ({ params }: { params: { id: string } }) => {
                 <>
                   <Button
                     variant="outline"
-                    onClick={() => action(params.id, "ACCEPT", refetch)}
+                    onClick={() => action(params.id, "ACCEPT", refetch, toast)}
                     className="px-4"
                   >
                     Accept
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => action(params.id, "REJECT", refetch)}
+                    onClick={() => action(params.id, "REJECT", refetch, toast)}
                     className="px-4"
                   >
                     Reject
@@ -237,7 +248,7 @@ const QuoteShow = ({ params }: { params: { id: string } }) => {
       </div>
       <SalesOrder
         onSuccess={async (d) => {
-          generateSalesOrder(params.id, d).then(() => {
+          generateSalesOrder(params.id, d, toast).then(() => {
             setDialogOpen(false);
           });
         }}

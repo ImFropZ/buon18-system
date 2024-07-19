@@ -10,6 +10,7 @@ import "@styles/global.css";
 import { TooltipProvider } from "@components/ui/tooltip";
 import localFont from "next/font/local";
 import { cn } from "@lib/utils";
+import { Toaster } from "@components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "B18 System",
@@ -131,6 +132,7 @@ export default function RootLayout({
             </DevtoolsProvider>
           </RefineKbarProvider>
         </Suspense>
+        <Toaster />
       </body>
     </html>
   );

@@ -1,38 +1,29 @@
 "use client";
 
-import type { Response } from "@models";
 import { LoginForm } from "@models/auth";
 import type { Me, Login } from "@providers";
 import type { AuthProvider } from "@refinedev/core";
+import axios from "axios";
 import Cookies from "js-cookie";
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }: LoginForm) => {
-    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    })
-      .then((res) => res.json())
-      .then((data: Response<Login>) => data.data)
-      .catch((err) => {
-        console.error(err);
-      });
+    const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + "/login", { email, password })
+      .then(res => res.data)
+      .catch(err => err.response.data);
 
-    if (response == null) {
+    if (response.code !== 200) {
       return {
         success: false,
         error: {
-          name: "LoginError",
-          message: "Invalid username or password",
+          name: "Login Error",
+          message: response.message,
         },
       };
     }
 
     // Store in cookies
-    const { token, refresh_token } = response;
+    const { token, refresh_token } = response.data as Login;
     const auth = JSON.stringify({ token });
     Cookies.set("auth", auth, { path: "/" });
     localStorage.setItem("refresh-token", refresh_token);
@@ -66,36 +57,30 @@ export const authProvider: AuthProvider = {
   getPermissions: async () => {
     const auth = Cookies.get("auth");
     if (auth) {
-      const profile = await fetch(process.env.NEXT_PUBLIC_API_URL + "/me")
-        .then((res) => res.json())
-        .then((data: Response<{ user: Me }>) => data.data)
-        .catch((err) => {
-          console.error("GET PERMISSIONS:" + err);
-        });
+      const result = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/me")
+        .then((res) => res.data)
+        .catch((err) => err.response.data);
 
-      if (profile == null) {
+      if (result.code !== 200) {
         return null;
       }
 
-      return profile.user.role;
+      return result.data.user.role;
     }
     return null;
   },
   getIdentity: async () => {
     const auth = Cookies.get("auth");
     if (auth) {
-      const profile = await fetch(process.env.NEXT_PUBLIC_API_URL + "/me")
-        .then((res) => res.json())
-        .then((data: Response<Me>) => data.data)
-        .catch((err) => {
-          console.error("GET INDENTITY:" + err);
-        });
+      const result = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/me")
+        .then((res) => res.data)
+        .catch((err) => err.response.data);
 
-      if (profile == null) {
+      if (result.code !== 200) {
         return null;
       }
 
-      return profile;
+      return result.data.user satisfies Me;
     }
     return null;
   },

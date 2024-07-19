@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@components/ui/table";
+import { useToast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuoteCreateSchema, QuoteItemEditSchema } from "@models/quote";
 import { useCreate, useNavigation } from "@refinedev/core";
@@ -51,8 +52,8 @@ const QuoteCreate = ({ params }: { params: { id: string } }) => {
     keyName: "uuid",
   });
   const [dialogOpen, setDialogOpen] = React.useState(false);
-
   const { list, show } = useNavigation();
+  const { toast } = useToast();
 
   const onSubmit = (data: z.infer<typeof QuoteCreateSchema>) => {
     mutate(
@@ -62,6 +63,12 @@ const QuoteCreate = ({ params }: { params: { id: string } }) => {
       },
       {
         onSuccess: () => list("quotes"),
+        onError: (error) => {
+          toast({
+            title: "Create Quote Error",
+            description: error.message,
+          });
+        },
       },
     );
   };
@@ -109,7 +116,15 @@ const QuoteCreate = ({ params }: { params: { id: string } }) => {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">
+        <form
+          onSubmit={form.handleSubmit(onSubmit, () => {
+            toast({
+              title: "Submit Quote Form Error",
+              description: "An error occurred",
+            });
+          })}
+          className="h-full"
+        >
           <div className="relative flex h-full flex-col gap-2 overflow-hidden rounded-lg px-1 pb-2">
             <div className="flex gap-2">
               <Button

@@ -12,6 +12,7 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { SocialMedia as SheetSocialMedia } from "@/components/sheet/SocialMedia";
 import { InputFormField, SelectFormField } from "@components/form";
+import { useToast } from "@components/ui/use-toast";
 
 export default function AccountCreate() {
   const form = useForm<Account>({
@@ -24,6 +25,7 @@ export default function AccountCreate() {
   });
   const { list } = useNavigation();
   const { mutate } = useCreate();
+  const { toast } = useToast();
 
   function onSubmit(data: Account) {
     mutate(
@@ -35,6 +37,12 @@ export default function AccountCreate() {
         onSuccess: () => {
           list("accounts");
         },
+        onError: (error) => {
+          toast({
+            title: "Create Account Error",
+            description: error.message,
+          });
+        },
       },
     );
   }
@@ -43,8 +51,11 @@ export default function AccountCreate() {
     <Sheet>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit, (err) => {
-            console.log(err);
+          onSubmit={form.handleSubmit(onSubmit, () => {
+            toast({
+              title: "Submit Account Form Error",
+              description: "An error occurred",
+            });
           })}
           className="relative flex h-full flex-col overflow-hidden rounded-lg px-1 pb-2"
         >

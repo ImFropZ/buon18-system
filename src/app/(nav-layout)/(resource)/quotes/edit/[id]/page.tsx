@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@components/ui/table";
+import { useToast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Quote, QuoteEditSchema, QuoteItemEditSchema } from "@models/quote";
 import { useNavigation, useOne, useUpdate } from "@refinedev/core";
@@ -53,8 +54,8 @@ const QuoteEdit = ({ params }: { params: { id: string } }) => {
   });
   const [itemDeleteIds, setItemDeleteIds] = React.useState<number[]>([]);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-
   const { list, show } = useNavigation();
+  const { toast } = useToast();
 
   const onSubmit = (data: z.infer<typeof QuoteEditSchema>) => {
     mutate(
@@ -68,6 +69,12 @@ const QuoteEdit = ({ params }: { params: { id: string } }) => {
       },
       {
         onSuccess: () => show("quotes", params.id),
+        onError: (error) => {
+          toast({
+            title: "Update Quote Error",
+            description: error.message,
+          });
+        },
       },
     );
   };
@@ -130,8 +137,11 @@ const QuoteEdit = ({ params }: { params: { id: string } }) => {
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit, (err) => {
-            console.log(err);
+          onSubmit={form.handleSubmit(onSubmit, () => {
+            toast({
+              title: "Submit Quote Form Error",
+              description: "An error occurred",
+            });
           })}
           className="h-full"
         >

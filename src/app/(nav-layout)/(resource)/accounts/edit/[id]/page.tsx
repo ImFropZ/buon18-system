@@ -13,6 +13,7 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { InputFormField, SelectFormField } from "@components/form";
 import { CustomTooltip } from "@components";
+import { useToast } from "@components/ui/use-toast";
 
 const AccountEdit = ({ params }: { params: { id: string } }) => {
   const { mutate } = useUpdate<Account>();
@@ -32,6 +33,7 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
   const [socialMediaDeleteIds, setSocialMediaDeleteIds] = React.useState<
     number[]
   >([]);
+  const { toast } = useToast();
 
   const onSubmit = (data: Account) => {
     mutate(
@@ -45,6 +47,12 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
       },
       {
         onSuccess: () => show("accounts", params.id),
+        onError: (error) => {
+          toast({
+            title: "Create Account Error",
+            description: error.message,
+          });
+        },
       },
     );
   };
@@ -104,8 +112,8 @@ const AccountEdit = ({ params }: { params: { id: string } }) => {
                     render={({ field }) => (
                       <InputFormField
                         field={field}
-                        defaultValue={data?.data.code || ""}
                         errorField={form.formState.errors.code}
+                        defaultValue={data?.data.code || ""}
                       />
                     )}
                   />

@@ -17,6 +17,7 @@ import * as z from "zod";
 import { Dialog, DialogTrigger } from "@components/ui/dialog";
 import { User } from "@components/modal/User";
 import { axiosInstance } from "@providers/data-provider";
+import { useToast } from "@components/ui/use-toast";
 
 const createUserData = async (data: z.infer<typeof UserCreateSchema>) => {
   const result = UserCreateSchema.safeParse(data);
@@ -61,6 +62,7 @@ export default function UserList() {
   });
   const { mutate } = useDelete();
   const router = useRouter();
+  const { toast } = useToast();
 
   const { currentPage, back, next, go, hasPreviousPage, hasNextPage } =
     usePagination({
@@ -118,9 +120,11 @@ export default function UserList() {
                 isCreate
                 onSubmit={(d) => {
                   createUserData(d).then((data) => {
-                    const { code } = data;
-                    if (code !== 201) {
-                      // Handle error
+                    if (data.code !== 201) {
+                      toast({
+                        title: "Create User Error",
+                        description: data.message,
+                      });
                       return;
                     }
 

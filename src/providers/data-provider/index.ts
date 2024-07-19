@@ -96,13 +96,11 @@ export const dataProvider: DataProvider = {
         } as any;
     },
     create: async function ({ resource, variables, meta }) {
-        const token = getAuthCookie();
+        const result = await axiosInstance.post<Response<null>>(`/${resource}`, variables).then(res => res.data).catch(err => err.response.data);
 
-        await axiosInstance.post<Response<null>>(`/${resource}`, variables, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        if (result.code > 299) {
+            throw new Error(result.message);
+        }
 
         const { data, total } = await this.getList({ resource, meta });
 
@@ -112,13 +110,11 @@ export const dataProvider: DataProvider = {
         } as any;
     },
     update: async function ({ resource, id, variables, meta }) {
-        const token = getAuthCookie();
+        const result = await axiosInstance.patch<Response<null>>(`/${resource}/${id}`, variables).then(res => res.data).catch(err => err.response.data);
 
-        await axiosInstance.patch<Response<null>>(`/${resource}/${id}`, variables, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        if (result.code > 299) {
+            throw new Error(result.message);
+        }
 
         const { data } = await this.getOne({ resource, id, meta })
 

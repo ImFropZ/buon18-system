@@ -8,6 +8,7 @@ import {
 } from "@components/form";
 import { Button } from "@components/ui/button";
 import { Form, FormField } from "@components/ui/form";
+import { useToast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SalesOrderEditSchema, SalesOrderSchema } from "@models/sales-order";
 import { useNavigation, useOne, useUpdate } from "@refinedev/core";
@@ -25,8 +26,8 @@ const SalesOrderEdit = ({ params }: { params: { id: string } }) => {
   const form = useForm({
     resolver: zodResolver(SalesOrderEditSchema),
   });
-
   const { list, show } = useNavigation();
+  const { toast } = useToast();
 
   const onSubmit = (data: z.infer<typeof SalesOrderEditSchema>) => {
     mutate(
@@ -39,13 +40,27 @@ const SalesOrderEdit = ({ params }: { params: { id: string } }) => {
         onSuccess: () => {
           show("sales-orders", params.id);
         },
+        onError: (error) => {
+          toast({
+            title: "Update Sales Order Error",
+            description: error.message,
+          });
+        },
       },
     );
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, () => {
+          toast({
+            title: "Submit Sales Order Form Error",
+            description: "An error occurred",
+          });
+        })}
+        className="h-full"
+      >
         <div className="relative flex h-full flex-col gap-2 overflow-hidden rounded-lg px-1 pb-2">
           {isLoading ? (
             <div className="grid place-content-center pt-10">
