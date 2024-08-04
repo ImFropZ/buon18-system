@@ -9,171 +9,199 @@ import { jwtDecode } from "jwt-decode";
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-axiosInstance.interceptors.request.use(async req => {
-    const token = getAuthCookie();
-    if (token) {
-        req.headers.Authorization = `Bearer ${token}`;
+axiosInstance.interceptors.request.use(async (req) => {
+  const token = getAuthCookie();
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
+  }
+
+  const decodedExpToken = jwtDecode(token).exp;
+  const isExpired = decodedExpToken
+    ? decodedExpToken < Date.now() / 1000
+    : true;
+
+  if (isExpired) {
+    const refreshToken = localStorage.getItem("refresh-token");
+    if (!refreshToken || !token) {
+      return Promise.reject("Unauthorized");
     }
 
-    const decodedExpToken = jwtDecode(token).exp;
-    const isExpired = decodedExpToken ? decodedExpToken < Date.now() / 1000 : true;
+    const result = await axios.post(
+      `${API_URL}/refresh`,
+      {
+        refresh_token: refreshToken,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
-    if (isExpired) {
-        const refreshToken = localStorage.getItem("refresh-token");
-        if (!refreshToken || !token) {
-            return Promise.reject("Unauthorized");
-        }
-
-        const result = await axios.post(`${API_URL}/refresh`, {
-            refresh_token: refreshToken,
-        }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        })
-
-        if (result.status !== 200) {
-            return Promise.reject("Unauthorized");
-        }
-
-        const { token: newToken } = result.data.data;
-
-        Cookies.set("auth", JSON.stringify({ token: newToken }), { path: "/" });
-
-        req.headers.Authorization = `Bearer ${newToken}`;
+    if (result.status !== 200) {
+      return Promise.reject("Unauthorized");
     }
 
-    return req;
-})
+    const { token: newToken } = result.data.data;
 
-axiosInstance.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-);
+    Cookies.set("auth", JSON.stringify({ token: newToken }), { path: "/" });
+
+    req.headers.Authorization = `Bearer ${newToken}`;
+  }
+
+  return req;
+});
+
+axiosInstance.interceptors.response.use((response) => {
+  return response;
+});
 
 export const dataProvider: DataProvider = {
-    getList: async function ({ resource, pagination, filters }) {
-        const params: { [_ in string]: any } = {
-            ...(pagination ? { limit: pagination.pageSize, offset: (pagination.pageSize || 10) * ((pagination.current || 1) - 1) } : {}),
+  getList: async function ({ resource, pagination, filters }) {
+    const params: { [_ in string]: any } = {
+      ...(pagination
+        ? {
+            limit: pagination.pageSize,
+            offset:
+              (pagination.pageSize || 10) * ((pagination.current || 1) - 1),
+          }
+        : {}),
+    };
+
+    filters?.forEach((filter) => {
+      if (filter.value == null) {
+        return;
+      }
+      if (instanceOfLogicalFilter(filter)) {
+        let op = "";
+        switch (filter.operator) {
+          case "contains":
+            op = "ilike";
+            break;
+          case "gt":
+            op = "min";
+            break;
+          case "lt":
+            op = "max";
+            break;
+          case "between":
+            op = "range";
+            break;
+          default:
+            break;
         }
-
-        filters?.forEach((filter) => {
-            if (instanceOfLogicalFilter(filter)) {
-                let op = ""
-                switch (filter.operator) {
-                    case "contains":
-                        op = "ilike";
-                        break;
-                    case "gt":
-                        op = "min";
-                        break;
-                    case "lt":
-                        op = "max";
-                        break;
-                    case "between":
-                        op = "range";
-                        break;
-                    default:
-                        break;
-                }
-                if (op) {
-                    params[`${filter.field}_${op}`] = filter.value;
-                }
-            }
-        });
-
-        const result = await axiosInstance.get<Response<{ "total": number } & { [_ in string]: any[] }>>(`/${resource}`, {
-            params,
-        }).then((response) => response.data);
-
-        return {
-            data: result.data[resource.replaceAll("-", "_")] || [],
-            total: result.data.total || 0,
-        } as any;
-    },
-    create: async function ({ resource, variables, meta }) {
-        const result = await axiosInstance.post<Response<null>>(`/${resource}`, variables).then(res => res.data).catch(err => err.response.data);
-
-        if (result.code > 299) {
-            throw new Error(result.message);
+        if (op) {
+          params[`${filter.field}_${op}`] = filter.value;
         }
+      }
+    });
 
-        const { data, total } = await this.getList({ resource, meta });
+    const result = await axiosInstance
+      .get<Response<{ total: number } & { [_ in string]: any[] }>>(
+        `/${resource}`,
+        {
+          params,
+        },
+      )
+      .then((response) => response.data);
 
-        return {
-            data,
-            total
-        } as any;
-    },
-    update: async function ({ resource, id, variables, meta }) {
-        const result = await axiosInstance.patch<Response<null>>(`/${resource}/${id}`, variables).then(res => res.data).catch(err => err.response.data);
+    return {
+      data: result.data[resource.replaceAll("-", "_")] || [],
+      total: result.data.total || 0,
+    } as any;
+  },
+  create: async function ({ resource, variables, meta }) {
+    const result = await axiosInstance
+      .post<Response<null>>(`/${resource}`, variables)
+      .then((res) => res.data)
+      .catch((err) => err.response.data);
 
-        if (result.code > 299) {
-            throw new Error(result.message);
-        }
+    if (result.code > 299) {
+      throw new Error(result.message);
+    }
 
-        const { data } = await this.getOne({ resource, id, meta })
+    const { data, total } = await this.getList({ resource, meta });
 
-        return {
-            data,
-        } as any;
-    },
-    deleteOne: async function ({ resource, id, meta }) {
-        const token = getAuthCookie();
+    return {
+      data,
+      total,
+    } as any;
+  },
+  update: async function ({ resource, id, variables, meta }) {
+    const result = await axiosInstance
+      .patch<Response<null>>(`/${resource}/${id}`, variables)
+      .then((res) => res.data)
+      .catch((err) => err.response.data);
 
-        const response = await axiosInstance.delete<null>(`/${resource}/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+    if (result.code > 299) {
+      throw new Error(result.message);
+    }
 
-        if (response.status !== 200) {
-            throw new Error("Failed to delete the account");
-        }
+    const { data } = await this.getOne({ resource, id, meta });
 
-        const { data, total } = await this.getList({ resource, meta });
+    return {
+      data,
+    } as any;
+  },
+  deleteOne: async function ({ resource, id, meta }) {
+    const token = getAuthCookie();
 
-        return {
-            data,
-            total
-        } as any;
-    },
-    getOne: async function ({ resource, id }) {
-        const token = getAuthCookie();
+    const response = await axiosInstance.delete<null>(`/${resource}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-        const result = await axiosInstance.get<Response<{ [_ in string]: object }>>(`/${resource}/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }).then((response) => response.data);
+    if (response.status !== 200) {
+      throw new Error("Failed to delete the account");
+    }
 
-        // Remove the last character from the resource name ussuallly 's'
-        const tmpResource = resource.split("");
-        tmpResource.pop();
-        resource = tmpResource.join("");
+    const { data, total } = await this.getList({ resource, meta });
 
-        return {
-            data: result.data[resource.replaceAll("-", "_")] || {} // Remove the last character from the resource name ussuallly 's'
-        } as any;
-    },
-    getApiUrl: function () { return API_URL; },
-}
+    return {
+      data,
+      total,
+    } as any;
+  },
+  getOne: async function ({ resource, id }) {
+    const token = getAuthCookie();
+
+    const result = await axiosInstance
+      .get<Response<{ [_ in string]: object }>>(`/${resource}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => response.data);
+
+    // Remove the last character from the resource name ussuallly 's'
+    const tmpResource = resource.split("");
+    tmpResource.pop();
+    resource = tmpResource.join("");
+
+    return {
+      data: result.data[resource.replaceAll("-", "_")] || {}, // Remove the last character from the resource name ussuallly 's'
+    } as any;
+  },
+  getApiUrl: function () {
+    return API_URL;
+  },
+};
 
 function instanceOfLogicalFilter(object: any): object is LogicalFilter {
-    return 'operator' in object;
+  return "operator" in object;
 }
 
 function getAuthCookie() {
-    const auth = Cookies.get("auth");
-    const { token } = JSON.parse(auth || "{}");
+  const auth = Cookies.get("auth");
+  const { token } = JSON.parse(auth || "{}");
 
-    if (!token) {
-        throw new Error("Unauthorized");
-    }
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
 
-    return token;
+  return token;
 }

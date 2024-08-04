@@ -1,3 +1,3 @@
-export * from "./SocialMedia"
-export * from "./CustomTooltip"
-export * from "./CustomPagination"
+export * from "./SocialMedia";
+export * from "./CustomTooltip";
+export * from "./CustomPagination";

@@ -86,8 +86,8 @@ export function columns({ _delete, onRefresh }: UserColumnProps) {
         };
 
         return (
-          <div className="flex justify-center gap-2">
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <div className="flex justify-center gap-2">
               <CustomTooltip content="Edit">
                 <DialogTrigger asChild>
                   <button
@@ -117,39 +117,39 @@ export function columns({ _delete, onRefresh }: UserColumnProps) {
                 }}
                 defaultValue={data}
               />
-            </Dialog>
-            {_delete ? (
-              <AlertDialog>
-                <CustomTooltip content="Delete">
-                  <AlertDialogTrigger asChild>
-                    <button className="group/button h-auto rounded bg-destructive px-2 py-[1px] outline outline-[1px] outline-destructive/50 hover:outline-destructive">
-                      <Trash2
-                        size={18}
-                        className="text-primary/50 group-hover/button:text-primary"
-                      />
-                    </button>
-                  </AlertDialogTrigger>
-                </CustomTooltip>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      and remove this data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => _delete(data.id)}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : null}
-          </div>
+              {_delete ? (
+                <AlertDialog>
+                  <CustomTooltip content="Delete">
+                    <AlertDialogTrigger asChild>
+                      <button className="group/button h-auto rounded bg-destructive px-2 py-[1px] outline outline-[1px] outline-destructive/50 hover:outline-destructive">
+                        <Trash2
+                          size={18}
+                          className="text-primary/50 group-hover/button:text-primary"
+                        />
+                      </button>
+                    </AlertDialogTrigger>
+                  </CustomTooltip>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete and remove this data from our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => _delete(data.id)}>
+                        Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : null}
+            </div>
+          </Dialog>
         );
       },
     },

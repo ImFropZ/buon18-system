@@ -7,4 +7,4 @@ export function cn(...inputs: ClassValue[]) {
 
 export const utils = {
   SEARCH_DEBOUNCE_DELAY: 500,
-}
+};

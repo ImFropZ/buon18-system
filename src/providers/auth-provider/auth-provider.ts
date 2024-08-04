@@ -8,9 +8,10 @@ import Cookies from "js-cookie";
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }: LoginForm) => {
-    const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + "/login", { email, password })
-      .then(res => res.data)
-      .catch(err => err.response.data);
+    const response = await axios
+      .post(process.env.NEXT_PUBLIC_API_URL + "/login", { email, password })
+      .then((res) => res.data)
+      .catch((err) => err.response.data);
 
     if (response.code !== 200) {
       return {
@@ -57,7 +58,8 @@ export const authProvider: AuthProvider = {
   getPermissions: async () => {
     const auth = Cookies.get("auth");
     if (auth) {
-      const result = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/me")
+      const result = await axios
+        .get(process.env.NEXT_PUBLIC_API_URL + "/me")
         .then((res) => res.data)
         .catch((err) => err.response.data);
 
@@ -72,7 +74,8 @@ export const authProvider: AuthProvider = {
   getIdentity: async () => {
     const auth = Cookies.get("auth");
     if (auth) {
-      const result = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/me")
+      const result = await axios
+        .get(process.env.NEXT_PUBLIC_API_URL + "/me")
         .then((res) => res.data)
         .catch((err) => err.response.data);
 
@@ -92,6 +95,6 @@ export const authProvider: AuthProvider = {
         redirectTo: "/login",
       };
     }
-    return {}
+    return {};
   },
 };

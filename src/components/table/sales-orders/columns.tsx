@@ -58,7 +58,19 @@ export function columns({ _delete, show, edit }: SalesOrderColumnProps) {
       cell: ({ row }) => {
         const { note } = row.original;
         return (
-          <p>{note ? note.length > 20 ? note.slice(0, 20) + "..." : note : <span className="text-muted-foreground">&minus; No note &minus;</span>}</p>
+          <p>
+            {note ? (
+              note.length > 20 ? (
+                note.slice(0, 20) + "..."
+              ) : (
+                note
+              )
+            ) : (
+              <span className="text-muted-foreground">
+                &minus; No note &minus;
+              </span>
+            )}
+          </p>
         );
       },
     },

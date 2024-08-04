@@ -37,7 +37,7 @@ export default function AccountList() {
       {
         field: "name",
         operator: "contains",
-        value: debouncedSearchName,
+        value: debouncedSearchName || null,
       },
     ],
     pagination: {
@@ -52,7 +52,7 @@ export default function AccountList() {
     usePagination({
       page: offset / limit + 1,
       pageSize: limit,
-      totalItems: data?.total || Number.MAX_SAFE_INTEGER,
+      totalItems: data?.total ?? Number.MAX_SAFE_INTEGER,
       onChange: (pageNumber, { pageSize }) => {
         const url = new URL(window.location.href);
         url.searchParams.set("limit", pageSize.toString());
