@@ -82,8 +82,8 @@ export function Nav({ links, isCollapsed }: NavProps) {
         ) : (
           <Button
             onClick={() => logout()}
-            variant={"outline"}
-            size={"sm"}
+            variant="destructive"
+            size="sm"
             className="mt-auto justify-start"
           >
             <LogOut className="mr-2 h-4 w-4" />
