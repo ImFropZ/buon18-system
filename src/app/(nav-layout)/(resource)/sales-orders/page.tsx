@@ -5,9 +5,6 @@ import { columns } from "@components/table/sales-orders/columns";
 import { useList, useNavigation } from "@refinedev/core";
 import { DataTable } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
-import { Button } from "@components/ui/button";
-import { CustomTooltip } from "@components";
-import { Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePagination, useDebounce } from "@hooks";
 import { utils } from "@lib/utils";
@@ -31,7 +28,7 @@ export default function SalesOrderList() {
     Number(searchParams.get("offset")) || 0,
   );
 
-  const { show, edit, create } = useNavigation();
+  const { show, edit } = useNavigation();
   const { data, isLoading } = useList<z.infer<typeof SalesOrderSchema>>({
     resource: "sales-orders",
     filters: [
@@ -85,18 +82,6 @@ export default function SalesOrderList() {
               value={searchCode}
               placeholder="Search Code ..."
             />
-            <CustomTooltip content="Create">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  create("sales-orders");
-                }}
-                className="ml-auto"
-              >
-                <Plus />
-              </Button>
-            </CustomTooltip>
           </div>
           <DataTable
             columns={columns({
