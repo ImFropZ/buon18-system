@@ -3,6 +3,7 @@
 import { Response } from "@models";
 import { DataProvider, LogicalFilter } from "@refinedev/core";
 import axios from "axios";
+import { addMonths } from "date-fns";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
@@ -46,8 +47,9 @@ axiosInstance.interceptors.request.use(async (req) => {
     }
 
     const { token: newToken } = result.data.data;
+    const futureDate = addMonths(new Date(), 1);
 
-    Cookies.set("auth", JSON.stringify({ token: newToken }), { path: "/" });
+    Cookies.set("auth", JSON.stringify({ token: newToken }), { path: "/", expires: futureDate, secure: true });
 
     req.headers.Authorization = `Bearer ${newToken}`;
   }
@@ -64,10 +66,10 @@ export const dataProvider: DataProvider = {
     const params: { [_ in string]: any } = {
       ...(pagination
         ? {
-            limit: pagination.pageSize,
-            offset:
-              (pagination.pageSize || 10) * ((pagination.current || 1) - 1),
-          }
+          limit: pagination.pageSize,
+          offset:
+            (pagination.pageSize || 10) * ((pagination.current || 1) - 1),
+        }
         : {}),
     };
 

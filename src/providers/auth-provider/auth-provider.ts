@@ -4,6 +4,7 @@ import { LoginForm } from "@models/auth";
 import type { Me, Login } from "@providers";
 import type { AuthProvider } from "@refinedev/core";
 import axios from "axios";
+import { addMonths } from "date-fns";
 import Cookies from "js-cookie";
 
 export const authProvider: AuthProvider = {
@@ -26,7 +27,8 @@ export const authProvider: AuthProvider = {
     // Store in cookies
     const { token, refresh_token } = response.data as Login;
     const auth = JSON.stringify({ token });
-    Cookies.set("auth", auth, { path: "/" });
+    const futureDate = addMonths(new Date(), 1);
+    Cookies.set("auth", auth, { path: "/", expires: futureDate, secure: true });
     localStorage.setItem("refresh-token", refresh_token);
 
     return {
@@ -35,7 +37,7 @@ export const authProvider: AuthProvider = {
     };
   },
   logout: async () => {
-    Cookies.remove("auth", { path: "/" });
+    Cookies.remove("auth");
     return {
       success: true,
       redirectTo: "/login",

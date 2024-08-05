@@ -13,6 +13,7 @@ import { Button } from "@components/ui/button";
 import { UserCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { addMonths, format } from "date-fns";
 
 interface LayoutProps extends PropsWithChildren {
   defaultCollapse?: boolean;
@@ -52,7 +53,8 @@ export const Layout: React.FC<LayoutProps> = ({
           direction="horizontal"
           className="absolute inset-0 rounded-lg border"
           onLayout={(sizes: number[]) => {
-            document.cookie = `nav:layout=${JSON.stringify(sizes)}`;
+            const futureDate = addMonths(new Date(), 1);
+            document.cookie = `nav:layout=${JSON.stringify(sizes)}; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure`;
           }}
         >
           <ResizablePanel
@@ -64,11 +66,13 @@ export const Layout: React.FC<LayoutProps> = ({
             collapsedSize={2}
             onCollapse={() => {
               setIsCollapsed(true);
-              document.cookie = "nav:collapse=true";
+              const futureDate = addMonths(new Date(), 1);
+              document.cookie = `nav:collapse=true; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure`;
             }}
             onExpand={() => {
               setIsCollapsed(false);
-              document.cookie = "nav:collapse=false";
+              const futureDate = addMonths(new Date(), 1);
+              document.cookie = `nav:collapse=false; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure`;
             }}
           >
             <Menu isCollapsed={isCollapsed} />
