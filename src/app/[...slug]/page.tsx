@@ -4,7 +4,7 @@ import { useMenu } from "@refinedev/core";
 import { notFound } from "next/navigation";
 import React from "react";
 
-function page() {
+export default function ModuleGatewayPage() {
   const { selectedKey } = useMenu();
 
   const activeModule = installedModules.find((m) =>
@@ -27,5 +27,3 @@ function page() {
 
   return <Page />;
 }
-
-export default page;
