@@ -10,7 +10,10 @@ import Cookies from "js-cookie";
 export const authProvider: AuthProvider = {
   login: async ({ email, password }: LoginForm) => {
     const response = await axios
-      .post(process.env.NEXT_PUBLIC_API_URL + "/login", { email, password })
+      .post(process.env.NEXT_PUBLIC_API_URL + "/auth/login", {
+        email,
+        password,
+      })
       .then((res) => res.data)
       .catch((err) => err.response.data);
 
@@ -61,7 +64,7 @@ export const authProvider: AuthProvider = {
     const auth = Cookies.get("auth");
     if (auth) {
       const result = await axios
-        .get(process.env.NEXT_PUBLIC_API_URL + "/me")
+        .get(process.env.NEXT_PUBLIC_API_URL + "/auth/me")
         .then((res) => res.data)
         .catch((err) => err.response.data);
 
@@ -77,7 +80,7 @@ export const authProvider: AuthProvider = {
     const auth = Cookies.get("auth");
     if (auth) {
       const result = await axios
-        .get(process.env.NEXT_PUBLIC_API_URL + "/me")
+        .get(process.env.NEXT_PUBLIC_API_URL + "/auth/me")
         .then((res) => res.data)
         .catch((err) => err.response.data);
 

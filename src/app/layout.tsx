@@ -5,11 +5,12 @@ import routerProvider from "@refinedev/nextjs-router";
 import { Metadata } from "next";
 import React, { Suspense } from "react";
 import { authProvider } from "@providers/auth-provider";
-import { dataProvider } from "@providers/data-provider";
+import { dataProvider } from "@providers/data-provider/base";
 import "@styles/global.css";
 import { TooltipProvider } from "@components/ui/tooltip";
 import localFont from "next/font/local";
 import { cn } from "@lib/utils";
+import { installedModules } from "@modules";
 import { Toaster } from "@components/ui/toaster";
 
 export const metadata: Metadata = {
@@ -71,53 +72,16 @@ export default function RootLayout({
                 dataProvider={dataProvider}
                 authProvider={authProvider}
                 resources={[
-                  {
-                    name: "accounts",
-                    list: "/accounts",
-                    show: "/accounts/show/:id",
-                    edit: "/accounts/edit/:id",
-                    create: "/accounts/create",
-                    meta: {
-                      label: "Accounts",
-                    },
-                  },
-                  {
-                    name: "clients",
-                    list: "/clients",
-                    show: "/clients/show/:id",
-                    edit: "/clients/edit/:id",
-                    create: "/clients/create",
-                    meta: {
-                      label: "Clients",
-                    },
-                  },
-                  {
-                    name: "quotes",
-                    list: "/quotes",
-                    show: "/quotes/show/:id",
-                    edit: "/quotes/edit/:id",
-                    create: "/quotes/create",
-                    meta: {
-                      label: "Quotes",
-                    },
-                  },
-                  {
-                    name: "sales-orders",
-                    list: "/sales-orders",
-                    show: "/sales-orders/show/:id",
-                    edit: "/sales-orders/edit/:id",
-                    create: "/sales-orders/create",
-                    meta: {
-                      label: "Sales Orders",
-                    },
-                  },
-                  {
-                    name: "users",
-                    list: "/users",
-                    meta: {
-                      label: "Users",
-                    },
-                  },
+                  ...installedModules.flatMap((m) => {
+                    const routes = m.module.manifest.routes;
+                    for (const route of routes) {
+                      route.show = m.module.manifest.rootPath + route.show;
+                      route.list = m.module.manifest.rootPath + route.list;
+                      route.create = m.module.manifest.rootPath + route.create;
+                      route.edit = m.module.manifest.rootPath + route.edit;
+                    }
+                    return routes;
+                  }),
                 ]}
                 options={{
                   syncWithLocation: true,
