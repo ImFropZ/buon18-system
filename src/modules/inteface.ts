@@ -1,5 +1,4 @@
 import { DataProvider, ResourceProps } from "@refinedev/core";
-import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 export interface Manifest {
   name: string;
