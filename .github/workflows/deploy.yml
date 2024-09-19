@@ -17,5 +17,4 @@ jobs:
           vercel-args: "--prod"
           vercel-org-id: ${{ secrets.ORG_ID}}
           vercel-project-id: ${{ secrets.PROJECT_ID}}
-          alias-domains: "system-buon18.vercel.app"
           scope: "fropz"
