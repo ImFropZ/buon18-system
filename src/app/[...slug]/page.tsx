@@ -25,7 +25,6 @@ export default function ModuleGatewayPage({
       const tmpPassParams: { [key in string]: string } = {};
       const sections = page.key.slice(1).split("/");
       if (sections.length !== params.slug.length) {
-        console.log(sections.length, params.slug.length);
         continue;
       }
 

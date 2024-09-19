@@ -75,10 +75,18 @@ export default function RootLayout({
                   ...installedModules.flatMap((m) => {
                     const routes = m.module.manifest.routes;
                     for (const route of routes) {
-                      route.show = m.module.manifest.rootPath + route.show;
-                      route.list = m.module.manifest.rootPath + route.list;
-                      route.create = m.module.manifest.rootPath + route.create;
-                      route.edit = m.module.manifest.rootPath + route.edit;
+                      route.show = route.show
+                        ? m.module.manifest.rootPath + route.show
+                        : undefined;
+                      route.list = route.list
+                        ? m.module.manifest.rootPath + route.list
+                        : undefined;
+                      route.create = route.create
+                        ? m.module.manifest.rootPath + route.create
+                        : undefined;
+                      route.edit = route.edit
+                        ? m.module.manifest.rootPath + route.edit
+                        : undefined;
                     }
                     return routes;
                   }),
