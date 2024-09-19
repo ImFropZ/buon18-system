@@ -1,11 +1,13 @@
-"use client";
 import { installedModules } from "@modules";
-import { useMenu } from "@refinedev/core";
 import { notFound } from "next/navigation";
 import React from "react";
 
-export default function ModuleGatewayPage() {
-  const { selectedKey } = useMenu();
+export default function ModuleGatewayPage({
+  params,
+}: {
+  params: { slug: string[] };
+}) {
+  const selectedKey = "/" + params.slug.join("/");
 
   const activeModule = installedModules.find((m) =>
     m.module.manifest.name.startsWith(selectedKey.split("/")[1]),
@@ -16,14 +18,42 @@ export default function ModuleGatewayPage() {
     return notFound();
   }
 
-  const Page = activeModule.module.manifest.pages.find(
-    (page) => page.key === selectedKey,
-  )?.path;
+  let passParams: { [key in string]: string } = {};
+  let PageComponent: any;
+  for (const page of activeModule.module.manifest.pages) {
+    if (page.key.includes(":")) {
+      const tmpPassParams: { [key in string]: string } = {};
+      const sections = page.key.slice(1).split("/");
+      if (sections.length !== params.slug.length) {
+        console.log(sections.length, params.slug.length);
+        continue;
+      }
 
-  if (!Page) {
+      for (let i = 0; i < sections.length; i++) {
+        if (sections[i].startsWith(":")) {
+          tmpPassParams[sections[i].slice(1)] = params.slug[i];
+        } else if (sections[i] !== params.slug[i]) {
+          continue;
+        }
+      }
+
+      passParams = tmpPassParams;
+      PageComponent = page.path;
+    }
+
+    if (page.key === selectedKey) {
+      PageComponent = page.path;
+    }
+  }
+
+  if (!PageComponent) {
     console.log("Unable to find page", selectedKey);
     return notFound();
   }
 
-  return <Page />;
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <PageComponent params={passParams} />
+    </React.Suspense>
+  );
 }

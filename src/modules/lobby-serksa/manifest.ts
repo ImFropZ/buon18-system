@@ -1,3 +1,4 @@
+import React from "react";
 import { routes } from "./routes";
 import { Manifest } from "@modules/inteface";
 
@@ -12,7 +13,15 @@ export const manifest: Manifest = {
   pages: [
     {
       key: "/lobby-serksa",
-      path: require("./pages/page").default,
+      path: React.lazy(() => import("./pages/page")),
+    },
+    {
+      key: "/lobby-serksa/schools",
+      path: React.lazy(() => import("./pages/schools/page")),
+    },
+    {
+      key: "/lobby-serksa/schools/:id",
+      path: React.lazy(() => import("./pages/schools/[id]/page")),
     },
   ],
 };

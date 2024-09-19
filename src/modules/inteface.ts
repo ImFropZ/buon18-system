@@ -9,10 +9,8 @@ export interface Manifest {
   icon: string;
   routes: ResourceProps[];
   dataProvider: DataProvider | null;
-  pages: [
-    {
-      key: string;
-      path: ForwardRefExoticComponent<RefAttributes<HTMLElement>> | null;
-    },
-  ];
+  pages: {
+    key: string;
+    path: React.LazyExoticComponent<React.ComponentType<any>>;
+  }[];
 }

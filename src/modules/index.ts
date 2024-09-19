@@ -1,5 +1,5 @@
 import { Manifest } from "./inteface";
 
-export const installedModules = [{ module: require("./lobby-serksa") }] as {
+export const installedModules: {
   module: { manifest: Manifest };
-}[];
+}[] = [{ module: require("./lobby-serksa") }];
