@@ -1,7 +1,6 @@
 import React from "react";
 import { routes } from "./routes";
 import { Manifest } from "@modules/inteface";
-import dynamic from "next/dynamic";
 
 export const manifest: Manifest = {
   name: "lobby-serksa",

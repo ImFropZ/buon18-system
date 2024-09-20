@@ -4,7 +4,6 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@components/ui/pagination";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 import { Button } from "./ui/button";
 
