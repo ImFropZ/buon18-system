@@ -1,7 +1,6 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
-import { Breadcrumb } from "../breadcrumb";
 import { Menu } from "../menu";
 import {
   ResizableHandle,
@@ -9,44 +8,38 @@ import {
   ResizablePanelGroup,
 } from "@components/ui/resizable";
 import React from "react";
-import { Button } from "@components/ui/button";
-import { UserCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { addMonths, format } from "date-fns";
+import Link from "next/link";
 
 interface LayoutProps extends PropsWithChildren {
   defaultCollapse?: boolean;
   defaultLayout?: number[];
+  moduleKey?: string;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
   children,
   defaultCollapse = false,
   defaultLayout = [8, 92],
+  moduleKey,
 }) => {
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapse);
-  const router = useRouter();
 
   return (
     <div className="fixed inset-0 grid grid-rows-[auto,1fr]">
       <div className="flex items-center justify-between p-2 px-5">
         <div className="h-10">
-          <Image
-            src="/assets/Logo_Icon-01.png"
-            alt="418 logo"
-            width={64}
-            height={64}
-            className="h-full w-full"
-          />
+          <Link href={"/"}>
+            <Image
+              src="/assets/Logo_Icon-01.png"
+              alt="418 logo"
+              width={64}
+              height={64}
+              className="h-full w-full"
+            />
+          </Link>
         </div>
-        <Button
-          onClick={() => {
-            router.push("/profile");
-          }}
-        >
-          <UserCircle />
-        </Button>
       </div>
       <div className="relative h-full">
         <ResizablePanelGroup
@@ -75,12 +68,11 @@ export const Layout: React.FC<LayoutProps> = ({
               document.cookie = `nav:collapse=false; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure`;
             }}
           >
-            <Menu isCollapsed={isCollapsed} />
+            <Menu isCollapsed={isCollapsed} moduleKey={moduleKey} />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={defaultLayout[1] || 92}>
             <div className="flex h-full flex-col">
-              <Breadcrumb />
               <div className="flex-1 px-2">{children}</div>
             </div>
           </ResizablePanel>

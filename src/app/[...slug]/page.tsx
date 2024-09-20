@@ -14,7 +14,6 @@ export default function ModuleGatewayPage({
   );
 
   if (!activeModule) {
-    console.log("Unable to find module", selectedKey);
     return notFound();
   }
 
@@ -46,7 +45,6 @@ export default function ModuleGatewayPage({
   }
 
   if (!PageComponent) {
-    console.log("Unable to find page", selectedKey);
     return notFound();
   }
 
