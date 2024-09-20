@@ -3,11 +3,17 @@ import { ResourceProps } from "@refinedev/core";
 export const routes: ResourceProps[] = [
   {
     name: "lobby-serksa",
-    list: "/",
+    list: "/lobby-serksa",
+    meta: {
+      displayName: "Lobby Serksa",
+    },
   },
   {
     name: "lobby-serksa/schools",
-    list: "/schools",
-    show: "/schools/:id",
+    list: "/lobby-serksa/schools",
+    show: "/lobby-serksa/schools/:id",
+    meta: {
+      displayName: "Schools",
+    },
   },
 ];

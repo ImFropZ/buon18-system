@@ -12,6 +12,7 @@ import localFont from "next/font/local";
 import { cn } from "@lib/utils";
 import { installedModules } from "@modules";
 import { Toaster } from "@components/ui/toaster";
+import { QueryClientContextProvider } from "@components";
 
 export const metadata: Metadata = {
   title: "B18 System",
@@ -67,40 +68,27 @@ export default function RootLayout({
         <Suspense>
           <RefineKbarProvider>
             <DevtoolsProvider>
-              <Refine
-                routerProvider={routerProvider}
-                dataProvider={dataProvider}
-                authProvider={authProvider}
-                resources={[
-                  ...installedModules.flatMap((m) => {
-                    const routes = m.module.manifest.routes;
-                    for (const route of routes) {
-                      route.show = route.show
-                        ? m.module.manifest.rootPath + route.show
-                        : undefined;
-                      route.list = route.list
-                        ? m.module.manifest.rootPath + route.list
-                        : undefined;
-                      route.create = route.create
-                        ? m.module.manifest.rootPath + route.create
-                        : undefined;
-                      route.edit = route.edit
-                        ? m.module.manifest.rootPath + route.edit
-                        : undefined;
-                    }
-                    return routes;
-                  }),
-                ]}
-                options={{
-                  syncWithLocation: true,
-                  warnWhenUnsavedChanges: true,
-                  useNewQueryKeys: true,
-                  projectId: "KHj5hP-vK2ueq-vDwC4U",
-                }}
-              >
-                <TooltipProvider>{children}</TooltipProvider>
-                <RefineKbar />
-              </Refine>
+              <QueryClientContextProvider>
+                <Refine
+                  routerProvider={routerProvider}
+                  dataProvider={dataProvider}
+                  authProvider={authProvider}
+                  resources={[
+                    ...installedModules.flatMap(
+                      (m) => m.module.manifest.routes,
+                    ),
+                  ]}
+                  options={{
+                    syncWithLocation: true,
+                    warnWhenUnsavedChanges: true,
+                    useNewQueryKeys: true,
+                    projectId: "KHj5hP-vK2ueq-vDwC4U",
+                  }}
+                >
+                  <TooltipProvider>{children}</TooltipProvider>
+                  <RefineKbar />
+                </Refine>
+              </QueryClientContextProvider>
             </DevtoolsProvider>
           </RefineKbarProvider>
         </Suspense>

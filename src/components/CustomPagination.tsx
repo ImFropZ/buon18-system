@@ -32,8 +32,8 @@ export default function CustomPagination({
             back();
           }}
         >
-          <Button size="icon" variant="outline" disabled={!hasPreviousPage}>
-            <ChevronLeft />
+          <Button variant="outline" disabled={!hasPreviousPage}>
+            Previous
           </Button>
         </PaginationItem>
         <PaginationItem>
@@ -46,8 +46,8 @@ export default function CustomPagination({
             next();
           }}
         >
-          <Button size="icon" variant="outline" disabled={!hasNextPage}>
-            <ChevronRight />
+          <Button variant="outline" disabled={!hasNextPage}>
+            Next
           </Button>
         </PaginationItem>
       </PaginationContent>
