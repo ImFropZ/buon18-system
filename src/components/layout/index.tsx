@@ -47,7 +47,7 @@ export const Layout: React.FC<LayoutProps> = ({
           className="absolute inset-0 rounded-lg border"
           onLayout={(sizes: number[]) => {
             const futureDate = addMonths(new Date(), 1);
-            document.cookie = `nav:layout=${JSON.stringify(sizes)}; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure`;
+            document.cookie = `nav:layout=${JSON.stringify(sizes)}; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure; Path=/`;
           }}
         >
           <ResizablePanel
@@ -60,12 +60,12 @@ export const Layout: React.FC<LayoutProps> = ({
             onCollapse={() => {
               setIsCollapsed(true);
               const futureDate = addMonths(new Date(), 1);
-              document.cookie = `nav:collapse=true; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure`;
+              document.cookie = `nav:collapse=true; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure; Path=/`;
             }}
             onExpand={() => {
               setIsCollapsed(false);
               const futureDate = addMonths(new Date(), 1);
-              document.cookie = `nav:collapse=false; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure`;
+              document.cookie = `nav:collapse=false; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure; Path=/`;
             }}
           >
             <Menu isCollapsed={isCollapsed} moduleKey={moduleKey} />
