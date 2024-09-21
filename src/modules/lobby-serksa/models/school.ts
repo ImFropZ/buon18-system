@@ -7,3 +7,7 @@ export const CreateSchoolSchema = z.object({
 export const CreateSchoolsSchema = z.object({
   schools: z.array(CreateSchoolSchema),
 });
+
+export const UpdateSchoolSchema = z.object({
+  name: z.string(),
+});
