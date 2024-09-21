@@ -35,10 +35,8 @@ import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { UpdateSchoolSchema } from "@modules/lobby-serksa/models";
-import { DialogProps } from "@radix-ui/react-dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
-import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
 
