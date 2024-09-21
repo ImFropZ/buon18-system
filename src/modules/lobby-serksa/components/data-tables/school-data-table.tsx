@@ -34,7 +34,6 @@ import {
 } from "@components/ui/alert-dialog";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -42,41 +41,135 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@components/ui/sheet";
+import { useFieldArray, useForm } from "react-hook-form";
+import { CreateSchoolsSchema } from "@modules/lobby-serksa/models";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormField } from "@components/ui/form";
+import { InputFormField } from "@components/form";
+import { useToast } from "@components/ui/use-toast";
 import { Label } from "@components/ui/label";
-import { Input } from "@components/ui/input";
 
-function CreateShoolSheet({ children }: { children: React.ReactNode }) {
+async function onCreateHandler(data: { schools: { name: string }[] }) {
+  return axiosInstance.post(`/admin/schools`, data.schools).then((res) => {
+    return res.data as { code: number; message: string };
+  });
+}
+
+function CreateShoolSheet({
+  children,
+  refetch,
+}: {
+  children: React.ReactNode;
+  refetch: () => void;
+}) {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const { toast } = useToast();
+  const form = useForm<{ schools: { name: string }[] }>({
+    resolver: zodResolver(CreateSchoolsSchema),
+    defaultValues: { schools: [{ name: "" }] },
+  });
+
+  const fieldArray = useFieldArray({
+    control: form.control,
+    name: "schools",
+  });
+
   return (
-    <Sheet>
-      <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="lg:max-w-4xl">
-        <SheetHeader>
-          <SheetTitle>Edit profile</SheetTitle>
-          <SheetDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </SheetDescription>
-        </SheetHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input id="name" value="Pedro Duarte" className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
-              Username
-            </Label>
-            <Input id="username" value="@peduarte" className="col-span-3" />
-          </div>
-        </div>
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button type="submit">Save changes</Button>
-          </SheetClose>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+    <Form {...form}>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild>{children}</SheetTrigger>
+        <SheetContent className="lg:max-w-4xl">
+          <form
+            onSubmit={form.handleSubmit(
+              (d) => {
+                onCreateHandler(d)
+                  .then((response) => {
+                    form.reset();
+                    refetch();
+                    setIsOpen(false);
+                    toast({
+                      title: response.message,
+                    });
+                  })
+                  .catch((errRes) => {
+                    toast({
+                      title: "Failed to create schools",
+                      description: errRes.response.data.message,
+                      variant: "destructive",
+                    });
+                  });
+              },
+              () => {
+                toast({
+                  title: "Invalid form data",
+                  description: "Problem with schools data",
+                  variant: "destructive",
+                });
+              },
+            )}
+          >
+            <SheetHeader>
+              <SheetTitle>Create schools</SheetTitle>
+              <SheetDescription>
+                Make changes to your profile here. Click save when you&apos;re
+                done.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="my-2 flex flex-col gap-2">
+              {fieldArray.fields.map((field, index) => {
+                return (
+                  <div
+                    key={field.id}
+                    className="rounded border-2 p-2 px-4 pb-4"
+                  >
+                    <p className="ml-auto w-fit rounded bg-gray-300 px-2 text-sm">
+                      {field.id}
+                    </p>
+                    <Label>Name</Label>
+                    <FormField
+                      control={form.control}
+                      name={`schools.${index}.name`}
+                      render={({ field }) => (
+                        <InputFormField
+                          field={field}
+                          errorField={
+                            form.formState.errors
+                              ? form.formState.errors.schools?.[index]?.name
+                              : undefined
+                          }
+                          placeholder="Name"
+                        />
+                      )}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                onClick={() => fieldArray.append({ name: "" })}
+              >
+                Add School
+              </Button>
+              {fieldArray.fields.length > 1 && (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    fieldArray.remove(fieldArray.fields.length - 1)
+                  }
+                >
+                  Remove Last School
+                </Button>
+              )}
+            </div>
+            <SheetFooter>
+              <Button type="submit">Create</Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+    </Form>
   );
 }
 
@@ -92,7 +185,7 @@ export function SchoolDataTable() {
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["schools", { limit, offset }],
     queryFn: async () => {
       const response = await axiosInstance.get(`/admin/schools`, {
@@ -110,6 +203,9 @@ export function SchoolDataTable() {
     onRowSelectionChange: setRowSelection,
     state: {
       rowSelection,
+    },
+    meta: {
+      refetch: () => refetch(),
     },
   });
 
@@ -153,7 +249,7 @@ export function SchoolDataTable() {
             </>
           ) : null}
         </AlertDialog>
-        <CreateShoolSheet>
+        <CreateShoolSheet refetch={() => refetch()}>
           <Button>Create</Button>
         </CreateShoolSheet>
       </div>

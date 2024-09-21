@@ -18,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import { toast } from "@components/ui/use-toast";
+import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
@@ -60,8 +62,10 @@ export const schoolColumns: ColumnDef<School>[] = [
   },
   {
     header: "Actions",
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const school = row.original;
+      // NOTE: This is a hack to get the refetch function from the table options. Seems like the table meta is not being passed to the header component.
+      const meta = table.options.meta as { refetch: () => void } | undefined;
 
       return (
         <AlertDialog>
@@ -70,9 +74,6 @@ export const schoolColumns: ColumnDef<School>[] = [
               <MoreHorizontal />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>
-                <Link href="#">View</Link>
-              </DropdownMenuItem>
               <DropdownMenuItem>
                 <Link href="#">Update</Link>
               </DropdownMenuItem>
@@ -93,7 +94,29 @@ export const schoolColumns: ColumnDef<School>[] = [
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction>Continue</AlertDialogAction>
+              <AlertDialogAction
+                onClick={() => {
+                  axiosInstance
+                    .delete(`/admin/schools`, {
+                      data: [{ id: school.id }],
+                    })
+                    .then((res) => {
+                      toast({
+                        title: res.data.message,
+                      });
+                      if (meta) meta.refetch();
+                    })
+                    .catch((errRes) => {
+                      toast({
+                        title: "Error",
+                        description: errRes.response.data.message,
+                        variant: "destructive",
+                      });
+                    });
+                }}
+              >
+                Continue
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
