@@ -1,4 +1,4 @@
-import { Layout as BaseLayout } from "@components/layout";
+import { Layout as BaseLayout } from "@components";
 import { authProviderServer } from "@providers/auth-provider";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";

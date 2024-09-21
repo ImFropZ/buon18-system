@@ -1,7 +1,7 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
-import { Menu } from "../menu";
+import { Menu } from "./Menu";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -28,13 +28,13 @@ export const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className="fixed inset-0 grid grid-rows-[auto,1fr]">
-      <div className="flex items-center justify-between p-2 px-5">
+      <div className="flex items-center justify-between border-b-4 px-8 py-4">
         <div className="h-10">
           <Link href={"/"}>
             <Image
-              src="/assets/Logo_Icon-01.png"
+              src="/assets/buon18/logo.png"
               alt="418 logo"
-              width={64}
+              width={140}
               height={64}
               className="h-full w-full"
             />
@@ -44,7 +44,7 @@ export const Layout: React.FC<LayoutProps> = ({
       <div className="relative h-full">
         <ResizablePanelGroup
           direction="horizontal"
-          className="absolute inset-0 rounded-lg border"
+          className="absolute inset-0 rounded-lg"
           onLayout={(sizes: number[]) => {
             const futureDate = addMonths(new Date(), 1);
             document.cookie = `nav:layout=${JSON.stringify(sizes)}; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure; Path=/`;

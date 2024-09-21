@@ -50,7 +50,7 @@ export function AuthPage() {
       >
         <div className="mx-auto h-32 w-32">
           <Image
-            src="/assets/Logo_Icon-01.png"
+            src="/assets/buon18/mark.png"
             alt="418 logo"
             width={320}
             height={320}

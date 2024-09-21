@@ -3,7 +3,8 @@ import React from "react";
 
 export default async function Page() {
   return (
-    <main className="h-full p-4">
+    <main className="relative grid h-full grid-rows-[auto,1fr] gap-2 p-4">
+      <h1 className="text-2xl font-bold">Schools</h1>
       <SchoolDataTable />
     </main>
   );
