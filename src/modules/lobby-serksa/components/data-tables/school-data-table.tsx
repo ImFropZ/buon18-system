@@ -46,7 +46,7 @@ import { CreateSchoolsSchema } from "@modules/lobby-serksa/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField } from "@components/ui/form";
 import { InputFormField } from "@components/form";
-import { useToast } from "@components/ui/use-toast";
+import { toast, useToast } from "@components/ui/use-toast";
 import { Label } from "@components/ui/label";
 
 async function onCreateHandler(data: { schools: { name: string }[] }) {
@@ -173,6 +173,11 @@ function CreateShoolSheet({
   );
 }
 
+function onDeleteSelectedHandler(ids: number[]) {
+  const deleteBody = ids.map((id) => ({ id }));
+  return axiosInstance.delete(`/admin/schools`, { data: deleteBody });
+}
+
 export function SchoolDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
@@ -243,7 +248,28 @@ export function SchoolDataTable() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction>Continue</AlertDialogAction>
+                  <AlertDialogAction
+                    onClick={() => {
+                      const ids = table
+                        .getSelectedRowModel()
+                        .rows.flatMap((r) => r.original.id);
+                      if (ids.length === 0) return;
+                      onDeleteSelectedHandler(ids)
+                        .then((res) => {
+                          toast({ title: res.data.message });
+                          refetch();
+                        })
+                        .catch((errRes) => {
+                          toast({
+                            title: "Error",
+                            description: errRes.response.data.message,
+                            variant: "destructive",
+                          });
+                        });
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </>
