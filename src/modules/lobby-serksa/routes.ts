@@ -22,4 +22,11 @@ export const routes: ResourceProps[] = [
       displayName: "Majors",
     },
   },
+  {
+    name: "lobby-serksa/subjects",
+    list: "/lobby-serksa/subjects",
+    meta: {
+      displayName: "Subjects",
+    },
+  },
 ];
