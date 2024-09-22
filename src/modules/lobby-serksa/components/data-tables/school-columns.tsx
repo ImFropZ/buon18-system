@@ -34,16 +34,11 @@ import {
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
-import { UpdateSchoolSchema } from "@modules/lobby-serksa/models";
+import { School, UpdateSchoolSchema } from "@modules/lobby-serksa/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
-
-interface School {
-  id: number;
-  name: string;
-}
 
 export const schoolColumns: ColumnDef<School>[] = [
   {

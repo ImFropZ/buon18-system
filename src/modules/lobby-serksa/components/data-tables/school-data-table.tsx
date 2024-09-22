@@ -18,7 +18,7 @@ import { usePagination } from "@hooks";
 import { Button } from "@components/ui/button";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
-import { schoolColumns } from "./school-columns";
+import { schoolColumns } from "@modules/lobby-serksa/components/data-tables";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import React from "react";
 import {

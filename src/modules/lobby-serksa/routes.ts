@@ -11,9 +11,15 @@ export const routes: ResourceProps[] = [
   {
     name: "lobby-serksa/schools",
     list: "/lobby-serksa/schools",
-    show: "/lobby-serksa/schools/:id",
     meta: {
       displayName: "Schools",
+    },
+  },
+  {
+    name: "lobby-serksa/majors",
+    list: "/lobby-serksa/majors",
+    meta: {
+      displayName: "Majors",
     },
   },
 ];

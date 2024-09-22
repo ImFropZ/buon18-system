@@ -20,8 +20,8 @@ export const manifest: Manifest = {
       path: React.lazy(() => import("./pages/schools/page")),
     },
     {
-      key: "/lobby-serksa/schools/:id",
-      path: React.lazy(() => import("./pages/schools/[id]/page")),
+      key: "/lobby-serksa/majors",
+      path: React.lazy(() => import("./pages/majors/page")),
     },
   ],
 };

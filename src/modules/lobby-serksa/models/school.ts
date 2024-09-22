@@ -1,5 +1,10 @@
 import * as z from "zod";
 
+export interface School {
+  id: number;
+  name: string;
+}
+
 export const CreateSchoolSchema = z.object({
   name: z.string(),
 });
