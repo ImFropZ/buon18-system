@@ -27,5 +27,9 @@ export const manifest: Manifest = {
       key: "/lobby-serksa/subjects",
       path: React.lazy(() => import("./pages/subjects/page")),
     },
+    {
+      key: "/lobby-serksa/professors",
+      path: React.lazy(() => import("./pages/professors/page")),
+    },
   ],
 };
