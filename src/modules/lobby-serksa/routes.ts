@@ -36,4 +36,11 @@ export const routes: ResourceProps[] = [
       displayName: "Professors",
     },
   },
+  {
+    name: "lobby-serksa/quizzes",
+    list: "/lobby-serksa/quizzes",
+    meta: {
+      displayName: "Quizzes",
+    },
+  },
 ];

@@ -6,3 +6,5 @@ export * from "./subject-columns";
 export * from "./subject-data-table";
 export * from "./professor-columns";
 export * from "./professor-data-table";
+export * from "./quiz-columns";
+export * from "./quiz-data-table";
