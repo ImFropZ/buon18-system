@@ -41,7 +41,9 @@ export const majorColumns: ColumnDef<Major>[] = [
 
       return (
         <div className="flex items-center gap-2">
-          <p className="inline rounded bg-gray-300 px-2 py-1">{school.id}</p>
+          <p className="inline rounded bg-gray-300 px-2 py-1 dark:bg-gray-700">
+            {school.id}
+          </p>
           <p>{school.name}</p>
         </div>
       );

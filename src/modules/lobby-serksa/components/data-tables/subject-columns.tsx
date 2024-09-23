@@ -59,7 +59,9 @@ export const subjectColumns: ColumnDef<Subject>[] = [
 
       return (
         <div className="flex items-center gap-2">
-          <p className="inline rounded bg-gray-300 px-2 py-1">{major.id}</p>
+          <p className="inline rounded bg-gray-300 px-2 py-1 dark:bg-gray-700">
+            {major.id}
+          </p>
           <p>{major.name}</p>
         </div>
       );
