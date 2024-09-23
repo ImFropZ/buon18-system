@@ -1,6 +1,8 @@
 import { Checkbox } from "@components/ui/checkbox";
+import { Dialog, DialogContent, DialogTrigger } from "@components/ui/dialog";
 import { Quiz } from "@modules/lobby-serksa/models";
 import { ColumnDef } from "@tanstack/react-table";
+import { Eye } from "lucide-react";
 
 export const quizColumns: ColumnDef<Quiz>[] = [
   {
@@ -30,8 +32,20 @@ export const quizColumns: ColumnDef<Quiz>[] = [
     header: "ID",
   },
   {
-    accessorKey: "question",
-    header: "Question",
+    header: "Question (Image)",
+    cell: ({ row }) => {
+      const quiz = row.original;
+      return (
+        <div className="flex items-center justify-between gap-2">
+          <p>{quiz.question}</p>
+          {quiz.image_url !== "" ? (
+            <ImageDialog src={quiz.image_url}>
+              <Eye className="cursor-pointer rounded-lg px-1 outline outline-2 outline-gray-400" />
+            </ImageDialog>
+          ) : null}
+        </div>
+      );
+    },
   },
   {
     header: "Answer",
@@ -90,3 +104,20 @@ export const quizColumns: ColumnDef<Quiz>[] = [
     },
   },
 ];
+
+function ImageDialog({
+  children,
+  src,
+}: {
+  children: React.ReactNode;
+  src: string;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="flex justify-center">
+        <img src={src} alt="quiz image" />
+      </DialogContent>
+    </Dialog>
+  );
+}

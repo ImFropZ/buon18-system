@@ -63,7 +63,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("dark", gothamFont.className)}>
+    <html lang="en" className={cn(gothamFont.className)}>
       <body>
         <Suspense>
           <RefineKbarProvider>
