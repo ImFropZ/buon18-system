@@ -11,20 +11,23 @@ import React from "react";
 import Image from "next/image";
 import { addMonths, format } from "date-fns";
 import Link from "next/link";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 interface LayoutProps extends PropsWithChildren {
-  defaultCollapse?: boolean;
+  defaultCollapsed: boolean;
   defaultLayout?: number[];
   moduleKey?: string;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
   children,
-  defaultCollapse = false,
-  defaultLayout = [8, 92],
+  defaultCollapsed,
+  defaultLayout = [8, 90],
   moduleKey,
 }) => {
-  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapse);
+  const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
+  const router = useRouter();
 
   return (
     <div className="fixed inset-0 grid grid-rows-[auto,1fr]">
@@ -48,24 +51,37 @@ export const Layout: React.FC<LayoutProps> = ({
           onLayout={(sizes: number[]) => {
             const futureDate = addMonths(new Date(), 1);
             document.cookie = `nav:layout=${JSON.stringify(sizes)}; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure; Path=/`;
+            router.refresh();
           }}
         >
           <ResizablePanel
             defaultSize={defaultLayout[0] || 8}
-            minSize={8}
-            maxSize={10}
+            minSize={10}
+            maxSize={12}
             className="min-w-12"
             collapsible
             collapsedSize={2}
             onCollapse={() => {
-              setIsCollapsed(true);
               const futureDate = addMonths(new Date(), 1);
-              document.cookie = `nav:collapse=true; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure; Path=/`;
+              Cookies.set("nav:collapse", "true", {
+                expires: futureDate,
+                sameSite: "None",
+                secure: true,
+                path: "/",
+              });
+              setIsCollapsed(true);
+              router.refresh();
             }}
             onExpand={() => {
-              setIsCollapsed(false);
               const futureDate = addMonths(new Date(), 1);
-              document.cookie = `nav:collapse=false; expires=${format(futureDate, "EEE, dd MMM yyyy HH:mm:ss 'GMT'")}; SameSite=None; Secure; Path=/`;
+              Cookies.set("nav:collapse", "false", {
+                expires: futureDate,
+                sameSite: "None",
+                secure: true,
+                path: "/",
+              });
+              setIsCollapsed(false);
+              router.refresh();
             }}
           >
             <Menu isCollapsed={isCollapsed} moduleKey={moduleKey} />

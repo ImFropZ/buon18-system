@@ -22,7 +22,7 @@ export default async function Layout({
 
   return (
     <BaseLayout
-      defaultCollapse={defaultCollapsed}
+      defaultCollapsed={defaultCollapsed}
       defaultLayout={defaultLayout}
       moduleKey={params.slug[0]}
     >
