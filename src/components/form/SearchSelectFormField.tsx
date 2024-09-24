@@ -12,7 +12,7 @@ import {
 import { useDebounce } from "@hooks";
 import { cn, utils } from "@lib/utils";
 import { PopoverClose } from "@radix-ui/react-popover";
-import { useList } from "@refinedev/core";
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import {
   ControllerRenderProps,
@@ -22,41 +22,39 @@ import {
 } from "react-hook-form";
 
 interface SearchSelectFormFieldProps {
+  id: string;
+  optionValue: string;
+  optionLabel: string;
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
-  resource: string;
-  icon?: React.ReactNode;
   placeholder?: string;
-  defaultValue?: string;
+  onSelected: (data: any) => void;
+  fetchResource: (searchPhase: string) => Promise<any>;
 }
 
 export function SearchSelectFormField({
+  id,
+  optionValue,
+  optionLabel,
   field,
   errorField,
-  resource,
   placeholder,
-  icon,
-  defaultValue = "",
+  onSelected,
+  fetchResource,
 }: SearchSelectFormFieldProps) {
   const [search, setSearch] = React.useState("");
-  const [selectedData, setSelectedData] = React.useState({
-    id: defaultValue,
-    label: "",
-  });
   const debouncedSearch = useDebounce({
     value: search,
     delay: utils.SEARCH_DEBOUNCE_DELAY,
   });
 
-  const { data, isLoading } = useList({
-    resource: resource,
-    filters: [
-      {
-        field: "name",
-        operator: "contains",
-        value: debouncedSearch,
-      },
-    ],
+  const { data, isLoading } = useQuery({
+    queryKey: ["search", debouncedSearch, id],
+    queryFn: async () => {
+      if (fetchResource) {
+        return await fetchResource(debouncedSearch);
+      }
+    },
   });
 
   return (
@@ -71,53 +69,47 @@ export function SearchSelectFormField({
                 type="button"
                 variant="outline"
                 className={cn(
+                  "w-full",
                   !!errorField && "outline outline-1 outline-red-600",
                 )}
               >
-                {icon || null}
-                {selectedData.id ? (
-                  <span className="mr-2 text-center align-middle text-xs text-muted-foreground before:content-['('] after:content-[')']">
-                    {selectedData.id}
-                  </span>
-                ) : null}
-                {selectedData.label ||
-                  data?.data.find((data) => data.id == defaultValue)?.name ||
-                  placeholder ||
-                  "Open popover"}
+                {field.value[optionValue]
+                  ? `${field.value[optionValue]} - ${field.value[optionLabel]}`
+                  : placeholder || "Select"}
               </Button>
             </PopoverTrigger>
           </CustomErrorTooltipWrapper>
         </FormControl>
-        <PopoverContent>
+        <PopoverContent className="min-w-[40ch]">
           <Input onChange={(e) => setSearch(e.target.value)} value={search} />
           <div className="flex flex-col gap-1 pt-2">
             {isLoading ? (
               <div className="loader"></div>
             ) : (
               <>
-                {data?.data.map((data) => {
-                  return (
-                    <PopoverClose asChild key={data.id}>
-                      <div
-                        className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-primary/20 data-[active=true]:bg-primary/10"
-                        key={data.id + ""}
-                        data-active={selectedData.id === data.id + ""}
-                        onClick={() => {
-                          setSelectedData({
-                            id: data.id + "",
-                            label: data.name,
-                          });
-                          field.onChange(data.id);
-                        }}
-                      >
-                        <p>{data.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {data.id}
-                        </p>
-                      </div>
-                    </PopoverClose>
-                  );
-                })}
+                {data instanceof Array
+                  ? data?.map((data) => {
+                      return (
+                        <PopoverClose asChild key={data.id}>
+                          <div
+                            className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-primary/20 data-[active=true]:bg-primary/10"
+                            key={data.id}
+                            data-active={
+                              field.value[optionValue] === data[optionValue]
+                            }
+                            onClick={() => onSelected(data)}
+                          >
+                            <p>
+                              {data[optionValue]} -{" "}
+                              {data[optionLabel].length > 29
+                                ? data[optionLabel].slice(0, 30) + " ..."
+                                : data[optionLabel]}
+                            </p>
+                          </div>
+                        </PopoverClose>
+                      );
+                    })
+                  : null}
               </>
             )}
           </div>
