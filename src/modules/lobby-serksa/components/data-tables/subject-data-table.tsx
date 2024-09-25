@@ -64,7 +64,7 @@ async function onCreateHandler(data: z.infer<typeof CreateSubjectsSchema>) {
   });
 }
 
-function CreateSubjectSheet({
+function CreateSubjectsSheet({
   children,
   refetch,
 }: {
@@ -368,9 +368,9 @@ export function SubjectDataTable() {
             </>
           ) : null}
         </AlertDialog>
-        <CreateSubjectSheet refetch={refetch}>
+        <CreateSubjectsSheet refetch={refetch}>
           <Button>Create</Button>
-        </CreateSubjectSheet>
+        </CreateSubjectsSheet>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
