@@ -21,7 +21,7 @@ import React from "react";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { usePagination } from "@hooks";
-import { useToast } from "@components/ui/use-toast";
+import { toast } from "@components/ui/use-toast";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateMajorsSchema, School } from "@modules/lobby-serksa/models";
@@ -38,6 +38,17 @@ import {
 } from "@components/ui/sheet";
 import { Label } from "@components/ui/label";
 import { InputFormField, SearchSelectFormField } from "@components/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@components/ui/alert-dialog";
 
 async function onCreateHandler(data: z.infer<typeof CreateMajorsSchema>) {
   const majors = data.majors.map((major) => {
@@ -59,7 +70,6 @@ function CreateMajorSheet({
   refetch: () => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const { toast } = useToast();
   const form = useForm<z.infer<typeof CreateMajorsSchema>>({
     resolver: zodResolver(CreateMajorsSchema),
     defaultValues: { majors: [{ name: "", school: { id: 0, name: "" } }] },
@@ -84,7 +94,8 @@ function CreateMajorSheet({
                     refetch();
                     setIsOpen(false);
                     toast({
-                      title: response.message,
+                      title: "Success",
+                      description: response.message,
                     });
                   })
                   .catch((errRes) => {
@@ -201,6 +212,11 @@ function CreateMajorSheet({
   );
 }
 
+function onDeleteSelectedHandler(ids: number[]) {
+  const deleteBody = ids.map((id) => ({ id }));
+  return axiosInstance.delete(`/admin/majors`, { data: deleteBody });
+}
+
 export function MajorDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
@@ -250,6 +266,57 @@ export function MajorDataTable() {
   return (
     <div className="grid h-full grid-rows-[auto,1fr,auto] gap-2 pb-4">
       <div className="flex justify-end gap-4">
+        <AlertDialog>
+          {table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
+            <>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className="text-red-400 hover:text-red-500"
+                >
+                  Delete Selected
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the school record.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      const ids = table
+                        .getSelectedRowModel()
+                        .rows.flatMap((r) => r.original.id);
+                      if (ids.length === 0) return;
+                      onDeleteSelectedHandler(ids)
+                        .then((res) => {
+                          toast({
+                            title: "Success",
+                            description: res.data.message,
+                          });
+                          refetch();
+                        })
+                        .catch((errRes) => {
+                          toast({
+                            title: "Error",
+                            description: errRes.response.data.message,
+                            variant: "destructive",
+                          });
+                        });
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </>
+          ) : null}
+        </AlertDialog>
         <CreateMajorSheet refetch={() => refetch()}>
           <Button>Create</Button>
         </CreateMajorSheet>
