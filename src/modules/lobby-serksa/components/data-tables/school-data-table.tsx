@@ -260,6 +260,7 @@ export function SchoolDataTable() {
                         .then((res) => {
                           toast({ title: res.data.message });
                           refetch();
+                          table.resetRowSelection(false);
                         })
                         .catch((errRes) => {
                           toast({

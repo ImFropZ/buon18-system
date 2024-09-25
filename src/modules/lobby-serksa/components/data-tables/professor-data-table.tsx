@@ -42,6 +42,17 @@ import {
   SearchSelectFormField,
   SelectFormField,
 } from "@components/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@components/ui/alert-dialog";
 
 async function onCreateHandler(data: z.infer<typeof CreateProfessorsSchema>) {
   const professors = data.professors.map((subject) => {
@@ -296,6 +307,11 @@ function CreateProfessorsSheet({
   );
 }
 
+function onDeleteSelectedHandler(ids: number[]) {
+  const deleteBody = ids.map((id) => ({ id }));
+  return axiosInstance.delete(`/admin/professors`, { data: deleteBody });
+}
+
 export function ProfessorDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
@@ -345,6 +361,58 @@ export function ProfessorDataTable() {
   return (
     <div className="grid h-full grid-rows-[auto,1fr,auto] gap-2 pb-4">
       <div className="flex justify-end gap-4">
+        <AlertDialog>
+          {table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
+            <>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className="text-red-400 hover:text-red-500"
+                >
+                  Delete Selected
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the professor records.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      const ids = table
+                        .getSelectedRowModel()
+                        .rows.flatMap((r) => r.original.id);
+                      if (ids.length === 0) return;
+                      onDeleteSelectedHandler(ids)
+                        .then((res) => {
+                          toast({
+                            title: "Success",
+                            description: res.data.message,
+                          });
+                          refetch();
+                          table.resetRowSelection(false);
+                        })
+                        .catch((errRes) => {
+                          toast({
+                            title: "Error",
+                            description: errRes.response.data.message,
+                            variant: "destructive",
+                          });
+                        });
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </>
+          ) : null}
+        </AlertDialog>
         <CreateProfessorsSheet refetch={refetch}>
           <Button>Create</Button>
         </CreateProfessorsSheet>

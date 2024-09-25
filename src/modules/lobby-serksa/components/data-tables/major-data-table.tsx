@@ -284,7 +284,7 @@ export function MajorDataTable() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    the school record.
+                    the major records.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -302,6 +302,7 @@ export function MajorDataTable() {
                             description: res.data.message,
                           });
                           refetch();
+                          table.resetRowSelection(false);
                         })
                         .catch((errRes) => {
                           toast({
