@@ -20,3 +20,10 @@ export const CreateSubjectSchema = z.object({
 export const CreateSubjectsSchema = z.object({
   subjects: z.array(CreateSubjectSchema),
 });
+
+export const UpdateSubjectSchema = z.object({
+  name: z.string(),
+  semester: numberInString.pipe(z.number()),
+  year: numberInString.pipe(z.number()),
+  major: z.object({ id: z.number(), name: z.string() }),
+});

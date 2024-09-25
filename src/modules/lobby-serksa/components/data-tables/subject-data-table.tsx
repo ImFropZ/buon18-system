@@ -184,10 +184,10 @@ function CreateSubjectSheet({
                               errorField={
                                 form.formState.errors
                                   ? form.formState.errors.subjects?.[index]
-                                      ?.semester
+                                      ?.year
                                   : undefined
                               }
-                              placeholder="Semester"
+                              placeholder="Year"
                             />
                           )}
                         />
