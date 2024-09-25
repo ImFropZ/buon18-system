@@ -245,6 +245,7 @@ function CreateSubjectsSheet({
               {fieldArray.fields.length > 1 && (
                 <Button
                   type="button"
+                  variant="secondary"
                   onClick={() =>
                     fieldArray.remove(fieldArray.fields.length - 1)
                   }
