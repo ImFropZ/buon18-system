@@ -140,7 +140,7 @@ function ActionMajor({
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
-              school record.
+              major records.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
