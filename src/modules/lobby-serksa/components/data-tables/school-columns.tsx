@@ -108,10 +108,12 @@ function ActionSchool({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <SheetTrigger asChild>
-              <DropdownMenuItem>Update</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Update
+              </DropdownMenuItem>
             </SheetTrigger>
             <AlertDialogTrigger asChild>
-              <DropdownMenuItem className="text-red-400">
+              <DropdownMenuItem className="cursor-pointer text-red-400 focus:text-red-500">
                 Delete
               </DropdownMenuItem>
             </AlertDialogTrigger>
@@ -135,7 +137,8 @@ function ActionSchool({
                   })
                   .then((res) => {
                     toast({
-                      title: res.data.message,
+                      title: "Success",
+                      description: res.data.message,
                     });
                     if (meta) meta.refetch();
                   })
@@ -161,7 +164,8 @@ function ActionSchool({
                 .patch("/admin/schools", [{ ...d, id: school.id }])
                 .then((res) => {
                   toast({
-                    title: res.data.message,
+                    title: "Success",
+                    description: res.data.message,
                   });
                   setIsOpen(false);
                   if (meta) meta.refetch();

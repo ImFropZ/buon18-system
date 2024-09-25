@@ -46,7 +46,7 @@ import { CreateSchoolsSchema } from "@modules/lobby-serksa/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField } from "@components/ui/form";
 import { InputFormField } from "@components/form";
-import { toast, useToast } from "@components/ui/use-toast";
+import { toast } from "@components/ui/use-toast";
 import { Label } from "@components/ui/label";
 
 async function onCreateHandler(data: { schools: { name: string }[] }) {
@@ -63,7 +63,6 @@ function CreateShoolSheet({
   refetch: () => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const { toast } = useToast();
   const form = useForm<{ schools: { name: string }[] }>({
     resolver: zodResolver(CreateSchoolsSchema),
     defaultValues: { schools: [{ name: "" }] },
@@ -88,7 +87,8 @@ function CreateShoolSheet({
                     refetch();
                     setIsOpen(false);
                     toast({
-                      title: response.message,
+                      title: "Success",
+                      description: response.message,
                     });
                   })
                   .catch((errRes) => {
