@@ -15,3 +15,8 @@ export const CreateMajorSchema = z.object({
 export const CreateMajorsSchema = z.object({
   majors: z.array(CreateMajorSchema),
 });
+
+export const UpdateMajorSchema = z.object({
+  name: z.string(),
+  school: z.object({ id: z.number(), name: z.string() }),
+});
