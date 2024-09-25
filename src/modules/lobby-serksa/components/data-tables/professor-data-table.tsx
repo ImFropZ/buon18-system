@@ -122,7 +122,7 @@ function CreateProfessorsSheet({
                 Create multiple professors at once.
               </SheetDescription>
             </SheetHeader>
-            <div className="my-2 flex flex-col gap-2 overflow-y-auto p-2 px-4">
+            <div className="my-2 flex flex-col gap-2 overflow-y-auto px-4 py-2">
               {fieldArray.fields.map((field, index) => {
                 return (
                   <div

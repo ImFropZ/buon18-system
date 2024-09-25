@@ -86,6 +86,7 @@ function CreateMajorSheet({
         <SheetTrigger asChild>{children}</SheetTrigger>
         <SheetContent className="lg:max-w-4xl">
           <form
+            className="grid h-full grid-rows-[auto,1fr,auto,auto]"
             onSubmit={form.handleSubmit(
               (d) => {
                 onCreateHandler(d)
@@ -121,7 +122,7 @@ function CreateMajorSheet({
                 Create multiple majors at once.
               </SheetDescription>
             </SheetHeader>
-            <div className="my-2 flex flex-col gap-2">
+            <div className="my-2 flex flex-col gap-2 overflow-y-auto px-4 py-2">
               {fieldArray.fields.map((field, index) => {
                 return (
                   <div
