@@ -194,7 +194,10 @@ export default function Page() {
             <div className="absolute inset-0 flex flex-col gap-2 overflow-y-auto px-4">
               {quizFieldArray.fields.map((field, index) => {
                 return (
-                  <div className="flex flex-col gap-2 border p-2">
+                  <div
+                    className="flex flex-col gap-2 border p-2"
+                    key={field.id}
+                  >
                     <div className="flex justify-between">
                       <p className="rounded bg-gray-300 px-2 text-sm">
                         #{index + 1}
