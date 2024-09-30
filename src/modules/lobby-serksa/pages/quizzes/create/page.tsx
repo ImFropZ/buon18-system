@@ -346,16 +346,19 @@ export default function Page() {
                   quizFieldArray.append(DEFAULT_QUIZ);
                 }}
               >
-                Add
+                Add Quiz
               </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  quizFieldArray.remove(quizFieldArray.fields.length - 1);
-                }}
-              >
-                Remove
-              </Button>
+              {quizFieldArray.fields.length > 1 ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    quizFieldArray.remove(quizFieldArray.fields.length - 1);
+                  }}
+                >
+                  Remove Last Quiz
+                </Button>
+              ) : null}
             </div>
             <div>
               <Button>Create</Button>
