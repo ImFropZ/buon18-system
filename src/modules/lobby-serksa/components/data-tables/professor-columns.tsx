@@ -306,7 +306,7 @@ function ActionProfessor({
                   <Label>Subjects</Label>
                   <div className="relative">
                     <div className="absolute inset-0 space-y-2 overflow-y-auto">
-                      {subjectFieldArray.fields.map((field, index) => (
+                      {subjectFieldArray.fields.map((field, _) => (
                         <div
                           key={field.id}
                           className="flex items-center justify-center gap-2 text-sm"
