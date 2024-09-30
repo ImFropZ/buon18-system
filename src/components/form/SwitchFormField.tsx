@@ -1,6 +1,6 @@
 import { CustomErrorTooltipWrapper } from "@components/CustomTooltip";
 import { FormControl, FormItem } from "@components/ui/form";
-import { Input } from "@components/ui/input";
+import { Switch } from "@components/ui/switch";
 import { cn } from "@lib/utils";
 import {
   ControllerRenderProps,
@@ -9,37 +9,38 @@ import {
   Merge,
 } from "react-hook-form";
 
-interface InputFormFieldProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface SwitchFormFieldProps extends React.HTMLAttributes<HTMLButtonElement> {
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
   placeholder?: string;
-  defaultValue?: string;
+  onUpdate?: (value: boolean) => void;
 }
 
-export function InputFormField({
+export function SwitchFormField({
   field,
   errorField,
   placeholder,
-  defaultValue,
+  onUpdate,
   ...props
-}: InputFormFieldProps) {
+}: SwitchFormFieldProps) {
   return (
     <FormItem className={props.className}>
       <FormControl>
         <CustomErrorTooltipWrapper
           errorMessage={errorField?.message?.toString() || ""}
         >
-          <Input
+          <Switch
             {...props}
-            {...field}
+            checked={field.value !== undefined ? field.value : false}
+            onCheckedChange={(e) => {
+              onUpdate?.(e);
+              field.onChange(e);
+            }}
             className={cn(
-              "mt-0 text-primary",
+              `border border-gray-300 bg-gray-300 aria-[checked="true"]:bg-gray-400`,
               !!errorField && "outline outline-1 outline-red-600",
             )}
-            value={field.value !== undefined ? field.value : defaultValue || ""}
-            placeholder={placeholder || ""}
-            data-error={!!errorField}
+            aria-readonly
           />
         </CustomErrorTooltipWrapper>
       </FormControl>

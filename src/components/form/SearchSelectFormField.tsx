@@ -13,7 +13,7 @@ import { useDebounce } from "@hooks";
 import { cn, utils } from "@lib/utils";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import React, { HTMLAttributes } from "react";
 import {
   ControllerRenderProps,
   FieldError,
@@ -30,6 +30,7 @@ interface SearchSelectFormFieldProps {
   placeholder?: string;
   onSelected: (data: any) => void;
   fetchResource: (searchPhase: string) => Promise<any>;
+  className?: HTMLAttributes<HTMLDivElement>["className"];
 }
 
 export function SearchSelectFormField({
@@ -41,6 +42,7 @@ export function SearchSelectFormField({
   placeholder,
   onSelected,
   fetchResource,
+  ...props
 }: SearchSelectFormFieldProps) {
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce({
@@ -58,7 +60,7 @@ export function SearchSelectFormField({
   });
 
   return (
-    <FormItem>
+    <FormItem className={props.className}>
       <Popover>
         <FormControl>
           <CustomErrorTooltipWrapper

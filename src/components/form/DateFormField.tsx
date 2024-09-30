@@ -41,7 +41,7 @@ export function DateFormField({
   ...props
 }: DateFormFieldProps) {
   return (
-    <FormItem className="flex flex-col">
+    <FormItem className={cn("flex flex-col", props.className)}>
       <FormLabel hidden={!label} className="text-primary">
         {label}
       </FormLabel>
@@ -59,7 +59,6 @@ export function DateFormField({
                   "flex gap-2 pl-3 text-left font-normal",
                   !field.value && "text-muted-foreground",
                   !!errorField && "outline outline-1 outline-red-600",
-                  props.className,
                 )}
               >
                 {field.value ? (

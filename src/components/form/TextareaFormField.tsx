@@ -32,7 +32,7 @@ export function TextareaFormField({
   ...props
 }: DateFormFieldProps) {
   return (
-    <FormItem className="w-full">
+    <FormItem className={cn("w-full", props.className)}>
       <FormLabel hidden={!label}>{label}</FormLabel>
       <FormControl>
         <CustomErrorTooltipWrapper
@@ -45,7 +45,6 @@ export function TextareaFormField({
             className={cn(
               "resize-none",
               !!errorField && "outline outline-1 outline-red-600",
-              props.className,
             )}
             defaultValue={defaultValue}
           />

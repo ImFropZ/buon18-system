@@ -24,6 +24,7 @@ export function SelectFormField({
   placeholderSelect,
   options,
   groupLabel,
+  ...props
 }: {
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
@@ -31,9 +32,10 @@ export function SelectFormField({
   placeholderSelect?: string;
   options: { value: string; label: string }[];
   groupLabel?: string;
+  className?: React.HTMLAttributes<HTMLDivElement>["className"];
 }) {
   return (
-    <FormItem>
+    <FormItem className={props.className}>
       <Select
         onValueChange={field.onChange}
         defaultValue={defaultSelectedValue || ""}
