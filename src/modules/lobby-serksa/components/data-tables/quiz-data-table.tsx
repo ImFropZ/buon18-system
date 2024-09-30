@@ -33,6 +33,7 @@ import {
   AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
 import { toast } from "@components/ui/use-toast";
+import Link from "next/link";
 
 function onDeleteSelectedHandler(ids: number[]) {
   const deleteBody = ids.map((id) => ({ id }));
@@ -140,7 +141,9 @@ export function QuizDataTable() {
             </>
           ) : null}
         </AlertDialog>
-        <Button>Create</Button>
+        <Link href="/lobby-serksa/quizzes/create">
+          <Button>Create</Button>
+        </Link>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
