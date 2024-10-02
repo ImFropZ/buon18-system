@@ -18,7 +18,7 @@ import {
 } from "@tanstack/react-table";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { parseAsInteger, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { usePagination } from "@hooks";
 import * as z from "zod";
@@ -53,6 +53,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
+import { SearchBar } from "@components";
 
 async function onCreateHandler(data: z.infer<typeof CreateProfessorsSchema>) {
   const professors = data.professors.map((subject) => {
@@ -321,14 +322,18 @@ export function ProfessorDataTable() {
     "offset",
     parseAsInteger.withDefault(0),
   );
+  const [search, setSearch] = useQueryState(
+    "full-name:ilike",
+    parseAsString.withDefault(""),
+  );
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const { data, refetch } = useQuery({
-    queryKey: ["professors", { limit, offset }],
+  const { data, refetch, isLoading } = useQuery({
+    queryKey: ["professors", { limit, offset, "full-name:ilike": search }],
     queryFn: async () => {
       const response = await axiosInstance.get(`/admin/professors`, {
-        params: { limit, offset },
+        params: { limit, offset, "full-name:ilike": search },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -361,6 +366,13 @@ export function ProfessorDataTable() {
   return (
     <div className="grid h-full grid-rows-[auto,1fr,auto] gap-2 pb-4">
       <div className="flex justify-end gap-4">
+        <div className="mr-auto flex">
+          <SearchBar
+            onSearch={(searchPharse) => setSearch(searchPharse)}
+            placeholder="Search full name ..."
+            defaultValue={search}
+          />
+        </div>
         <AlertDialog>
           {table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
             <>
@@ -460,7 +472,11 @@ export function ProfessorDataTable() {
                   colSpan={professorColumns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {isLoading ? (
+                    <div className="loader mx-auto"></div>
+                  ) : (
+                    "No results."
+                  )}
                 </TableCell>
               </TableRow>
             )}

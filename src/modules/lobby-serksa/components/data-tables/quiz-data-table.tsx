@@ -18,7 +18,7 @@ import {
 } from "@tanstack/react-table";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { parseAsInteger, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { usePagination } from "@hooks";
 import {
@@ -34,6 +34,7 @@ import {
 } from "@components/ui/alert-dialog";
 import { toast } from "@components/ui/use-toast";
 import Link from "next/link";
+import { SearchBar } from "@components";
 
 function onDeleteSelectedHandler(ids: number[]) {
   const deleteBody = ids.map((id) => ({ id }));
@@ -49,14 +50,18 @@ export function QuizDataTable() {
     "offset",
     parseAsInteger.withDefault(0),
   );
+  const [search, setSearch] = useQueryState(
+    "question:ilike",
+    parseAsString.withDefault(""),
+  );
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const { data, refetch } = useQuery({
-    queryKey: ["quizzes", { limit, offset }],
+  const { data, refetch, isLoading } = useQuery({
+    queryKey: ["quizzes", { limit, offset, "question:ilike": search }],
     queryFn: async () => {
       const response = await axiosInstance.get(`/admin/quizzes`, {
-        params: { limit, offset },
+        params: { limit, offset, "question:ilike": search },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -89,6 +94,13 @@ export function QuizDataTable() {
   return (
     <div className="grid h-full grid-rows-[auto,1fr,auto] gap-2 pb-4">
       <div className="flex justify-end gap-4">
+        <div className="mr-auto flex">
+          <SearchBar
+            onSearch={(searchPharse) => setSearch(searchPharse)}
+            placeholder="Search question ..."
+            defaultValue={search}
+          />
+        </div>
         <AlertDialog>
           {table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
             <>
@@ -188,7 +200,11 @@ export function QuizDataTable() {
                   colSpan={quizColumns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {isLoading ? (
+                    <div className="loader mx-auto"></div>
+                  ) : (
+                    "No results."
+                  )}
                 </TableCell>
               </TableRow>
             )}

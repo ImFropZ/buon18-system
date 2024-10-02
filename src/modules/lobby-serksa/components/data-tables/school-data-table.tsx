@@ -16,7 +16,7 @@ import {
 import CustomPagination from "@components/CustomPagination";
 import { usePagination } from "@hooks";
 import { Button } from "@components/ui/button";
-import { parseAsInteger, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
 import { schoolColumns } from "@modules/lobby-serksa/components/data-tables";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
@@ -48,6 +48,7 @@ import { Form, FormField } from "@components/ui/form";
 import { InputFormField } from "@components/form";
 import { toast } from "@components/ui/use-toast";
 import { Label } from "@components/ui/label";
+import { SearchBar } from "@components";
 
 async function onCreateHandler(data: { schools: { name: string }[] }) {
   return axiosInstance.post(`/admin/schools`, data.schools).then((res) => {
@@ -189,14 +190,18 @@ export function SchoolDataTable() {
     "offset",
     parseAsInteger.withDefault(0),
   );
+  const [search, setSearch] = useQueryState(
+    "name:ilike",
+    parseAsString.withDefault(""),
+  );
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const { data, refetch } = useQuery({
-    queryKey: ["schools", { limit, offset }],
+  const { data, refetch, isLoading } = useQuery({
+    queryKey: ["schools", { limit, offset, "name:ilike": search }],
     queryFn: async () => {
       const response = await axiosInstance.get(`/admin/schools`, {
-        params: { limit, offset },
+        params: { limit, offset, "name:ilike": search },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -229,6 +234,13 @@ export function SchoolDataTable() {
   return (
     <div className="grid h-full grid-rows-[auto,1fr,auto] gap-2 pb-4">
       <div className="flex justify-end gap-4">
+        <div className="mr-auto flex">
+          <SearchBar
+            onSearch={(searchPharse) => setSearch(searchPharse)}
+            placeholder="Search name ..."
+            defaultValue={search}
+          />
+        </div>
         <AlertDialog>
           {table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
             <>
@@ -325,7 +337,11 @@ export function SchoolDataTable() {
                   colSpan={schoolColumns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {isLoading ? (
+                    <div className="loader mx-auto"></div>
+                  ) : (
+                    "No results."
+                  )}
                 </TableCell>
               </TableRow>
             )}
