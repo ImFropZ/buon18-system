@@ -48,7 +48,8 @@ import { Form, FormField } from "@components/ui/form";
 import { InputFormField } from "@components/form";
 import { toast } from "@components/ui/use-toast";
 import { Label } from "@components/ui/label";
-import { SearchBar } from "@components";
+import { AdvanceSearch, SearchBar } from "@components";
+import { Input } from "@components/ui/input";
 
 async function onCreateHandler(data: { schools: { name: string }[] }) {
   return axiosInstance.post(`/admin/schools`, data.schools).then((res) => {
@@ -194,14 +195,20 @@ export function SchoolDataTable() {
     "name:ilike",
     parseAsString.withDefault(""),
   );
+  const [searchId, setSearchId] = useQueryState("id:eq", parseAsInteger);
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
+  const idInputRef = React.useRef<HTMLInputElement>(null);
+
   const { data, refetch, isLoading } = useQuery({
-    queryKey: ["schools", { limit, offset, "name:ilike": search }],
+    queryKey: [
+      "schools",
+      { limit, offset, "name:ilike": search, "id:eq": searchId },
+    ],
     queryFn: async () => {
       const response = await axiosInstance.get(`/admin/schools`, {
-        params: { limit, offset, "name:ilike": search },
+        params: { limit, offset, "name:ilike": search, "id:eq": searchId },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -234,11 +241,34 @@ export function SchoolDataTable() {
   return (
     <div className="grid h-full grid-rows-[auto,1fr,auto] gap-2 pb-4">
       <div className="flex justify-end gap-4">
-        <div className="mr-auto flex">
+        <div className="mr-auto flex gap-2">
           <SearchBar
             onSearch={(searchPharse) => setSearch(searchPharse)}
             placeholder="Search name ..."
             defaultValue={search}
+          />
+          <AdvanceSearch
+            title="Advance school search"
+            description="If you want to do a more specific search, you can use this feature."
+            items={[
+              <div className="flex flex-col gap-4" key="id-search">
+                <Label>
+                  ID{" "}
+                  <span className="rounded bg-gray-500 px-2 py-1 text-secondary">
+                    number only
+                  </span>
+                </Label>
+                <Input
+                  ref={idInputRef}
+                  placeholder="ID"
+                  defaultValue={searchId || undefined}
+                />
+              </div>,
+            ]}
+            onConfirm={() => {
+              if (!idInputRef.current) return;
+              setSearchId(+idInputRef.current.value || null);
+            }}
           />
         </div>
         <AlertDialog>

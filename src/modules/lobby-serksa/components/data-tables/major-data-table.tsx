@@ -49,7 +49,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
-import { SearchBar } from "@components";
+import { AdvanceSearch, SearchBar } from "@components";
+import { Input } from "@components/ui/input";
+import { SearchPopover } from "../SearchPopover";
 
 async function onCreateHandler(data: z.infer<typeof CreateMajorsSchema>) {
   const majors = data.majors.map((major) => {
@@ -233,14 +235,47 @@ export function MajorDataTable() {
     "name:ilike",
     parseAsString.withDefault(""),
   );
+  const [searchId, setSearchId] = useQueryState("id:eq", parseAsInteger);
+  const [searchSchoolId, setSearchSchoolId] = useQueryState(
+    "base-school-id:eq",
+    parseAsInteger,
+  );
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
+  const idInputRef = React.useRef<HTMLInputElement>(null);
+  const [school, setSchool] = React.useState<null | {
+    id: number;
+    name: string;
+  }>(
+    searchSchoolId
+      ? {
+          id: +searchSchoolId,
+          name: "(not loaded)",
+        }
+      : null,
+  );
+
   const { data, refetch, isLoading } = useQuery({
-    queryKey: ["majors", { limit, offset }],
+    queryKey: [
+      "majors",
+      {
+        limit,
+        offset,
+        "name:ilike": search,
+        "id:eq": searchId,
+        "base-school-id:eq": searchSchoolId,
+      },
+    ],
     queryFn: async () => {
       const response = await axiosInstance.get(`/admin/majors`, {
-        params: { limit, offset },
+        params: {
+          limit,
+          offset,
+          "name:ilike": search,
+          "id:eq": searchId,
+          "base-school-id:eq": searchSchoolId,
+        },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -273,11 +308,65 @@ export function MajorDataTable() {
   return (
     <div className="grid h-full grid-rows-[auto,1fr,auto] gap-2 pb-4">
       <div className="flex justify-end gap-4">
-        <div className="mr-auto flex">
+        <div className="mr-auto flex gap-2">
           <SearchBar
             onSearch={(searchPharse) => setSearch(searchPharse)}
             placeholder="Search name ..."
             defaultValue={search}
+          />
+          <AdvanceSearch
+            title="Advance major search"
+            description="If you want to do a more specific search, you can use this feature."
+            items={[
+              <div className="flex flex-col gap-4" key="id-search">
+                <Label>
+                  ID{" "}
+                  <span className="rounded bg-gray-500 px-2 py-1 text-secondary">
+                    number only
+                  </span>
+                </Label>
+                <Input
+                  ref={idInputRef}
+                  placeholder="ID"
+                  defaultValue={searchId || undefined}
+                />
+              </div>,
+              <div className="flex flex-col gap-4" key="school-id-search">
+                <Label>School</Label>
+                <div className="flex gap-2">
+                  <SearchPopover
+                    id="school"
+                    fetchResource={async (searchPharse) => {
+                      const res = await axiosInstance.get(`/admin/schools`, {
+                        params: { ["name:ilike"]: searchPharse },
+                      });
+                      return res.data.data.schools;
+                    }}
+                    onSelected={(d) => {
+                      setSchool({ id: d.id, name: d.name });
+                    }}
+                    optionLabel="name"
+                    optionValue="id"
+                    value={school}
+                    placeholder="Select school"
+                  />
+                  <Button
+                    disabled={!school}
+                    onClick={() => {
+                      setSchool(null);
+                    }}
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </div>,
+            ]}
+            onConfirm={() => {
+              if (idInputRef.current)
+                setSearchId(+idInputRef.current.value || null);
+
+              setSearchSchoolId(school?.id || null);
+            }}
           />
         </div>
         <AlertDialog>
