@@ -137,7 +137,7 @@ function ActionProfessor({
       add_subjects: [],
       remove_subjects: [],
     });
-  }, [professor]);
+  }, [form, professor]);
 
   const subjectFieldArray = useFieldArray({
     control: form.control,

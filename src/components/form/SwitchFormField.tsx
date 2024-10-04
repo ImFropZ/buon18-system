@@ -12,14 +12,12 @@ import {
 interface SwitchFormFieldProps extends React.HTMLAttributes<HTMLButtonElement> {
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
-  placeholder?: string;
   onUpdate?: (value: boolean) => void;
 }
 
 export function SwitchFormField({
   field,
   errorField,
-  placeholder,
   onUpdate,
   ...props
 }: SwitchFormFieldProps) {

@@ -1,4 +1,5 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CreateQuizzesSchema,
@@ -19,6 +20,8 @@ import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { Button } from "@components/ui/button";
 import { toast } from "@components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { QuizImport } from "@modules/lobby-serksa/components";
+import Papa, { ParseResult } from "papaparse";
 
 const DEFAULT_QUIZ = {
   question: "",
@@ -62,7 +65,46 @@ const onCreateHandler = async (data: z.infer<typeof CreateQuizzesSchema>) => {
     .then((res) => res.data as { code: number; message: string });
 };
 
+const onImportHandler = async () => {
+  return new Promise(
+    (resolve: (value: ParseResult<unknown>) => void, reject) => {
+      const inputEl = document.createElement("input");
+      inputEl.type = "file";
+      inputEl.accept = ".csv";
+      inputEl.onchange = (e) => {
+        const target = e.currentTarget as HTMLInputElement;
+        if (!target || !target.files) return;
+        const file = target.files[0];
+
+        Papa.parse(file, {
+          header: true,
+          complete: (results) => {
+            resolve(results);
+          },
+          error: (error) => {
+            reject(error);
+          },
+        });
+      };
+
+      inputEl.click();
+    },
+  );
+};
+
 export default function Page() {
+  const [isQuizImportOpen, setIsQuizImportOpen] = React.useState(false);
+  const [parseResult, setParseResult] = React.useState<ParseResult<unknown>>({
+    data: [],
+    errors: [],
+    meta: {
+      delimiter: ",",
+      linebreak: "\r\n",
+      aborted: false,
+      truncated: false,
+      cursor: 0,
+    },
+  });
   const router = useRouter();
 
   const form = useForm<z.infer<typeof CreateQuizzesSchema>>({
@@ -363,7 +405,35 @@ export default function Page() {
                 </Button>
               ) : null}
             </div>
-            <div>
+            <div className="flex gap-2">
+              <QuizImport
+                meta={parseResult.meta}
+                data={parseResult.data as { [x: string]: any }[]}
+                isOpen={isQuizImportOpen}
+                setIsOpen={(value) => setIsQuizImportOpen(value)}
+                onImport={(data) => {
+                  quizFieldArray.remove();
+                  quizFieldArray.append(data);
+
+                  toast({
+                    title: "Success",
+                    description: "Quizzes imported successfully",
+                  });
+                }}
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    onImportHandler().then((result) => {
+                      setParseResult(result);
+                      setIsQuizImportOpen(true);
+                    });
+                  }}
+                >
+                  Import Quizzes
+                </Button>
+              </QuizImport>
               <Button>Create</Button>
             </div>
           </div>
