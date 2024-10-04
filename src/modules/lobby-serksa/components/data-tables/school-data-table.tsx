@@ -90,7 +90,10 @@ export function SchoolDataTable() {
       <div className="flex justify-end gap-4">
         <div className="mr-auto flex gap-2">
           <SearchBar
-            onSearch={(searchPharse) => setSearch(searchPharse)}
+            onSearch={(searchPharse) => {
+              setSearch(searchPharse);
+              go(1);
+            }}
             placeholder="Search name ..."
             defaultValue={search}
           />
@@ -98,6 +101,7 @@ export function SchoolDataTable() {
             defaultValues={{ id: searchId }}
             onConfirm={({ id }) => {
               setSearchId(id);
+              go(1);
             }}
           />
         </div>

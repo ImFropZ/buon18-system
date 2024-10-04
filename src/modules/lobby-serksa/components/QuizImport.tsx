@@ -119,6 +119,7 @@ export function QuizImport({
               const mappedData: z.infer<typeof CreateQuizSchema>[] = [];
               let prevId = "";
               data.forEach((d) => {
+                if (Object.keys(d).length !== matchFields.length) return;
                 const quiz = {
                   id: d[matchFields[0].from],
                   question: d[matchFields[1].from],
