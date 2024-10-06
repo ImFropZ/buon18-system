@@ -48,9 +48,5 @@ export default function ModuleGatewayPage({
     return notFound();
   }
 
-  return (
-    <React.Suspense fallback={<div>Loading...</div>}>
-      <PageComponent params={passParams} />
-    </React.Suspense>
-  );
+  return <PageComponent params={passParams} />;
 }
