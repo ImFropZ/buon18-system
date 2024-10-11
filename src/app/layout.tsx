@@ -5,7 +5,6 @@ import routerProvider from "@refinedev/nextjs-router";
 import { Metadata } from "next";
 import React, { Suspense } from "react";
 import { authProvider } from "@providers/auth-provider";
-import { dataProvider } from "@providers/data-provider/base";
 import "@styles/global.css";
 import { TooltipProvider } from "@components/ui/tooltip";
 import localFont from "next/font/local";
@@ -71,7 +70,6 @@ export default function RootLayout({
               <QueryClientContextProvider>
                 <Refine
                   routerProvider={routerProvider}
-                  dataProvider={dataProvider}
                   authProvider={authProvider}
                   resources={[
                     ...installedModules.flatMap(
