@@ -1,4 +1,5 @@
 import { ResourceProps } from "@refinedev/core";
+import { LayoutDashboard, Users } from "lucide-react";
 
 export const routes: ResourceProps[] = [
   {
@@ -6,6 +7,7 @@ export const routes: ResourceProps[] = [
     list: "/setting",
     meta: {
       displayName: "Setting",
+      icon: <LayoutDashboard />,
     },
   },
   {
@@ -13,6 +15,7 @@ export const routes: ResourceProps[] = [
     list: "/setting/users",
     meta: {
       displayName: "Users",
+      icon: <Users />,
     },
   },
 ];
