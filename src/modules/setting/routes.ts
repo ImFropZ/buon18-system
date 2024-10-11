@@ -8,4 +8,11 @@ export const routes: ResourceProps[] = [
       displayName: "Setting",
     },
   },
+  {
+    name: "setting/users",
+    list: "/setting/users",
+    meta: {
+      displayName: "Users",
+    },
+  },
 ];
