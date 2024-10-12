@@ -23,6 +23,11 @@ import { systemAxiosInstance } from "@modules/shared";
 import React from "react";
 import { SearchBar } from "@components";
 import Link from "next/link";
+import { DeleteSelectButton } from "@components";
+
+function onDeleteSelectedHandler(ids: number[]) {
+  return systemAxiosInstance.delete(`/setting/users`, { data: { ids } });
+}
 
 export function UserDataTable() {
   const [limit, setLimit] = useQueryState(
@@ -38,6 +43,7 @@ export function UserDataTable() {
     parseAsString.withDefault(""),
   );
   const [total, setTotal] = React.useState(0);
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["users", { limit, offset, "name:ilike": search }],
@@ -54,6 +60,10 @@ export function UserDataTable() {
     data: data?.data.users || [],
     columns: userColumns,
     getCoreRowModel: getCoreRowModel(),
+    onRowSelectionChange: setRowSelection,
+    state: {
+      rowSelection,
+    },
     meta: {
       refetch: () => refetch(),
     },
@@ -89,6 +99,14 @@ export function UserDataTable() {
             }}
           /> */}
         </div>
+        <DeleteSelectButton
+          isHidden={
+            !(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected())
+          }
+          onDeleteSelectedHandler={onDeleteSelectedHandler}
+          refetch={refetch}
+          table={table}
+        />
         <Link href="/setting/users/create">
           <Button>Create</Button>
         </Link>
