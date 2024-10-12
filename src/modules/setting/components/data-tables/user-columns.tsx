@@ -1,6 +1,5 @@
 "use client";
 
-import { Checkbox } from "@components/ui/checkbox";
 import { toast } from "@components/ui/use-toast";
 import { User } from "@modules/setting/models";
 import { ColumnDef } from "@tanstack/react-table";
@@ -8,28 +7,6 @@ import { Bot, Copy, MoreHorizontal, UserIcon } from "lucide-react";
 import React from "react";
 
 export const userColumns: ColumnDef<User>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "id",
     header: "ID",

@@ -24,11 +24,6 @@ import React from "react";
 import { SearchBar } from "@components";
 import Link from "next/link";
 
-function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return systemAxiosInstance.delete(`/setting/users`, { data: deleteBody });
-}
-
 export function UserDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
@@ -39,14 +34,13 @@ export function UserDataTable() {
     parseAsInteger.withDefault(0),
   );
   const [search, setSearch] = useQueryState(
-    "name:like",
+    "name:ilike",
     parseAsString.withDefault(""),
   );
   const [total, setTotal] = React.useState(0);
-  const [rowSelection, setRowSelection] = React.useState({});
 
   const { data, refetch, isLoading } = useQuery({
-    queryKey: ["users", { limit, offset, "name:like": search }],
+    queryKey: ["users", { limit, offset, "name:ilike": search }],
     queryFn: async () => {
       const response = await systemAxiosInstance.get(`/setting/users`, {
         params: { limit, offset, "name:ilike": search },
@@ -60,10 +54,6 @@ export function UserDataTable() {
     data: data?.data.users || [],
     columns: userColumns,
     getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: setRowSelection,
-    state: {
-      rowSelection,
-    },
     meta: {
       refetch: () => refetch(),
     },
@@ -99,14 +89,6 @@ export function UserDataTable() {
             }}
           /> */}
         </div>
-        {/* <DeleteSelectButton
-          isHidden={
-            !(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected())
-          }
-          onDeleteSelectedHandler={onDeleteSelectedHandler}
-          refetch={refetch}
-          table={table}
-        /> */}
         <Link href="/setting/users/create">
           <Button>Create</Button>
         </Link>
