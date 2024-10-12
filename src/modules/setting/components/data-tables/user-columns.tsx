@@ -1,9 +1,16 @@
 "use client";
 
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@components/ui/dropdown-menu";
 import { toast } from "@components/ui/use-toast";
 import { User } from "@modules/setting/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { Bot, Copy, MoreHorizontal, UserIcon } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 export const userColumns: ColumnDef<User>[] = [
@@ -72,12 +79,19 @@ export const userColumns: ColumnDef<User>[] = [
   },
   {
     header: "Actions",
-    cell: ({ row, table }) => {
-      // const major = row.original;
-      // NOTE: This is a hack to get the refetch function from the table options. Seems like the table meta is not being passed to the header component.
-      // const meta = table.options.meta as { refetch: () => void } | undefined;
-
-      return <MoreHorizontal />;
+    cell: ({ row }) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <MoreHorizontal className="cursor-pointer" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link href={`/setting/users/edit/${row.original.id}`}>Edit</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
     },
   },
 ];
