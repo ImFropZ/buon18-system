@@ -66,6 +66,7 @@ function getAuthCookie() {
   const { token } = JSON.parse(auth || "{}");
 
   if (!token) {
+    console.log(token);
     throw new Error("Unauthorized");
   }
 
