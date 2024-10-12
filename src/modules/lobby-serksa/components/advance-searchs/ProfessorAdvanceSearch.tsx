@@ -1,4 +1,4 @@
-import { AdvanceSearch } from "@components";
+import { AdvanceSearch, SearchPopover } from "@components";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@components/ui/select";
 import React from "react";
-import { SearchPopover } from "../SearchPopover";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 
 type ProfessorValues = {
