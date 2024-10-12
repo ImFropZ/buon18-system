@@ -19,5 +19,9 @@ export const manifest: Manifest = {
       key: "/setting/users",
       path: React.lazy(() => import("./pages/users/page")),
     },
+    {
+      key: "/setting/users/create",
+      path: React.lazy(() => import("./pages/users/create/page")),
+    },
   ],
 };

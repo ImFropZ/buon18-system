@@ -22,6 +22,7 @@ import { userColumns } from "@modules/setting/components/data-tables";
 import { systemAxiosInstance } from "@modules/shared";
 import React from "react";
 import { SearchBar } from "@components";
+import Link from "next/link";
 
 function onDeleteSelectedHandler(ids: number[]) {
   const deleteBody = ids.map((id) => ({ id }));
@@ -106,9 +107,9 @@ export function UserDataTable() {
           refetch={refetch}
           table={table}
         /> */}
-        {/* <SchoolCreateSheet refetch={() => refetch()}> */}
-        <Button>Create</Button>
-        {/* </SchoolCreateSheet> */}
+        <Link href="/setting/users/create">
+          <Button>Create</Button>
+        </Link>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
