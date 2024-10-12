@@ -1,7 +1,7 @@
 "use client";
 
 import CustomPagination from "@components/CustomPagination";
-import { subjectColumns } from "@modules/lobby-serksa/components/data-tables";
+import { quizColumns } from "@modules/lobby-serksa/components/data-tables";
 import { Button } from "@components/ui/button";
 import {
   Table,
@@ -21,17 +21,17 @@ import React from "react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { usePagination } from "@hooks";
+import Link from "next/link";
 import { SearchBar } from "@components";
-import { DeleteSelectButton } from "../DeleteSelectButton";
-import { SubjectCreateSheet } from "../create-sheets";
-import { SubjectAdvanceSearch } from "../advance-searchs";
+import { DeleteSelectButton } from "@components";
+import { QuizAdvanceSearch } from "../advance-searchs";
 
 function onDeleteSelectedHandler(ids: number[]) {
   const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/subjects`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/quizzes`, { data: deleteBody });
 }
 
-export function SubjectDataTable() {
+export function QuizDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
     parseAsInteger.withDefault(10),
@@ -41,17 +41,29 @@ export function SubjectDataTable() {
     parseAsInteger.withDefault(0),
   );
   const [search, setSearch] = useQueryState(
-    "name:ilike",
+    "question:ilike",
     parseAsString.withDefault(""),
   );
   const [searchId, setSearchId] = useQueryState("id:eq", parseAsInteger);
+  const [searchArchived, setSearchArchived] = useQueryState(
+    "archived:eq",
+    parseAsString,
+  );
+  const [searchProfessorId, setSearchProfessorId] = useQueryState(
+    "base-professor-id:eq",
+    parseAsInteger,
+  );
+  const [searchSubjectId, setSearchSubjectId] = useQueryState(
+    "base-subject-id:eq",
+    parseAsInteger,
+  );
   const [searchSemester, setSearchSemester] = useQueryState(
     "semester:eq",
     parseAsInteger,
   );
   const [searchYear, setSearchYear] = useQueryState("year:eq", parseAsInteger);
   const [searchMajorId, setSearchMajorId] = useQueryState(
-    "base-major-id:eq",
+    "major-id:eq",
     parseAsInteger,
   );
   const [searchSchoolId, setSearchSchoolId] = useQueryState(
@@ -63,28 +75,34 @@ export function SubjectDataTable() {
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: [
-      "subjects",
+      "quizzes",
       {
         limit,
         offset,
-        "name:ilike": search,
+        "question:ilike": search,
         "id:eq": searchId,
+        "archived:eq": searchArchived,
+        "base-professor-id:eq": searchProfessorId,
+        "base-subject-id:eq": searchSubjectId,
         "semester:eq": searchSemester,
         "year:eq": searchYear,
-        "base-major-id:eq": searchMajorId,
+        "major-id:eq": searchMajorId,
         "school-id:eq": searchSchoolId,
       },
     ],
     queryFn: async () => {
-      const response = await axiosInstance.get(`/admin/subjects`, {
+      const response = await axiosInstance.get(`/admin/quizzes`, {
         params: {
           limit,
           offset,
-          "name:ilike": search,
+          "question:ilike": search,
           "id:eq": searchId,
+          "archived:eq": searchArchived,
+          "base-professor-id:eq": searchProfessorId,
+          "base-subject-id:eq": searchSubjectId,
           "semester:eq": searchSemester,
           "year:eq": searchYear,
-          "base-major-id:eq": searchMajorId,
+          "major-id:eq": searchMajorId,
           "school-id:eq": searchSchoolId,
         },
       });
@@ -94,8 +112,8 @@ export function SubjectDataTable() {
   });
 
   const table = useReactTable({
-    data: data?.data.subjects || [],
-    columns: subjectColumns,
+    data: data?.data.quizzes || [],
+    columns: quizColumns,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
     state: {
@@ -125,19 +143,34 @@ export function SubjectDataTable() {
               setSearch(searchPharse);
               go(1);
             }}
-            placeholder="Search name ..."
+            placeholder="Search question ..."
             defaultValue={search}
           />
-          <SubjectAdvanceSearch
+          <QuizAdvanceSearch
             defaultValues={{
               id: searchId,
+              archived: searchArchived,
+              professorId: searchProfessorId,
+              subjectId: searchSubjectId,
               semester: searchSemester,
               year: searchYear,
               majorId: searchMajorId,
               schoolId: searchSchoolId,
             }}
-            onConfirm={({ id, semester, year, majorId, schoolId }) => {
+            onConfirm={({
+              id,
+              archived,
+              professorId,
+              subjectId,
+              semester,
+              year,
+              majorId,
+              schoolId,
+            }) => {
               setSearchId(id);
+              setSearchArchived(archived);
+              setSearchProfessorId(professorId);
+              setSearchSubjectId(subjectId);
               setSearchSemester(semester);
               setSearchYear(year);
               setSearchMajorId(majorId);
@@ -154,9 +187,9 @@ export function SubjectDataTable() {
           refetch={refetch}
           table={table}
         />
-        <SubjectCreateSheet refetch={refetch}>
+        <Link href="/lobby-serksa/quizzes/create">
           <Button>Create</Button>
-        </SubjectCreateSheet>
+        </Link>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
@@ -198,7 +231,7 @@ export function SubjectDataTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={subjectColumns.length}
+                  colSpan={quizColumns.length}
                   className="h-24 text-center"
                 >
                   {isLoading ? (
