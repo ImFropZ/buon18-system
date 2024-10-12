@@ -21,7 +21,7 @@ import React from "react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { usePagination } from "@hooks";
-import { DeleteSelectButton } from "../DeleteSelectButton";
+import { DeleteSelectButton } from "@components";
 import { ProfessorCreateSheet } from "../create-sheets";
 import { ProfessorAdvanceSearch } from "../advance-searchs";
 import { SearchBar } from "@components";
