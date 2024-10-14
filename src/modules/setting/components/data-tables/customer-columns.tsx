@@ -126,9 +126,77 @@ export const customerColumns: ColumnDef<Customer>[] = [
     header: "Actions",
     cell: ({ row, table }) => {
       // NOTE: This is a hack to get the refetch function from the table options. Seems like the table meta is not being passed to the header component.
-      // const meta = table.options.meta as { refetch: () => void } | undefined;
+      const meta = table.options.meta as { refetch: () => void } | undefined;
 
-      return <MoreHorizontal />;
+      return (
+        <AlertDialog>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <MoreHorizontal className="cursor-pointer" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem className="cursor-pointer" asChild>
+                <Link href={`/setting/customers/edit/${row.original.id}`}>
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" asChild>
+                <AlertDialogTrigger asChild>
+                  <div className="w-full text-red-400 hover:text-red-500 focus:text-red-500">
+                    Delete
+                  </div>
+                </AlertDialogTrigger>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                records.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  const response = await systemAxiosInstance
+                    .delete(`/setting/customers`, {
+                      data: { ids: [row.original.id] },
+                    })
+                    .then((res) => {
+                      return res.data as { code: number; message: string };
+                    })
+                    .catch((err) => {
+                      return err.response.data as {
+                        code: number;
+                        message: string;
+                      };
+                    });
+
+                  if (response.code === 200) {
+                    toast({
+                      title: "Success",
+                      description: response.message,
+                    });
+
+                    meta?.refetch();
+                  } else {
+                    toast({
+                      title: "Error",
+                      description: response.message,
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      );
     },
   },
 ];
