@@ -16,6 +16,10 @@ export const manifest: Manifest = {
       path: React.lazy(() => import("./pages/page")),
     },
     {
+      key: "/setting/roles",
+      path: React.lazy(() => import("./pages/roles/page")),
+    },
+    {
       key: "/setting/customers",
       path: React.lazy(() => import("./pages/customers/page")),
     },
