@@ -18,20 +18,18 @@ import { usePagination } from "@hooks";
 import { Button } from "@components/ui/button";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useQuery } from "@tanstack/react-query";
-import { schoolColumns } from "@modules/lobby-serksa/components/data-tables";
-import { axiosInstance } from "@modules/lobby-serksa/fetch";
+import { userColumns } from "@modules/setting/components/data-tables";
+import { systemAxiosInstance } from "@modules/shared";
 import React from "react";
 import { SearchBar } from "@components";
-import { SchoolCreateSheet } from "../create-sheets";
-import { SchoolAdvanceSearch } from "../advance-searchs";
-import { DeleteSelectButton } from "../DeleteSelectButton";
+import Link from "next/link";
+import { DeleteSelectButton } from "@components";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/schools`, { data: deleteBody });
+  return systemAxiosInstance.delete(`/setting/users`, { data: { ids } });
 }
 
-export function SchoolDataTable() {
+export function UserDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
     parseAsInteger.withDefault(10),
@@ -44,18 +42,14 @@ export function SchoolDataTable() {
     "name:ilike",
     parseAsString.withDefault(""),
   );
-  const [searchId, setSearchId] = useQueryState("id:eq", parseAsInteger);
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
   const { data, refetch, isLoading } = useQuery({
-    queryKey: [
-      "schools",
-      { limit, offset, "name:ilike": search, "id:eq": searchId },
-    ],
+    queryKey: ["users", { limit, offset, "name:ilike": search }],
     queryFn: async () => {
-      const response = await axiosInstance.get(`/admin/schools`, {
-        params: { limit, offset, "name:ilike": search, "id:eq": searchId },
+      const response = await systemAxiosInstance.get(`/setting/users`, {
+        params: { limit, offset, "name:ilike": search },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -63,8 +57,8 @@ export function SchoolDataTable() {
   });
 
   const table = useReactTable({
-    data: data?.data.schools || [],
-    columns: schoolColumns,
+    data: data?.data.users || [],
+    columns: userColumns,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
     state: {
@@ -97,13 +91,13 @@ export function SchoolDataTable() {
             placeholder="Search name ..."
             defaultValue={search}
           />
-          <SchoolAdvanceSearch
+          {/* <SchoolAdvanceSearch
             defaultValues={{ id: searchId }}
             onConfirm={({ id }) => {
               setSearchId(id);
               go(1);
             }}
-          />
+          /> */}
         </div>
         <DeleteSelectButton
           isHidden={
@@ -113,9 +107,9 @@ export function SchoolDataTable() {
           refetch={refetch}
           table={table}
         />
-        <SchoolCreateSheet refetch={() => refetch()}>
+        <Link href="/setting/users/create">
           <Button>Create</Button>
-        </SchoolCreateSheet>
+        </Link>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
@@ -157,7 +151,7 @@ export function SchoolDataTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={schoolColumns.length}
+                  colSpan={userColumns.length}
                   className="h-24 text-center"
                 >
                   {isLoading ? (

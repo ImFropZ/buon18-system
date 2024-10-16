@@ -1,8 +1,10 @@
 "use client";
 
-import CustomPagination from "@components/CustomPagination";
-import { majorColumns } from "@modules/lobby-serksa/components/data-tables";
-import { Button } from "@components/ui/button";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -10,28 +12,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@components/ui/table";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useQuery } from "@tanstack/react-query";
-import React from "react";
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { axiosInstance } from "@modules/lobby-serksa/fetch";
+} from "@/components/ui/table";
+import CustomPagination from "@components/CustomPagination";
 import { usePagination } from "@hooks";
+import { Button } from "@components/ui/button";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { useQuery } from "@tanstack/react-query";
+import { schoolColumns } from "@modules/lobby-serksa/components/data-tables";
+import { axiosInstance } from "@modules/lobby-serksa/fetch";
+import React from "react";
 import { SearchBar } from "@components";
-import { MajorCreateSheet } from "../create-sheets";
-import { MajorAdvanceSearch } from "../advance-searchs";
-import { DeleteSelectButton } from "../DeleteSelectButton";
+import { SchoolCreateSheet } from "../create-sheets";
+import { SchoolAdvanceSearch } from "../advance-searchs";
+import { DeleteSelectButton } from "@components";
 
 function onDeleteSelectedHandler(ids: number[]) {
   const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/majors`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/schools`, { data: deleteBody });
 }
 
-export function MajorDataTable() {
+export function SchoolDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
     parseAsInteger.withDefault(10),
@@ -45,33 +45,17 @@ export function MajorDataTable() {
     parseAsString.withDefault(""),
   );
   const [searchId, setSearchId] = useQueryState("id:eq", parseAsInteger);
-  const [searchSchoolId, setSearchSchoolId] = useQueryState(
-    "base-school-id:eq",
-    parseAsInteger,
-  );
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: [
-      "majors",
-      {
-        limit,
-        offset,
-        "name:ilike": search,
-        "id:eq": searchId,
-        "base-school-id:eq": searchSchoolId,
-      },
+      "schools",
+      { limit, offset, "name:ilike": search, "id:eq": searchId },
     ],
     queryFn: async () => {
-      const response = await axiosInstance.get(`/admin/majors`, {
-        params: {
-          limit,
-          offset,
-          "name:ilike": search,
-          "id:eq": searchId,
-          "base-school-id:eq": searchSchoolId,
-        },
+      const response = await axiosInstance.get(`/admin/schools`, {
+        params: { limit, offset, "name:ilike": search, "id:eq": searchId },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -79,8 +63,8 @@ export function MajorDataTable() {
   });
 
   const table = useReactTable({
-    data: data?.data.majors || [],
-    columns: majorColumns,
+    data: data?.data.schools || [],
+    columns: schoolColumns,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
     state: {
@@ -113,11 +97,10 @@ export function MajorDataTable() {
             placeholder="Search name ..."
             defaultValue={search}
           />
-          <MajorAdvanceSearch
-            defaultValues={{ id: searchId, schoolId: searchSchoolId }}
-            onConfirm={({ id, schoolId }) => {
+          <SchoolAdvanceSearch
+            defaultValues={{ id: searchId }}
+            onConfirm={({ id }) => {
               setSearchId(id);
-              setSearchSchoolId(schoolId);
               go(1);
             }}
           />
@@ -130,9 +113,9 @@ export function MajorDataTable() {
           refetch={refetch}
           table={table}
         />
-        <MajorCreateSheet refetch={() => refetch()}>
+        <SchoolCreateSheet refetch={() => refetch()}>
           <Button>Create</Button>
-        </MajorCreateSheet>
+        </SchoolCreateSheet>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
@@ -174,7 +157,7 @@ export function MajorDataTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={majorColumns.length}
+                  colSpan={schoolColumns.length}
                   className="h-24 text-center"
                 >
                   {isLoading ? (

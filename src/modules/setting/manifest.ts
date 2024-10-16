@@ -15,5 +15,29 @@ export const manifest: Manifest = {
       key: "/setting",
       path: React.lazy(() => import("./pages/page")),
     },
+    {
+      key: "/setting/customers",
+      path: React.lazy(() => import("./pages/customers/page")),
+    },
+    {
+      key: "/setting/customers/create",
+      path: React.lazy(() => import("./pages/customers/create/page")),
+    },
+    {
+      key: "/setting/customers/edit/:id",
+      path: React.lazy(() => import("./pages/customers/edit/[id]/page")),
+    },
+    {
+      key: "/setting/users",
+      path: React.lazy(() => import("./pages/users/page")),
+    },
+    {
+      key: "/setting/users/create",
+      path: React.lazy(() => import("./pages/users/create/page")),
+    },
+    {
+      key: "/setting/users/edit/:id",
+      path: React.lazy(() => import("./pages/users/edit/[id]/page")),
+    },
   ],
 };

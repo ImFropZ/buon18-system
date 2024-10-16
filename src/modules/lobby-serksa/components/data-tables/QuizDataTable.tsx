@@ -1,7 +1,7 @@
 "use client";
 
 import CustomPagination from "@components/CustomPagination";
-import { professorColumns } from "@modules/lobby-serksa/components/data-tables";
+import { quizColumns } from "@modules/lobby-serksa/components/data-tables";
 import { Button } from "@components/ui/button";
 import {
   Table,
@@ -21,17 +21,17 @@ import React from "react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { usePagination } from "@hooks";
-import { DeleteSelectButton } from "../DeleteSelectButton";
-import { ProfessorCreateSheet } from "../create-sheets";
-import { ProfessorAdvanceSearch } from "../advance-searchs";
+import Link from "next/link";
 import { SearchBar } from "@components";
+import { DeleteSelectButton } from "@components";
+import { QuizAdvanceSearch } from "../advance-searchs";
 
 function onDeleteSelectedHandler(ids: number[]) {
   const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/professors`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/quizzes`, { data: deleteBody });
 }
 
-export function ProfessorDataTable() {
+export function QuizDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
     parseAsInteger.withDefault(10),
@@ -41,16 +41,20 @@ export function ProfessorDataTable() {
     parseAsInteger.withDefault(0),
   );
   const [search, setSearch] = useQueryState(
-    "full-name:ilike",
+    "question:ilike",
     parseAsString.withDefault(""),
   );
   const [searchId, setSearchId] = useQueryState("id:eq", parseAsInteger);
-  const [searchTitle, setSearchTitle] = useQueryState(
-    "title:eq",
+  const [searchArchived, setSearchArchived] = useQueryState(
+    "archived:eq",
     parseAsString,
   );
+  const [searchProfessorId, setSearchProfessorId] = useQueryState(
+    "base-professor-id:eq",
+    parseAsInteger,
+  );
   const [searchSubjectId, setSearchSubjectId] = useQueryState(
-    "subject-id:eq",
+    "base-subject-id:eq",
     parseAsInteger,
   );
   const [searchSemester, setSearchSemester] = useQueryState(
@@ -71,14 +75,15 @@ export function ProfessorDataTable() {
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: [
-      "professors",
+      "quizzes",
       {
         limit,
         offset,
-        "full-name:ilike": search,
+        "question:ilike": search,
         "id:eq": searchId,
-        "title:eq": searchTitle,
-        "subject-id:eq": searchSubjectId,
+        "archived:eq": searchArchived,
+        "base-professor-id:eq": searchProfessorId,
+        "base-subject-id:eq": searchSubjectId,
         "semester:eq": searchSemester,
         "year:eq": searchYear,
         "major-id:eq": searchMajorId,
@@ -86,14 +91,15 @@ export function ProfessorDataTable() {
       },
     ],
     queryFn: async () => {
-      const response = await axiosInstance.get(`/admin/professors`, {
+      const response = await axiosInstance.get(`/admin/quizzes`, {
         params: {
           limit,
           offset,
-          "full-name:ilike": search,
+          "question:ilike": search,
           "id:eq": searchId,
-          "title:eq": searchTitle,
-          "subject-id:eq": searchSubjectId,
+          "archived:eq": searchArchived,
+          "base-professor-id:eq": searchProfessorId,
+          "base-subject-id:eq": searchSubjectId,
           "semester:eq": searchSemester,
           "year:eq": searchYear,
           "major-id:eq": searchMajorId,
@@ -106,8 +112,8 @@ export function ProfessorDataTable() {
   });
 
   const table = useReactTable({
-    data: data?.data.professors || [],
-    columns: professorColumns,
+    data: data?.data.quizzes || [],
+    columns: quizColumns,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
     state: {
@@ -137,13 +143,14 @@ export function ProfessorDataTable() {
               setSearch(searchPharse);
               go(1);
             }}
-            placeholder="Search full name ..."
+            placeholder="Search question ..."
             defaultValue={search}
           />
-          <ProfessorAdvanceSearch
+          <QuizAdvanceSearch
             defaultValues={{
               id: searchId,
-              title: searchTitle,
+              archived: searchArchived,
+              professorId: searchProfessorId,
               subjectId: searchSubjectId,
               semester: searchSemester,
               year: searchYear,
@@ -152,7 +159,8 @@ export function ProfessorDataTable() {
             }}
             onConfirm={({
               id,
-              title,
+              archived,
+              professorId,
               subjectId,
               semester,
               year,
@@ -160,7 +168,8 @@ export function ProfessorDataTable() {
               schoolId,
             }) => {
               setSearchId(id);
-              setSearchTitle(title);
+              setSearchArchived(archived);
+              setSearchProfessorId(professorId);
               setSearchSubjectId(subjectId);
               setSearchSemester(semester);
               setSearchYear(year);
@@ -178,9 +187,9 @@ export function ProfessorDataTable() {
           refetch={refetch}
           table={table}
         />
-        <ProfessorCreateSheet refetch={refetch}>
+        <Link href="/lobby-serksa/quizzes/create">
           <Button>Create</Button>
-        </ProfessorCreateSheet>
+        </Link>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
@@ -222,7 +231,7 @@ export function ProfessorDataTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={professorColumns.length}
+                  colSpan={quizColumns.length}
                   className="h-24 text-center"
                 >
                   {isLoading ? (

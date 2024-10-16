@@ -27,16 +27,20 @@ export default function ModuleGatewayPage({
         continue;
       }
 
+      let isValid = true;
       for (let i = 0; i < sections.length; i++) {
         if (sections[i].startsWith(":")) {
           tmpPassParams[sections[i].slice(1)] = params.slug[i];
         } else if (sections[i] !== params.slug[i]) {
-          continue;
+          isValid = false;
+          break;
         }
       }
 
-      passParams = tmpPassParams;
-      PageComponent = page.path;
+      if (isValid) {
+        passParams = tmpPassParams;
+        PageComponent = page.path;
+      }
     }
 
     if (page.key === selectedKey) {

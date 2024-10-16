@@ -1,8 +1,7 @@
 import React from "react";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
-import { AdvanceSearch } from "@components";
-import { SearchPopover } from "../SearchPopover";
+import { AdvanceSearch, SearchPopover } from "@components";
 import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import { Button } from "@components/ui/button";
 

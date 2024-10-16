@@ -38,6 +38,7 @@ export function SelectFormField({
     <FormItem className={props.className}>
       <Select
         onValueChange={field.onChange}
+        value={field.value}
         defaultValue={defaultSelectedValue || ""}
       >
         <FormControl>

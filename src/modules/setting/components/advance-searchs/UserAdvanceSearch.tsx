@@ -4,18 +4,18 @@ import { AdvanceSearch, SearchPopover } from "@components";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import React from "react";
-import { axiosInstance } from "@modules/lobby-serksa/fetch";
+import { systemAxiosInstance } from "@modules/shared";
 import { Button } from "@components/ui/button";
 
-interface MajorAdvanceSearchProps {
+interface UserAdvanceSearchProps {
   defaultValues: { id: number | null; schoolId: number | null };
   onConfirm: (args: { id: number | null; schoolId: number | null }) => void;
 }
 
-export function MajorAdvanceSearch({
+export function UserAdvanceSearch({
   defaultValues,
   onConfirm,
-}: MajorAdvanceSearchProps) {
+}: UserAdvanceSearchProps) {
   const idInputRef = React.useRef<HTMLInputElement>(null);
   const [school, setSchool] = React.useState<null | {
     id: number;
@@ -53,7 +53,7 @@ export function MajorAdvanceSearch({
             <SearchPopover
               id="school"
               fetchResource={async (searchPharse) => {
-                const res = await axiosInstance.get(`/admin/schools`, {
+                const res = await systemAxiosInstance.get(`/admin/schools`, {
                   params: { ["name:ilike"]: searchPharse },
                 });
                 return res.data.data.schools;

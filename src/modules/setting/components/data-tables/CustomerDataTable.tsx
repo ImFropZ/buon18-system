@@ -1,8 +1,10 @@
 "use client";
 
-import CustomPagination from "@components/CustomPagination";
-import { quizColumns } from "@modules/lobby-serksa/components/data-tables";
-import { Button } from "@components/ui/button";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -10,28 +12,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@components/ui/table";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useQuery } from "@tanstack/react-query";
-import React from "react";
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { axiosInstance } from "@modules/lobby-serksa/fetch";
+} from "@/components/ui/table";
+import CustomPagination from "@components/CustomPagination";
 import { usePagination } from "@hooks";
-import Link from "next/link";
+import { Button } from "@components/ui/button";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { useQuery } from "@tanstack/react-query";
+import { customerColumns } from "@modules/setting/components/data-tables";
+import { systemAxiosInstance } from "@modules/shared";
+import React from "react";
 import { SearchBar } from "@components";
-import { DeleteSelectButton } from "../DeleteSelectButton";
-import { QuizAdvanceSearch } from "../advance-searchs";
+import Link from "next/link";
+import { DeleteSelectButton } from "@components";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/quizzes`, { data: deleteBody });
+  return systemAxiosInstance.delete(`/setting/customers`, { data: { ids } });
 }
 
-export function QuizDataTable() {
+export function CustomerDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
     parseAsInteger.withDefault(10),
@@ -41,70 +39,17 @@ export function QuizDataTable() {
     parseAsInteger.withDefault(0),
   );
   const [search, setSearch] = useQueryState(
-    "question:ilike",
+    "full-name:ilike",
     parseAsString.withDefault(""),
-  );
-  const [searchId, setSearchId] = useQueryState("id:eq", parseAsInteger);
-  const [searchArchived, setSearchArchived] = useQueryState(
-    "archived:eq",
-    parseAsString,
-  );
-  const [searchProfessorId, setSearchProfessorId] = useQueryState(
-    "base-professor-id:eq",
-    parseAsInteger,
-  );
-  const [searchSubjectId, setSearchSubjectId] = useQueryState(
-    "base-subject-id:eq",
-    parseAsInteger,
-  );
-  const [searchSemester, setSearchSemester] = useQueryState(
-    "semester:eq",
-    parseAsInteger,
-  );
-  const [searchYear, setSearchYear] = useQueryState("year:eq", parseAsInteger);
-  const [searchMajorId, setSearchMajorId] = useQueryState(
-    "major-id:eq",
-    parseAsInteger,
-  );
-  const [searchSchoolId, setSearchSchoolId] = useQueryState(
-    "school-id:eq",
-    parseAsInteger,
   );
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
   const { data, refetch, isLoading } = useQuery({
-    queryKey: [
-      "quizzes",
-      {
-        limit,
-        offset,
-        "question:ilike": search,
-        "id:eq": searchId,
-        "archived:eq": searchArchived,
-        "base-professor-id:eq": searchProfessorId,
-        "base-subject-id:eq": searchSubjectId,
-        "semester:eq": searchSemester,
-        "year:eq": searchYear,
-        "major-id:eq": searchMajorId,
-        "school-id:eq": searchSchoolId,
-      },
-    ],
+    queryKey: ["users", { limit, offset, "full-name:ilike": search }],
     queryFn: async () => {
-      const response = await axiosInstance.get(`/admin/quizzes`, {
-        params: {
-          limit,
-          offset,
-          "question:ilike": search,
-          "id:eq": searchId,
-          "archived:eq": searchArchived,
-          "base-professor-id:eq": searchProfessorId,
-          "base-subject-id:eq": searchSubjectId,
-          "semester:eq": searchSemester,
-          "year:eq": searchYear,
-          "major-id:eq": searchMajorId,
-          "school-id:eq": searchSchoolId,
-        },
+      const response = await systemAxiosInstance.get(`/setting/customers`, {
+        params: { limit, offset, "full-name:ilike": search },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -112,8 +57,8 @@ export function QuizDataTable() {
   });
 
   const table = useReactTable({
-    data: data?.data.quizzes || [],
-    columns: quizColumns,
+    data: data?.data.customers || [],
+    columns: customerColumns,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
     state: {
@@ -143,41 +88,16 @@ export function QuizDataTable() {
               setSearch(searchPharse);
               go(1);
             }}
-            placeholder="Search question ..."
+            placeholder="Search full name ..."
             defaultValue={search}
           />
-          <QuizAdvanceSearch
-            defaultValues={{
-              id: searchId,
-              archived: searchArchived,
-              professorId: searchProfessorId,
-              subjectId: searchSubjectId,
-              semester: searchSemester,
-              year: searchYear,
-              majorId: searchMajorId,
-              schoolId: searchSchoolId,
-            }}
-            onConfirm={({
-              id,
-              archived,
-              professorId,
-              subjectId,
-              semester,
-              year,
-              majorId,
-              schoolId,
-            }) => {
+          {/* <SchoolAdvanceSearch
+            defaultValues={{ id: searchId }}
+            onConfirm={({ id }) => {
               setSearchId(id);
-              setSearchArchived(archived);
-              setSearchProfessorId(professorId);
-              setSearchSubjectId(subjectId);
-              setSearchSemester(semester);
-              setSearchYear(year);
-              setSearchMajorId(majorId);
-              setSearchSchoolId(schoolId);
               go(1);
             }}
-          />
+          /> */}
         </div>
         <DeleteSelectButton
           isHidden={
@@ -187,7 +107,7 @@ export function QuizDataTable() {
           refetch={refetch}
           table={table}
         />
-        <Link href="/lobby-serksa/quizzes/create">
+        <Link href="/setting/customers/create">
           <Button>Create</Button>
         </Link>
       </div>
@@ -231,7 +151,7 @@ export function QuizDataTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={quizColumns.length}
+                  colSpan={customerColumns.length}
                   className="h-24 text-center"
                 >
                   {isLoading ? (
