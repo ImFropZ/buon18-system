@@ -11,7 +11,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@components/ui/alert-dialog";
-import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import {
   DropdownMenu,
@@ -23,7 +22,7 @@ import { toast } from "@components/ui/use-toast";
 import { Customer } from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { ColumnDef } from "@tanstack/react-table";
-import { Bot, Copy, MoreHorizontal, UserIcon } from "lucide-react";
+import { Copy, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
