@@ -5,9 +5,9 @@ import React from "react";
 export default function ModuleGatewayPage({
   params,
 }: {
-  params: { slug: string[] };
+  params: { slug: string[]; module: string };
 }) {
-  const selectedKey = "/" + params.slug.join("/");
+  const selectedKey = "/" + params.module + "/" + params.slug.join("/");
 
   const activeModule = installedModules.find((m) =>
     m.module.manifest.name.startsWith(selectedKey.split("/")[1]),
@@ -23,15 +23,16 @@ export default function ModuleGatewayPage({
     if (page.key.includes(":")) {
       const tmpPassParams: { [key in string]: string } = {};
       const sections = page.key.slice(1).split("/");
-      if (sections.length !== params.slug.length) {
+      const selectKeySections = selectedKey.slice(1).split("/");
+      if (sections.length !== selectKeySections.length) {
         continue;
       }
 
       let isValid = true;
       for (let i = 0; i < sections.length; i++) {
         if (sections[i].startsWith(":")) {
-          tmpPassParams[sections[i].slice(1)] = params.slug[i];
-        } else if (sections[i] !== params.slug[i]) {
+          tmpPassParams[sections[i].slice(1)] = selectKeySections[i];
+        } else if (sections[i] !== selectKeySections[i]) {
           isValid = false;
           break;
         }
