@@ -13,6 +13,7 @@ export const routes: ResourceProps[] = [
   {
     name: "setting/roles",
     list: "/setting/roles",
+    create: "/setting/roles/create",
     meta: {
       displayName: "Roles",
       icon: <BadgeCheck />,
