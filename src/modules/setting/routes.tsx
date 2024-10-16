@@ -14,6 +14,7 @@ export const routes: ResourceProps[] = [
     name: "setting/roles",
     list: "/setting/roles",
     create: "/setting/roles/create",
+    edit: "/setting/roles/edit/:id",
     meta: {
       displayName: "Roles",
       icon: <BadgeCheck />,
