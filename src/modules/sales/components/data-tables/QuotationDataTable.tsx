@@ -26,7 +26,7 @@ import { DeleteSelectButton } from "@components";
 import { quotationColumns } from "./quotation-columns";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  return systemAxiosInstance.delete(`/setting/customers`, { data: { ids } });
+  return systemAxiosInstance.delete(`/sales/quotations`, { data: { ids } });
 }
 
 export function QuotationDataTable() {
