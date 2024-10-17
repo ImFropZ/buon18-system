@@ -1,4 +1,12 @@
 import { ResourceProps } from "@refinedev/core";
+import {
+  Award,
+  Book,
+  LayoutDashboard,
+  School,
+  StickyNote,
+  User,
+} from "lucide-react";
 
 export const routes: ResourceProps[] = [
   {
@@ -6,6 +14,7 @@ export const routes: ResourceProps[] = [
     list: "/lobby-serksa",
     meta: {
       displayName: "Lobby Serksa",
+      icon: <LayoutDashboard />,
     },
   },
   {
@@ -13,6 +22,7 @@ export const routes: ResourceProps[] = [
     list: "/lobby-serksa/schools",
     meta: {
       displayName: "Schools",
+      icon: <School />,
     },
   },
   {
@@ -20,6 +30,7 @@ export const routes: ResourceProps[] = [
     list: "/lobby-serksa/majors",
     meta: {
       displayName: "Majors",
+      icon: <Award />,
     },
   },
   {
@@ -27,6 +38,7 @@ export const routes: ResourceProps[] = [
     list: "/lobby-serksa/subjects",
     meta: {
       displayName: "Subjects",
+      icon: <Book />,
     },
   },
   {
@@ -34,6 +46,7 @@ export const routes: ResourceProps[] = [
     list: "/lobby-serksa/professors",
     meta: {
       displayName: "Professors",
+      icon: <User />,
     },
   },
   {
@@ -41,6 +54,7 @@ export const routes: ResourceProps[] = [
     list: "/lobby-serksa/quizzes",
     meta: {
       displayName: "Quizzes",
+      icon: <StickyNote />,
     },
   },
 ];
