@@ -19,5 +19,9 @@ export const manifest: Manifest = {
       key: "/sales/quotations",
       path: React.lazy(() => import("./pages/quotations/page")),
     },
+    {
+      key: "/sales/quotations/create",
+      path: React.lazy(() => import("./pages/quotations/create/page")),
+    },
   ],
 };
