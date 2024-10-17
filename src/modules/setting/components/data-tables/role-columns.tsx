@@ -14,19 +14,19 @@ import {
 import { Checkbox } from "@components/ui/checkbox";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { toast } from "@components/ui/use-toast";
-import { Customer } from "@modules/setting/models";
+import { Role } from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { ColumnDef } from "@tanstack/react-table";
-import { Copy, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-export const customerColumns: ColumnDef<Customer>[] = [
+export const roleColumns: ColumnDef<Role>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -54,76 +54,42 @@ export const customerColumns: ColumnDef<Customer>[] = [
     header: "ID",
   },
   {
-    accessorKey: "full_name",
-    header: "Full name",
+    accessorKey: "name",
+    header: "Name",
   },
   {
-    header: "Gender",
-    cell: ({ row }) => {
-      const user = row.original;
-      const gender =
-        user.gender === "m"
-          ? "Male"
-          : user.gender === "f"
-            ? "Female"
-            : "Unknown";
-
-      return (
-        <span className="flex items-center justify-between">{gender}</span>
-      );
-    },
+    accessorKey: "description",
+    header: "Description",
   },
   {
-    header: "Email",
+    header: "Permissions",
     cell: ({ row }) => {
-      const user = row.original;
-      const email =
-        user.email.length > 20 ? user.email.slice(0, 20) + "..." : user.email;
-
       return (
-        <span className="flex items-center justify-between">
-          {email}
-          <Copy
-            onClick={() => {
-              navigator.clipboard.writeText(user.email).then(() => {
-                toast({
-                  title: "Copied",
-                  description: "Email copied to clipboard",
-                });
-              });
-            }}
-            className="cursor-pointer rounded p-1 outline outline-2 outline-gray-400 hover:outline-gray-600"
-          />
-        </span>
-      );
-    },
-  },
-  {
-    header: "Phone",
-    cell: ({ row }) => {
-      const user = row.original;
-
-      return (
-        <span className="flex items-center justify-between">
-          {user.phone}
-          <Copy
-            onClick={() => {
-              navigator.clipboard.writeText(user.phone).then(() => {
-                toast({
-                  title: "Copied",
-                  description: "Phone copied to clipboard",
-                });
-              });
-            }}
-            className="cursor-pointer rounded p-1 outline outline-2 outline-gray-400 hover:outline-gray-600"
-          />
-        </span>
+        <div className="flex gap-2">
+          {row.original.permissions.slice(0, 3).map((p) => (
+            <span
+              key={p.id}
+              className="rounded border-[2px] border-gray-700 p-1 px-2"
+            >
+              {p.name}
+            </span>
+          ))}
+          {row.original.permissions.length > 3 ? (
+            <span className="rounded border-[2px] border-gray-700 p-1">
+              ...
+            </span>
+          ) : null}
+        </div>
       );
     },
   },
   {
     header: "Actions",
     cell: ({ row, table }) => {
+      if (row.original.id === 1) {
+        return <></>;
+      }
+
       // NOTE: This is a hack to get the refetch function from the table options. Seems like the table meta is not being passed to the header component.
       const meta = table.options.meta as { refetch: () => void } | undefined;
 
@@ -135,7 +101,7 @@ export const customerColumns: ColumnDef<Customer>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem className="cursor-pointer" asChild>
-                <Link href={`/setting/customers/edit/${row.original.id}`}>
+                <Link href={`/setting/roles/edit/${row.original.id}`}>
                   Edit
                 </Link>
               </DropdownMenuItem>
@@ -161,7 +127,7 @@ export const customerColumns: ColumnDef<Customer>[] = [
               <AlertDialogAction
                 onClick={async () => {
                   const response = await systemAxiosInstance
-                    .delete(`/setting/customers`, {
+                    .delete(`/setting/roles`, {
                       data: { ids: [row.original.id] },
                     })
                     .then((res) => {

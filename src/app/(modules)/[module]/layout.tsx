@@ -7,7 +7,7 @@ import React from "react";
 export default async function Layout({
   children,
   params,
-}: React.PropsWithChildren & { params: { slug: string[] } }) {
+}: React.PropsWithChildren & { params: { module: string } }) {
   const data = await getData();
 
   if (!data.authenticated) {
@@ -24,7 +24,7 @@ export default async function Layout({
     <BaseLayout
       defaultCollapsed={defaultCollapsed}
       defaultLayout={defaultLayout}
-      moduleKey={params.slug[0]}
+      moduleKey={params.module}
     >
       {children}
     </BaseLayout>

@@ -48,8 +48,8 @@ export default function Page() {
       </div>
       <p className="max-w-[65ch] text-gray-500">
         This is where you can create a new user. Please fill in the form below.
-        After user is created, you can update the user's password by login into
-        the user's account with any password and update the password.
+        After user is created, you can update the user&apos;s password by login
+        into the user&apos;s account with any password and update the password.
       </p>
       <Form {...form}>
         <form
