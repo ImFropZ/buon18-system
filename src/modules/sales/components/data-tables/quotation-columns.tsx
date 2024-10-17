@@ -156,7 +156,7 @@ export const quotationColumns: ColumnDef<Quotation>[] = [
               <AlertDialogAction
                 onClick={async () => {
                   const response = await systemAxiosInstance
-                    .delete(`/setting/customers`, {
+                    .delete(`/sales/quotations`, {
                       data: { ids: [row.original.id] },
                     })
                     .then((res) => {
