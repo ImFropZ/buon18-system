@@ -8,7 +8,7 @@ import React from "react";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <section>
+    <section className="relative h-full grid-rows-[auto,1fr]">
       <h2 className="text-xl font-bold">Available permissions</h2>
       {children}
     </section>
@@ -36,25 +36,27 @@ export function PermissionSection() {
 
   return (
     <Layout>
-      <ul className="grid grid-cols-[repeat(auto-fill,minmax(0,30ch))] gap-2">
-        {data
-          ? data.map((permission) => (
-              <li
-                key={permission.id}
-                className="flex items-center gap-4 border p-2"
-              >
-                <div className="flex aspect-square h-full select-none items-center justify-center rounded bg-gray-600 font-bold text-secondary">
-                  {permission.id}
-                </div>
-                <CustomTooltip content={permission.name}>
-                  <div className="cursor-pointer overflow-hidden">
-                    {permission.name}
+      <div className="relative h-full">
+        <div className="absolute inset-0 grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] grid-rows-[repeat(auto-fit,3rem)] gap-2 overflow-y-auto p-4">
+          {data
+            ? data.map((permission) => (
+                <div
+                  key={permission.id}
+                  className="flex items-center gap-4 border p-2"
+                >
+                  <div className="flex aspect-square h-full select-none items-center justify-center rounded bg-gray-600 font-bold text-secondary">
+                    {permission.id}
                   </div>
-                </CustomTooltip>
-              </li>
-            ))
-          : null}
-      </ul>
+                  <CustomTooltip content={permission.name}>
+                    <p className="cursor-pointer overflow-hidden text-clip">
+                      {permission.name}
+                    </p>
+                  </CustomTooltip>
+                </div>
+              ))
+            : null}
+        </div>
+      </div>
     </Layout>
   );
 }
