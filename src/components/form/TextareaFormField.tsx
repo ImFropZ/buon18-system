@@ -14,7 +14,8 @@ import {
   Merge,
 } from "react-hook-form";
 
-interface DateFormFieldProps extends React.HTMLAttributes<HTMLTextAreaElement> {
+interface DateFormFieldProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
   label?: string | React.ReactNode;
