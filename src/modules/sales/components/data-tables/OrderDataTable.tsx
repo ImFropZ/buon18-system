@@ -107,7 +107,7 @@ export function OrderDataTable() {
           refetch={refetch}
           table={table}
         />
-        <Link href="/sales/quotations/create">
+        <Link href="/sales/orders/create">
           <Button>Create</Button>
         </Link>
       </div>
