@@ -1,5 +1,5 @@
 import { Role } from "./role";
-import * as z from "zod";
+import { z } from "zod";
 
 export interface User {
   id: number;

@@ -20,7 +20,7 @@ import {
 import { ParseMeta } from "papaparse";
 import { CreateQuizSchema } from "../models";
 import React from "react";
-import * as z from "zod";
+import { z } from "zod";
 
 interface QuizImportProps extends React.HTMLAttributes<HTMLDivElement> {
   meta: ParseMeta;

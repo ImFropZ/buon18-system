@@ -8,7 +8,7 @@ import {
 } from "@modules/lobby-serksa/models";
 import { useFieldArray, useForm } from "react-hook-form";
 import React from "react";
-import * as z from "zod";
+import { z } from "zod";
 import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import {

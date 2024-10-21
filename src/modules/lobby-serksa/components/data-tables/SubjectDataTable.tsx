@@ -106,7 +106,7 @@ export function SubjectDataTable() {
     },
   });
 
-  const { totalPage, pageSize, go, ...pagination } = usePagination({
+  const { go, ...pagination } = usePagination({
     page: Math.ceil(offset / limit + 1),
     pageSize: limit,
     totalItems: total,

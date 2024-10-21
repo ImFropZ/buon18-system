@@ -2,6 +2,7 @@ import { ResourceProps } from "@refinedev/core";
 import {
   Award,
   Book,
+  CreditCard,
   LayoutDashboard,
   School,
   StickyNote,
@@ -55,6 +56,14 @@ export const routes: ResourceProps[] = [
     meta: {
       displayName: "Quizzes",
       icon: <StickyNote />,
+    },
+  },
+  {
+    name: "lobby-serksa/transactions",
+    list: "/lobby-serksa/transactions",
+    meta: {
+      displayName: "Transactions",
+      icon: <CreditCard />,
     },
   },
 ];

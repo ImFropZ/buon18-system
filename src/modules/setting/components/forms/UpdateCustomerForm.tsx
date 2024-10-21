@@ -71,7 +71,7 @@ export function UpdateCustomerForm({ data }: UpdateCustomerFormProps) {
                 });
               });
           },
-          (e) => {
+          () => {
             toast({
               title: "Failed to update customer",
               description: "Please check the form and try again.",
