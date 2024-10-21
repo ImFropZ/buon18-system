@@ -22,12 +22,7 @@ import { systemAxiosInstance } from "@modules/shared";
 import React from "react";
 import { SearchBar } from "@components";
 import Link from "next/link";
-import { DeleteSelectButton } from "@components";
 import { orderColumns } from "./order-columns";
-
-function onDeleteSelectedHandler(ids: number[]) {
-  return systemAxiosInstance.delete(`/sales/quotations`, { data: { ids } });
-}
 
 export function OrderDataTable() {
   const [limit, setLimit] = useQueryState(
@@ -43,7 +38,6 @@ export function OrderDataTable() {
     parseAsString.withDefault(""),
   );
   const [total, setTotal] = React.useState(0);
-  const [rowSelection, setRowSelection] = React.useState({});
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["orders", { limit, offset, "name:ilike": search }],
@@ -60,16 +54,12 @@ export function OrderDataTable() {
     data: data?.data.orders || [],
     columns: orderColumns,
     getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: setRowSelection,
-    state: {
-      rowSelection,
-    },
     meta: {
       refetch: () => refetch(),
     },
   });
 
-  const { totalPage, pageSize, go, ...pagination } = usePagination({
+  const { go, ...pagination } = usePagination({
     page: Math.ceil(offset / limit + 1),
     pageSize: limit,
     totalItems: total,
@@ -99,14 +89,6 @@ export function OrderDataTable() {
             }}
           /> */}
         </div>
-        <DeleteSelectButton
-          isHidden={
-            !(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected())
-          }
-          onDeleteSelectedHandler={onDeleteSelectedHandler}
-          refetch={refetch}
-          table={table}
-        />
         <Link href="/sales/orders/create">
           <Button>Create</Button>
         </Link>
