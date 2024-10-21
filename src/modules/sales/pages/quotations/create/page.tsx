@@ -11,7 +11,7 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateQuotationSchema } from "@modules/sales/models/quotation";
+import { CreateQuotationSchema } from "@modules/sales/models";
 import { Customer } from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import Link from "next/link";

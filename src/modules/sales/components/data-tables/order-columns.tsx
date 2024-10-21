@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomTooltip } from "@components";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +20,7 @@ import {
   DropdownMenuItem,
 } from "@components/ui/dropdown-menu";
 import { toast } from "@components/ui/use-toast";
-import { Quotation } from "@modules/sales/models";
+import { Order } from "@modules/sales/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -27,7 +28,7 @@ import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-export const quotationColumns: ColumnDef<Quotation>[] = [
+export const orderColumns: ColumnDef<Order>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -59,60 +60,55 @@ export const quotationColumns: ColumnDef<Quotation>[] = [
     accessorKey: "name",
   },
   {
-    header: "Customer",
+    header: "Commitment date",
     cell: ({ row }) => {
-      const quotation = row.original;
+      const order = row.original;
+      return format(new Date(order.commitment_date), "yyyy-MM-dd");
+    },
+  },
+  {
+    header: "Quotation",
+    cell: ({ row }) => {
+      const order = row.original;
+
       return (
         <Link
-          href={`/setting/customers?full-name:ilike=${quotation.customer.full_name}`}
+          href={`/sales/quotations?name:ilike=${order.quotation.name}`}
+          className="underline"
         >
-          {quotation.customer.full_name}
+          {order.quotation.name}
         </Link>
       );
     },
   },
   {
-    header: "Creation date",
-    accessorKey: "creation_date",
+    header: "Payment term",
     cell: ({ row }) => {
-      const quotation = row.original;
+      const order = row.original;
       return (
-        <span>{format(new Date(quotation.creation_date), "yyyy-MM-dd")}</span>
+        <Link href={``} className="underline">
+          {order.payment_term.name}
+        </Link>
       );
     },
   },
   {
-    header: "Validity date",
+    header: "Note",
     cell: ({ row }) => {
-      const quotation = row.original;
+      const order = row.original;
+
+      if (!order.note) {
+        return <span className="select-none text-gray-400">None</span>;
+      }
+
       return (
-        <span>{format(new Date(quotation.validity_date), "yyyy-MM-dd")}</span>
-      );
-    },
-  },
-  {
-    header: "Discount",
-    accessorKey: "discount",
-  },
-  {
-    header: "Amount delivery",
-    accessorKey: "amount_delivery",
-  },
-  {
-    header: "Total amount",
-    accessorKey: "total_amount",
-  },
-  {
-    header: "Status",
-    cell: ({ row }) => {
-      const quotation = row.original;
-      return (
-        <span
-          className="block w-full rounded-lg px-2 py-1 text-center text-secondary data-[state='cancelled']:bg-red-500 data-[state='quotation']:bg-slate-600 data-[state='quotation\_sent']:bg-yellow-600 data-[state='sales\_order']:bg-green-600"
-          data-state={quotation.status}
-        >
-          {quotation.status.split("_").join(" ")}
-        </span>
+        <CustomTooltip content={order.note}>
+          <span className="cursor-help">
+            {order.note.length > 30
+              ? order.note.slice(0, 30) + "..."
+              : order.note}
+          </span>
+        </CustomTooltip>
       );
     },
   },
