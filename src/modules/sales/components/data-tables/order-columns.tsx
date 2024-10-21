@@ -126,9 +126,7 @@ export const orderColumns: ColumnDef<Order>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem className="cursor-pointer" asChild>
-                <Link href={`/setting/customers/edit/${row.original.id}`}>
-                  Edit
-                </Link>
+                <Link href={`/sales/orders/edit/${row.original.id}`}>Edit</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" asChild>
                 <AlertDialogTrigger asChild>

@@ -24,3 +24,17 @@ export const CreateOrderSchema = z.object({
     name: z.string(),
   }),
 });
+
+export const UpdateOrderSchema = z.object({
+  name: z.string().min(1),
+  commitment_date: z.date(),
+  note: z.string(),
+  quotation: z.object({
+    id: z.number().min(1),
+    name: z.string(),
+  }),
+  payment_term: z.object({
+    id: z.number().min(1),
+    name: z.string(),
+  }),
+});
