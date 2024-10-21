@@ -24,6 +24,7 @@ export const routes: ResourceProps[] = [
     name: "sales/orders",
     list: "/sales/orders",
     create: "/sales/orders/create",
+    edit: "/sales/orders/edit/:id",
     meta: {
       displayName: "Orders",
       icon: <NotepadText />,

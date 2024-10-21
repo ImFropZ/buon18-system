@@ -31,5 +31,9 @@ export const manifest: Manifest = {
       key: "/sales/orders/create",
       path: React.lazy(() => import("./pages/orders/create/page")),
     },
+    {
+      key: "/sales/orders/edit/:id",
+      path: React.lazy(() => import("./pages/orders/edit/[id]/page")),
+    },
   ],
 };
