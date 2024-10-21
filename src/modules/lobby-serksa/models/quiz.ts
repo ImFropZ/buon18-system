@@ -1,6 +1,6 @@
 import { Professor } from "./professor";
 import { Subject } from "./subject";
-import * as z from "zod";
+import { z } from "zod";
 
 export interface Quiz {
   id: number;

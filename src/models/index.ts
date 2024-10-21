@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod";
 
 export interface Response<T extends object | null> {
   code: string;

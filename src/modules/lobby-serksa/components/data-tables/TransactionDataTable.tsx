@@ -1,10 +1,8 @@
 "use client";
 
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import CustomPagination from "@components/CustomPagination";
+import { transactionColumns } from "@modules/lobby-serksa/components/data-tables";
+import { Button } from "@components/ui/button";
 import {
   Table,
   TableBody,
@@ -12,26 +10,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import CustomPagination from "@components/CustomPagination";
-import { usePagination } from "@hooks";
-import { Button } from "@components/ui/button";
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+} from "@components/ui/table";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import { useQuery } from "@tanstack/react-query";
-import { schoolColumns } from "@modules/lobby-serksa/components/data-tables";
-import { axiosInstance } from "@modules/lobby-serksa/fetch";
 import React from "react";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { axiosInstance } from "@modules/lobby-serksa/fetch";
+import { usePagination } from "@hooks";
 import { SearchBar } from "@components";
-import { SchoolCreateSheet } from "../create-sheets";
-import { SchoolAdvanceSearch } from "../advance-searchs";
 import { DeleteSelectButton } from "@components";
+import { TransactionCreateSheet } from "../create-sheets";
 
 function onDeleteSelectedHandler(ids: number[]) {
   const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/schools`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/transactions`, { data: deleteBody });
 }
 
-export function SchoolDataTable() {
+export function TransactionDataTable() {
   const [limit, setLimit] = useQueryState(
     "limit",
     parseAsInteger.withDefault(10),
@@ -41,21 +40,28 @@ export function SchoolDataTable() {
     parseAsInteger.withDefault(0),
   );
   const [search, setSearch] = useQueryState(
-    "name:ilike",
+    "id:eq",
     parseAsString.withDefault(""),
   );
-  const [searchId, setSearchId] = useQueryState("id:eq", parseAsInteger);
   const [total, setTotal] = React.useState(0);
   const [rowSelection, setRowSelection] = React.useState({});
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: [
-      "schools",
-      { limit, offset, "name:ilike": search, "id:eq": searchId },
+      "transactions",
+      {
+        limit,
+        offset,
+        "id:eq": search,
+      },
     ],
     queryFn: async () => {
-      const response = await axiosInstance.get(`/admin/schools`, {
-        params: { limit, offset, "name:ilike": search, "id:eq": searchId },
+      const response = await axiosInstance.get(`/admin/transactions`, {
+        params: {
+          limit,
+          offset,
+          "id:eq": search,
+        },
       });
       setTotal(+response.headers["x-total-count"] || 0);
       return response.data;
@@ -63,8 +69,8 @@ export function SchoolDataTable() {
   });
 
   const table = useReactTable({
-    data: data?.data.schools || [],
-    columns: schoolColumns,
+    data: data?.data.transactions || [],
+    columns: transactionColumns,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
     state: {
@@ -94,15 +100,8 @@ export function SchoolDataTable() {
               setSearch(searchPharse);
               go(1);
             }}
-            placeholder="Search name ..."
+            placeholder="Search id ..."
             defaultValue={search}
-          />
-          <SchoolAdvanceSearch
-            defaultValues={{ id: searchId }}
-            onConfirm={({ id }) => {
-              setSearchId(id);
-              go(1);
-            }}
           />
         </div>
         <DeleteSelectButton
@@ -113,9 +112,9 @@ export function SchoolDataTable() {
           refetch={refetch}
           table={table}
         />
-        <SchoolCreateSheet refetch={() => refetch()}>
+        <TransactionCreateSheet refetch={refetch}>
           <Button>Create</Button>
-        </SchoolCreateSheet>
+        </TransactionCreateSheet>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
@@ -157,7 +156,7 @@ export function SchoolDataTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={schoolColumns.length}
+                  colSpan={transactionColumns.length}
                   className="h-24 text-center"
                 >
                   {isLoading ? (
