@@ -39,5 +39,9 @@ export const manifest: Manifest = {
       key: "/lobby-serksa/quizzes/create",
       path: React.lazy(() => import("./pages/quizzes/create/page")),
     },
+    {
+      key: "/lobby-serksa/transactions",
+      path: React.lazy(() => import("./pages/transactions/page")),
+    },
   ],
 };

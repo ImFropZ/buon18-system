@@ -50,7 +50,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Eye, MoreHorizontal, Trash, Undo } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import * as z from "zod";
+import { z } from "zod";
 
 export const quizColumns: ColumnDef<Quiz>[] = [
   {
@@ -219,7 +219,7 @@ function ActionQuiz({
       add_options: [],
       remove_option_ids: [],
     });
-  }, [quiz]);
+  }, [form, quiz]);
 
   const updateOptionFieldArray = useFieldArray({
     control: form.control,

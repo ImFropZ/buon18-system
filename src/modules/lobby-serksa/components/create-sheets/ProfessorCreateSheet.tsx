@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import * as z from "zod";
+import { z } from "zod";
 import { CreateProfessorsSchema, Subject } from "@modules/lobby-serksa/models";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

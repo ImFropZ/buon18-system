@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod";
 
 export const numberInString = z.any().transform((val, ctx) => {
   const parsed = Number(val);

@@ -3,7 +3,7 @@ import { InputFormField, SearchSelectFormField } from "@components/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateMajorsSchema, School } from "@modules/lobby-serksa/models";
-import * as z from "zod";
+import { z } from "zod";
 import { Form, FormField } from "@components/ui/form";
 import {
   Sheet,

@@ -129,9 +129,9 @@ export function UpdateRoleForm({ data }: UpdateRoleFormProps) {
         <Label>Permissions</Label>
         <div className="relative h-full space-y-2">
           <div className="absolute inset-0 flex flex-col gap-2 overflow-y-auto p-1">
-            {permissionFieldArray.fields.map((permission, i) => {
+            {permissionFieldArray.fields.map((permission, _) => {
               return (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4" key={permission.id}>
                   <span className="flex aspect-square h-full items-center justify-center rounded-lg border-2 text-lg font-bold">
                     {permission.id}
                   </span>

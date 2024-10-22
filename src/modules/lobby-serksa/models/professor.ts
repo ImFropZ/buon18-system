@@ -1,5 +1,5 @@
 import { Subject } from "./subject";
-import * as z from "zod";
+import { z } from "zod";
 
 export interface Professor {
   id: number;

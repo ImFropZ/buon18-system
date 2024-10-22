@@ -2,7 +2,7 @@
 
 import { InputFormField, SearchSelectFormField } from "@components/form";
 import React from "react";
-import * as z from "zod";
+import { z } from "zod";
 import { CreateSubjectsSchema, Major } from "@modules/lobby-serksa/models";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -96,7 +96,7 @@ export function SubjectCreateSheet({
             <SheetHeader>
               <SheetTitle>Create subjects</SheetTitle>
               <SheetDescription>
-                Create multiple majors at once.
+                Create multiple subjects at once.
               </SheetDescription>
             </SheetHeader>
             <div className="my-2 flex flex-col gap-2 overflow-y-auto p-2 px-4">

@@ -1,6 +1,6 @@
 import { numberInString } from "@models";
 import { Major } from "./major";
-import * as z from "zod";
+import { z } from "zod";
 
 export interface Subject {
   id: number;
