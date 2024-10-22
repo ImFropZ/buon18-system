@@ -23,24 +23,28 @@ systemAxiosInstance.interceptors.request.use(async (req) => {
   if (isExpired) {
     const refreshToken = localStorage.getItem("refresh-token");
     if (!refreshToken || !token) {
-      return Promise.reject("Unauthorized");
+      Cookies.remove("auth");
+      localStorage.removeItem("refresh-token");
+      throw new Error("Unauthorized");
     }
 
-    const result = await axios.post(
-      `${SYSTEM_API_URL}/auth/refresh-token`,
-      {
-        refresh_token: refreshToken,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    const result = await axios
+      .post(
+        `${SYSTEM_API_URL}/auth/refresh-token`,
+        {
+          refresh_token: refreshToken,
         },
-      },
-    );
-
-    if (result.status !== 200) {
-      return Promise.reject("Unauthorized");
-    }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      .catch((e) => {
+        Cookies.remove("auth");
+        localStorage.removeItem("refresh-token");
+        return Promise.reject(e);
+      });
 
     const { token: newToken } = result.data.data;
     const futureDate = addMonths(new Date(), 1);
@@ -66,6 +70,8 @@ function getAuthCookie() {
   const { token } = JSON.parse(auth || "{}");
 
   if (!token) {
+    Cookies.remove("auth");
+    localStorage.removeItem("refresh-token");
     throw new Error("Unauthorized");
   }
 

@@ -23,7 +23,11 @@ export const CustomTooltip = React.forwardRef<
 >((props, _) => (
   <Tooltip>
     <TooltipTrigger asChild>{props.children}</TooltipTrigger>
-    {props.content ? <TooltipContent>{props.content}</TooltipContent> : null}
+    {props.content ? (
+      <TooltipContent className="max-w-[60ch] text-wrap">
+        {props.content}
+      </TooltipContent>
+    ) : null}
   </Tooltip>
 ));
 
