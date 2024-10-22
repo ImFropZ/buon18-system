@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@components/ui/dropdown-menu";
 import { toast } from "@components/ui/use-toast";
 import { Quotation } from "@modules/sales/models";
@@ -129,6 +130,110 @@ export const quotationColumns: ColumnDef<Quotation>[] = [
               <MoreHorizontal className="cursor-pointer" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                asChild
+                disabled={
+                  row.original.status === "quotation_sent" ||
+                  row.original.status === "cancelled" ||
+                  row.original.status === "sales_order"
+                }
+              >
+                <div
+                  className="w-full"
+                  onClick={() => {
+                    systemAxiosInstance
+                      .patch(`/sales/quotations/${row.original.id}`, {
+                        status: "quotation_sent",
+                      })
+                      .then(() => {
+                        toast({
+                          title: "Success",
+                          description: "Quotation sent successfully",
+                        });
+                        meta?.refetch();
+                      })
+                      .catch((e) => {
+                        toast({
+                          title: "Error",
+                          description: e.response.data.message,
+                          variant: "destructive",
+                        });
+                      });
+                  }}
+                >
+                  To quotation sent
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                asChild
+                disabled={
+                  row.original.status === "sales_order" ||
+                  row.original.status === "cancelled"
+                }
+              >
+                <div
+                  className="w-full"
+                  onClick={() => {
+                    systemAxiosInstance
+                      .patch(`/sales/quotations/${row.original.id}`, {
+                        status: "sales_order",
+                      })
+                      .then(() => {
+                        toast({
+                          title: "Success",
+                          description: "Quotation sales order successfully",
+                        });
+                        meta?.refetch();
+                      })
+                      .catch((e) => {
+                        toast({
+                          title: "Error",
+                          description: e.response.data.message,
+                          variant: "destructive",
+                        });
+                      });
+                  }}
+                >
+                  To sales order
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                asChild
+                disabled={
+                  row.original.status === "cancelled" ||
+                  row.original.status === "sales_order"
+                }
+              >
+                <div
+                  className="w-full text-red-400 hover:text-red-500 focus:text-red-500"
+                  onClick={() => {
+                    systemAxiosInstance
+                      .patch(`/sales/quotations/${row.original.id}`, {
+                        status: "cancelled",
+                      })
+                      .then(() => {
+                        toast({
+                          title: "Success",
+                          description: "Quotation cancelled successfully",
+                        });
+                        meta?.refetch();
+                      })
+                      .catch((e) => {
+                        toast({
+                          title: "Error",
+                          description: e.response.data.message,
+                          variant: "destructive",
+                        });
+                      });
+                  }}
+                >
+                  To cancelled
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer" asChild>
                 <Link href={`/sales/quotations/edit/${row.original.id}`}>
                   Edit
