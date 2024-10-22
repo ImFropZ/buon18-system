@@ -59,6 +59,22 @@ export function UpdateOrderForm({ data }: UpdateOrderFormProps) {
     },
   });
 
+  React.useEffect(() => {
+    form.reset({
+      name: data.name,
+      commitment_date: new Date(data.commitment_date),
+      note: data.note,
+      quotation: {
+        id: data.quotation.id,
+        name: data.quotation.name,
+      },
+      payment_term: {
+        id: data.payment_term.id,
+        name: data.payment_term.name,
+      },
+    });
+  }, [form, data]);
+
   return (
     <Form {...form}>
       <form
@@ -68,8 +84,8 @@ export function UpdateOrderForm({ data }: UpdateOrderFormProps) {
               .then((res) => {
                 if (res.code === 200) {
                   toast({
-                    title: "Customer updated successfully",
-                    description: "Customer has been updated successfully",
+                    title: "Order updated successfully",
+                    description: "Order has been updated successfully",
                   });
                 }
 
@@ -78,7 +94,7 @@ export function UpdateOrderForm({ data }: UpdateOrderFormProps) {
               })
               .catch((e) => {
                 toast({
-                  title: "Failed to update customer",
+                  title: "Failed to update order",
                   description: e.response.data.message,
                   variant: "destructive",
                 });
@@ -86,7 +102,7 @@ export function UpdateOrderForm({ data }: UpdateOrderFormProps) {
           },
           () => {
             toast({
-              title: "Failed to update customer",
+              title: "Failed to update order",
               description: "Please check the form and try again.",
               variant: "destructive",
             });

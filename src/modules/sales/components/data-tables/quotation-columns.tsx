@@ -130,7 +130,7 @@ export const quotationColumns: ColumnDef<Quotation>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem className="cursor-pointer" asChild>
-                <Link href={`/setting/customers/edit/${row.original.id}`}>
+                <Link href={`/sales/quotations/edit/${row.original.id}`}>
                   Edit
                 </Link>
               </DropdownMenuItem>

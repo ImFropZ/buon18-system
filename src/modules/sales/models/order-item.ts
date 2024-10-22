@@ -16,3 +16,11 @@ export const CreateOrderItemSchema = z.object({
   price: numberInString.pipe(z.number()),
   discount: numberInString.pipe(z.number()),
 });
+
+export const UpdateOrderItemSchema = z.object({
+  id: z.number().min(1),
+  name: z.string().min(1),
+  description: z.string().min(1),
+  price: numberInString.pipe(z.number()),
+  discount: numberInString.pipe(z.number()),
+});
