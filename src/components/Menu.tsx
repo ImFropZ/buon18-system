@@ -1,7 +1,6 @@
 "use client";
 
 import { Nav } from "@/components/Nav";
-import { NAVIGATIONS_ICON } from "@/data/navigation";
 import { useMenu } from "@refinedev/core";
 import { Home } from "lucide-react";
 
@@ -21,7 +20,7 @@ export const Menu = ({ isCollapsed, moduleKey }: MenuProps) => {
           return item.name.startsWith(moduleKey || "");
         })
         .map((item) => ({
-          icon: NAVIGATIONS_ICON[item.name] || Home,
+          icon: item.meta?.icon || <Home />,
           title: item.label || "",
           variant: selectedKey === item.key ? "default" : "ghost",
           href: item.route || "/",

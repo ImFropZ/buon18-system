@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, LucideIcon } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "./ui/button";
@@ -12,7 +12,7 @@ interface NavProps {
   links: {
     title: string;
     label?: string;
-    icon: LucideIcon;
+    icon: React.ReactNode;
     variant: "default" | "ghost";
     href: string;
   }[];
@@ -39,7 +39,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
               )}
             >
-              <link.icon className="h-4 w-4" />
+              <span className="flex h-6 w-6">{link.icon}</span>
               <span className="sr-only">{link.title}</span>
             </Link>
           ) : (
@@ -50,10 +50,10 @@ export function Nav({ links, isCollapsed }: NavProps) {
                 buttonVariants({ variant: link.variant, size: "sm" }),
                 link.variant === "default" &&
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
-                "justify-start",
+                "items-center justify-start",
               )}
             >
-              <link.icon className="mr-2 h-4 w-4" />
+              <span className="mr-2 flex h-6 w-6">{link.icon}</span>
               {link.label && (
                 <span
                   className={cn(
