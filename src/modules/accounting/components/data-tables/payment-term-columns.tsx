@@ -107,8 +107,8 @@ function ActionPaymentTerm({
           <AlertDialogAction
             onClick={() => {
               systemAxiosInstance
-                .delete(`/accounting/payment-term`, {
-                  data: [{ id: paymentTerm.id }],
+                .delete(`/accounting/payment-terms`, {
+                  data: { ids: [paymentTerm.id] },
                 })
                 .then((res) => {
                   toast({

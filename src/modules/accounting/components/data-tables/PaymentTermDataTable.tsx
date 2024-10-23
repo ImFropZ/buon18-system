@@ -26,8 +26,9 @@ import { systemAxiosInstance } from "@modules/shared";
 import Link from "next/link";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return systemAxiosInstance.delete(`/admin/majors`, { data: deleteBody });
+  return systemAxiosInstance.delete(`/accounting/payment-terms`, {
+    data: { ids },
+  });
 }
 
 export function PaymentTermDataTable() {
