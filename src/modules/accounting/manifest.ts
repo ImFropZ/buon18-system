@@ -19,5 +19,13 @@ export const manifest: Manifest = {
       key: "/accounting/payment-terms",
       path: React.lazy(() => import("./pages/payment-terms/page")),
     },
+    {
+      key: "/accounting/payment-terms/create",
+      path: React.lazy(() => import("./pages/payment-terms/create/page")),
+    },
+    {
+      key: "/accounting/payment-terms/edit/:id",
+      path: React.lazy(() => import("./pages/payment-terms/edit/[id]/page")),
+    },
   ],
 };

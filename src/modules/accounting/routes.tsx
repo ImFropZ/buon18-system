@@ -1,5 +1,5 @@
 import { ResourceProps } from "@refinedev/core";
-import { LayoutDashboard, NotepadText, Quote } from "lucide-react";
+import { HandCoins, LayoutDashboard } from "lucide-react";
 
 export const routes: ResourceProps[] = [
   {
@@ -17,7 +17,7 @@ export const routes: ResourceProps[] = [
     edit: "/accounting/payment-terms/edit/:id",
     meta: {
       displayName: "Payment terms",
-      icon: <Quote />,
+      icon: <HandCoins />,
     },
   },
 ];
