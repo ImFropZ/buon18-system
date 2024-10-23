@@ -23,6 +23,7 @@ import { PaymentTerm } from "@modules/accounting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 export const paymentTermColumns: ColumnDef<PaymentTerm>[] = [
@@ -86,7 +87,9 @@ function ActionPaymentTerm({
           <MoreHorizontal />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem className="cursor-pointer">Update</DropdownMenuItem>
+          <Link href={`/accounting/payment-terms/edit/${paymentTerm.id}`}>
+            <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+          </Link>
           <AlertDialogTrigger asChild>
             <DropdownMenuItem className="cursor-pointer text-red-400 focus:text-red-500">
               Delete
