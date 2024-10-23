@@ -245,7 +245,14 @@ export function QuizDataTable() {
           </TableBody>
         </Table>
       </div>
-      <CustomPagination {...pagination} className="justify-end" />
+      <CustomPagination
+        currentPage={pagination.currentPage}
+        hasNextPage={pagination.hasNextPage}
+        hasPreviousPage={pagination.hasPreviousPage}
+        back={pagination.back}
+        next={pagination.next}
+        className="justify-end"
+      />
     </div>
   );
 }
