@@ -23,6 +23,7 @@ import { SearchBar } from "@components";
 import { DeleteSelectButton } from "@components";
 import { paymentTermColumns } from "./payment-term-columns";
 import { systemAxiosInstance } from "@modules/shared";
+import Link from "next/link";
 
 function onDeleteSelectedHandler(ids: number[]) {
   const deleteBody = ids.map((id) => ({ id }));
@@ -114,7 +115,9 @@ export function PaymentTermDataTable() {
           refetch={refetch}
           table={table}
         />
-        <Button>Create</Button>
+        <Link href="/accounting/payment-terms/create">
+          <Button>Create</Button>
+        </Link>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
