@@ -22,11 +22,9 @@ axiosInstance.interceptors.request.use(async (req) => {
   }
 
   if (isExpired) {
-    const token = await fetch("/api/quiz-lobby/generate-token", {
-      method: "POST",
-    })
-      .then((res) => res.json())
-      .then((res) => res.token);
+    const token = await axios
+      .post("/api/quiz-lobby/generate-token")
+      .then((res) => res.data.token);
 
     const futureDate = addMinutes(new Date(), 55);
     Cookies.set(TOKEN_KEY, JSON.stringify({ token }), {
