@@ -14,6 +14,7 @@ import {
 } from "@components/ui/alert-dialog";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
+import { Dialog, DialogContent, DialogTrigger } from "@components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +37,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import { School, UpdateSchoolSchema } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { Eye, MoreHorizontal } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 
@@ -70,6 +71,19 @@ export const schoolColumns: ColumnDef<School>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => {
+      const school = row.original;
+      return (
+        <div className="flex items-center justify-between gap-2">
+          <p>{school.name}</p>
+          {school.image_url ? (
+            <ImageDialog src={school.image_url}>
+              <Eye className="cursor-pointer rounded-lg px-1 outline outline-2 outline-gray-400" />
+            </ImageDialog>
+          ) : null}
+        </div>
+      );
+    },
   },
   {
     header: "Actions",
@@ -87,7 +101,7 @@ function ActionSchool({
   school,
   meta,
 }: {
-  school: { id: number; name: string };
+  school: School;
   meta: { refetch: () => void } | undefined;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -96,6 +110,7 @@ function ActionSchool({
     resolver: zodResolver(UpdateSchoolSchema),
     defaultValues: {
       name: school.name,
+      image_url: school.image_url,
     },
   });
 
@@ -203,6 +218,30 @@ function ActionSchool({
                 )}
               />
             </div>
+            <div className="my-2 flex flex-col gap-2">
+              <Label>Image URL</Label>
+              <div className="flex gap-2">
+                <FormField
+                  control={form.control}
+                  name={`image_url`}
+                  render={({ field }) => (
+                    <InputFormField
+                      className="flex-1"
+                      field={field}
+                      errorField={
+                        form.formState.errors
+                          ? form.formState.errors?.image_url
+                          : undefined
+                      }
+                      placeholder="https://placehold.co/200x200"
+                    />
+                  )}
+                />
+                <div className="grid aspect-square h-52 w-52 place-items-center border p-2">
+                  <img src={form.watch(`image_url`)} alt="Preview" />
+                </div>
+              </div>
+            </div>
             <SheetFooter>
               <Button type="submit">Update</Button>
             </SheetFooter>
@@ -210,5 +249,22 @@ function ActionSchool({
         </SheetContent>
       </Form>
     </Sheet>
+  );
+}
+
+function ImageDialog({
+  children,
+  src,
+}: {
+  children: React.ReactNode;
+  src: string;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="flex justify-center">
+        <img src={src} alt="quiz image" />
+      </DialogContent>
+    </Dialog>
   );
 }

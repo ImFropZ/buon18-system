@@ -16,9 +16,13 @@ import {
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
-import { CreateSchoolsSchema } from "@modules/quiz-lobby/models";
+import {
+  CreateSchoolSchema,
+  CreateSchoolsSchema,
+} from "@modules/quiz-lobby/models";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
 
 async function onCreateHandler(data: { schools: { name: string }[] }) {
   return axiosInstance.post(`/admin/schools`, data.schools).then((res) => {
@@ -34,9 +38,9 @@ export function SchoolCreateSheet({
   refetch: () => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const form = useForm<{ schools: { name: string }[] }>({
+  const form = useForm<{ schools: z.infer<typeof CreateSchoolSchema>[] }>({
     resolver: zodResolver(CreateSchoolsSchema),
-    defaultValues: { schools: [{ name: "" }] },
+    defaultValues: { schools: [{ name: "", image_url: "" }] },
   });
 
   const fieldArray = useFieldArray({
@@ -97,22 +101,50 @@ export function SchoolCreateSheet({
                     <p className="ml-auto w-fit rounded bg-gray-300 px-2 text-sm">
                       {field.id}
                     </p>
-                    <Label>Name</Label>
-                    <FormField
-                      control={form.control}
-                      name={`schools.${index}.name`}
-                      render={({ field }) => (
-                        <InputFormField
-                          field={field}
-                          errorField={
-                            form.formState.errors
-                              ? form.formState.errors.schools?.[index]?.name
-                              : undefined
-                          }
-                          placeholder="Name"
+                    <div className="flex flex-col gap-2">
+                      <Label>Name</Label>
+                      <FormField
+                        control={form.control}
+                        name={`schools.${index}.name`}
+                        render={({ field }) => (
+                          <InputFormField
+                            field={field}
+                            errorField={
+                              form.formState.errors
+                                ? form.formState.errors.schools?.[index]?.name
+                                : undefined
+                            }
+                            placeholder="Name"
+                          />
+                        )}
+                      />
+                      <Label>Image URL</Label>
+                      <div className="flex gap-2">
+                        <FormField
+                          control={form.control}
+                          name={`schools.${index}.image_url`}
+                          render={({ field }) => (
+                            <InputFormField
+                              className="flex-1"
+                              field={field}
+                              errorField={
+                                form.formState.errors
+                                  ? form.formState.errors?.schools?.[index]
+                                      ?.image_url
+                                  : undefined
+                              }
+                              placeholder="https://placehold.co/200x200"
+                            />
+                          )}
                         />
-                      )}
-                    />
+                        <div className="grid aspect-square h-52 w-52 place-items-center border p-2">
+                          <img
+                            src={form.watch(`schools.${index}.image_url`)}
+                            alt="Preview"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
@@ -120,7 +152,7 @@ export function SchoolCreateSheet({
             <div className="flex gap-2">
               <Button
                 type="button"
-                onClick={() => fieldArray.append({ name: "" })}
+                onClick={() => fieldArray.append({ name: "", image_url: "" })}
               >
                 Add School
               </Button>
