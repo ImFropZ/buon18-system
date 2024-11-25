@@ -23,33 +23,6 @@ import { useRouter } from "next/navigation";
 import { QuizImport } from "@modules/quiz-lobby/components";
 import Papa, { ParseResult } from "papaparse";
 
-const DEFAULT_QUIZ = {
-  question: "",
-  image_url: "",
-  options: [
-    {
-      label: "",
-      is_correct: false,
-    },
-    {
-      label: "",
-      is_correct: false,
-    },
-    {
-      label: "",
-      is_correct: false,
-    },
-    {
-      label: "",
-      is_correct: false,
-    },
-    {
-      label: "",
-      is_correct: false,
-    },
-  ],
-};
-
 const onCreateHandler = async (data: z.infer<typeof CreateQuizzesSchema>) => {
   const quizzes = data.quizzes.map((quiz) => {
     return {
@@ -93,6 +66,7 @@ const onImportHandler = async () => {
 };
 
 export default function Page() {
+  const [professorId, setProfessorId] = React.useState(0);
   const [isQuizImportOpen, setIsQuizImportOpen] = React.useState(false);
   const [parseResult, setParseResult] = React.useState<ParseResult<unknown>>({
     data: [],
@@ -117,8 +91,37 @@ export default function Page() {
       subject: {
         id: 0,
         name: "",
+        semester: 0,
+        year: 0,
       },
-      quizzes: [DEFAULT_QUIZ],
+      quizzes: [
+        {
+          question: "",
+          image_url: "",
+          options: [
+            {
+              label: "",
+              is_correct: false,
+            },
+            {
+              label: "",
+              is_correct: false,
+            },
+            {
+              label: "",
+              is_correct: false,
+            },
+            {
+              label: "",
+              is_correct: false,
+            },
+            {
+              label: "",
+              is_correct: false,
+            },
+          ],
+        },
+      ],
     },
   });
 
@@ -193,6 +196,19 @@ export default function Page() {
                         id: value.id,
                         full_name: value.full_name,
                       });
+                      setProfessorId(value.id);
+                      form.setValue(
+                        "subject",
+                        {
+                          id: 0,
+                          name: "",
+                          semester: 0,
+                          year: 0,
+                        },
+                        {
+                          shouldValidate: true,
+                        },
+                      );
                     }}
                   />
                 )}
@@ -205,7 +221,9 @@ export default function Page() {
                 name="subject"
                 render={({ field }) => (
                   <SearchSelectFormField
-                    id="subject"
+                    id={`subject`}
+                    additionalKeys={[professorId.toString()]}
+                    disabled={professorId === 0}
                     field={field}
                     errorField={
                       form.formState.errors
@@ -216,7 +234,13 @@ export default function Page() {
                     fetchResource={async (searchPhase) => {
                       return axiosInstance
                         .get(`/admin/subjects`, {
-                          params: { ["name:ilike"]: searchPhase },
+                          params: {
+                            ["name:ilike"]: searchPhase,
+                            ["professor-id:eq"]:
+                              form.watch("professor.id") === 0
+                                ? undefined
+                                : form.watch("professor.id"),
+                          },
                         })
                         .then((res) => {
                           return res.data.data.subjects;
@@ -242,16 +266,10 @@ export default function Page() {
             <div className="absolute inset-0 flex flex-col gap-2 overflow-y-auto px-4">
               {quizFieldArray.fields.map((field, index) => {
                 return (
-                  <div
-                    className="flex flex-col gap-2 border p-2"
-                    key={field.id}
-                  >
+                  <div className="flex flex-col gap-2 border p-2" key={index}>
                     <div className="flex justify-between">
                       <p className="rounded bg-gray-300 px-2 text-sm">
                         #{index + 1}
-                      </p>
-                      <p className="rounded bg-gray-300 px-2 text-sm">
-                        {field.id}
                       </p>
                     </div>
                     <Label>Question</Label>
@@ -394,7 +412,32 @@ export default function Page() {
               <Button
                 type="button"
                 onClick={() => {
-                  quizFieldArray.append(DEFAULT_QUIZ);
+                  quizFieldArray.append({
+                    question: "",
+                    image_url: "",
+                    options: [
+                      {
+                        label: "",
+                        is_correct: false,
+                      },
+                      {
+                        label: "",
+                        is_correct: false,
+                      },
+                      {
+                        label: "",
+                        is_correct: false,
+                      },
+                      {
+                        label: "",
+                        is_correct: false,
+                      },
+                      {
+                        label: "",
+                        is_correct: false,
+                      },
+                    ],
+                  });
                 }}
               >
                 Add Quiz

@@ -184,6 +184,7 @@ function ActionQuiz({
   quiz: Quiz;
   meta?: { refetch: () => void };
 }) {
+  const [professorId, setProfessorId] = React.useState(0);
   const [isOpen, setIsOpen] = React.useState(false);
 
   const form = useForm<z.infer<typeof UpdateQuizSchema>>({
@@ -219,6 +220,7 @@ function ActionQuiz({
       add_options: [],
       remove_option_ids: [],
     });
+    setProfessorId(quiz.professor.id);
   }, [form, quiz]);
 
   const updateOptionFieldArray = useFieldArray({
@@ -428,6 +430,13 @@ function ActionQuiz({
                         id: value.id,
                         full_name: value.full_name,
                       });
+                      setProfessorId(value.id);
+                      form.setValue(`subject`, {
+                        id: 0,
+                        name: "",
+                        semester: 0,
+                        year: 0,
+                      });
                     }}
                   />
                 )}
@@ -440,6 +449,8 @@ function ActionQuiz({
                   <SearchSelectFormField
                     id="subject"
                     field={field}
+                    additionalKeys={[professorId.toString()]}
+                    disabled={professorId === 0}
                     errorField={
                       form.formState.errors
                         ? form.formState.errors.subject
@@ -449,7 +460,10 @@ function ActionQuiz({
                     fetchResource={async (searchPhase) => {
                       return axiosInstance
                         .get(`/admin/subjects`, {
-                          params: { ["name:ilike"]: searchPhase },
+                          params: {
+                            ["name:ilike"]: searchPhase,
+                            ["professor-id:eq"]: professorId === 0 ? undefined : professorId,
+                          },
                         })
                         .then((res) => {
                           return res.data.data.subjects;

@@ -32,6 +32,8 @@ interface SearchSelectFormFieldProps {
   onSelected: (data: any) => void;
   fetchResource: (searchPhase: string) => Promise<any>;
   className?: HTMLAttributes<HTMLDivElement>["className"];
+  additionalKeys?: string[];
+  disabled?: boolean;
 }
 
 export function SearchSelectFormField({
@@ -44,6 +46,8 @@ export function SearchSelectFormField({
   placeholder,
   onSelected,
   fetchResource,
+  additionalKeys,
+  disabled,
   ...props
 }: SearchSelectFormFieldProps) {
   const [search, setSearch] = React.useState("");
@@ -53,7 +57,7 @@ export function SearchSelectFormField({
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["search", debouncedSearch, id],
+    queryKey: ["search", debouncedSearch, id, additionalKeys],
     queryFn: async () => {
       if (fetchResource) {
         return await fetchResource(debouncedSearch);
@@ -76,6 +80,7 @@ export function SearchSelectFormField({
                   "w-full",
                   !!errorField && "outline outline-1 outline-red-600",
                 )}
+                disabled={disabled}
               >
                 {field.value[optionValue]
                   ? `${field.value[optionValue]} - ${field.value[optionLabel]}${additionalOptionLabels ? " (" + additionalOptionLabels.map((ol) => `${ol} ${field.value[ol]}`).join(":") + ")" : ""}`
