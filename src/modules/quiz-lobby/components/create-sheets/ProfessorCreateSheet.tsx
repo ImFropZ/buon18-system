@@ -185,11 +185,14 @@ export function ProfessorCreateSheet({
                                       });
                                   }}
                                   optionLabel="name"
+                                  additionalOptionLabels={["semester", "year"]}
                                   optionValue="id"
                                   onSelected={function (value: Subject) {
                                     field.onChange({
                                       id: value.id,
                                       name: value.name,
+                                      semester: value.semester,
+                                      year: value.year,
                                     });
                                   }}
                                 />

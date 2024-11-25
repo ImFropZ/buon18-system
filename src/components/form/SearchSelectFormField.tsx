@@ -25,6 +25,7 @@ interface SearchSelectFormFieldProps {
   id: string;
   optionValue: string;
   optionLabel: string;
+  additionalOptionLabels?: string[];
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
   placeholder?: string;
@@ -37,6 +38,7 @@ export function SearchSelectFormField({
   id,
   optionValue,
   optionLabel,
+  additionalOptionLabels,
   field,
   errorField,
   placeholder,
@@ -76,7 +78,7 @@ export function SearchSelectFormField({
                 )}
               >
                 {field.value[optionValue]
-                  ? `${field.value[optionValue]} - ${field.value[optionLabel]}`
+                  ? `${field.value[optionValue]} - ${field.value[optionLabel]}${additionalOptionLabels ? " (" + additionalOptionLabels.map((ol) => `${ol} ${field.value[ol]}`).join(":") + ")" : ""}`
                   : placeholder || "Select"}
               </Button>
             </PopoverTrigger>
@@ -106,6 +108,13 @@ export function SearchSelectFormField({
                               {data[optionLabel].length > 29
                                 ? data[optionLabel].slice(0, 30) + " ..."
                                 : data[optionLabel]}
+                              {additionalOptionLabels
+                                ? " (" +
+                                  additionalOptionLabels
+                                    .map((ol) => `${ol} ${data[ol]}`)
+                                    .join(":") +
+                                  ")"
+                                : ""}
                             </p>
                           </div>
                         </PopoverClose>

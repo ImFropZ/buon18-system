@@ -95,7 +95,7 @@ export const professorColumns: ColumnDef<Professor>[] = [
               key={subject.id}
               className="inline rounded bg-gray-300 px-2 py-1 dark:bg-gray-700"
             >
-              {subject.id} - {subject.name}
+              {subject.id} - {subject.name} ({subject.semester}:{subject.year})
             </p>
           ))}
         </div>
@@ -312,7 +312,7 @@ function ActionProfessor({
                           className="flex items-center justify-center gap-2 text-sm"
                         >
                           <p className="flex-1 rounded-lg border py-2 text-center">
-                            {field.id} - {field.name}
+                            {field.id} - {field.name} ({field.semester}:{field.year})
                           </p>
                           {removeSubjectFieldArray.fields.some(
                             (rs) => rs.id === field.id,
@@ -384,11 +384,14 @@ function ActionProfessor({
                                   });
                               }}
                               optionLabel="name"
+                              additionalOptionLabels={["semester", "year"]}
                               optionValue="id"
                               onSelected={function (value: Subject) {
                                 field.onChange({
                                   id: value.id,
                                   name: value.name,
+                                  semester: value.semester,
+                                  year: value.year,
                                 });
                               }}
                             />
