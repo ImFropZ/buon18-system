@@ -1,3 +1,4 @@
+import { numberInString } from "@models";
 import { Professor } from "./professor";
 import { Subject } from "./subject";
 import { z } from "zod";
@@ -37,6 +38,8 @@ export const CreateQuizzesSchema = z.object({
   subject: z.object({
     id: z.number(),
     name: z.string(),
+    semester: numberInString.pipe(z.number()),
+    year: numberInString.pipe(z.number()),
   }),
   quizzes: z.array(CreateQuizSchema),
 });
@@ -58,6 +61,8 @@ export const UpdateQuizSchema = z.object({
   subject: z.object({
     id: z.number(),
     name: z.string(),
+    semester: numberInString.pipe(z.number()),
+    year: numberInString.pipe(z.number()),
   }),
   add_options: z.array(
     z.object({
