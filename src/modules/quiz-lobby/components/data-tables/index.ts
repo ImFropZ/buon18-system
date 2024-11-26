@@ -10,3 +10,5 @@ export * from "./quiz-columns";
 export * from "./QuizDataTable";
 export * from "./transaction-columns";
 export * from "./TransactionDataTable";
+export * from "./redeem-code-columns";
+export * from "./RedeemCodeDataTable";

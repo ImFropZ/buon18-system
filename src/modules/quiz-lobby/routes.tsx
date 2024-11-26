@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   School,
   StickyNote,
+  Ticket,
   User,
 } from "lucide-react";
 
@@ -53,6 +54,7 @@ export const routes: ResourceProps[] = [
   {
     name: "quiz-lobby/quizzes",
     list: "/quiz-lobby/quizzes",
+    create: "/quiz-lobby/quizzes/create",
     meta: {
       displayName: "Quizzes",
       icon: <StickyNote />,
@@ -64,6 +66,14 @@ export const routes: ResourceProps[] = [
     meta: {
       displayName: "Transactions",
       icon: <CreditCard />,
+    },
+  },
+  {
+    name: "quiz-lobby/redeem-codes",
+    list: "/quiz-lobby/redeem-codes",
+    meta: {
+      displayName: "Redeem Codes",
+      icon: <Ticket />,
     },
   },
 ];

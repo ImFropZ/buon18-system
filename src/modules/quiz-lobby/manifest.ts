@@ -43,5 +43,9 @@ export const manifest: Manifest = {
       key: "/quiz-lobby/transactions",
       path: React.lazy(() => import("./pages/transactions/page")),
     },
+    {
+      key: "/quiz-lobby/redeem-codes",
+      path: React.lazy(() => import("./pages/redeem-codes/page")),
+    },
   ],
 };
