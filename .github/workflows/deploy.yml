@@ -18,4 +18,3 @@ jobs:
           vercel-args: "--prod --yes"
           vercel-org-id: ${{ secrets.ORG_ID}}
           vercel-project-id: ${{ secrets.PROJECT_ID}}
-          scope: ${{ secrets.TEAM_ID }}
