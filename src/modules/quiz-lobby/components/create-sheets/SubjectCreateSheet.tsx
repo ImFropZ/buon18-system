@@ -201,7 +201,7 @@ export function SubjectCreateSheet({
                           getLabel={(major) =>
                             !major.id
                               ? ""
-                              : `${major.id} - ${major.name} from ${major.school}`
+                              : `${major.id} - ${major.name}${major.school ? ` from ${major.school.name}` : ""}`
                           }
                           isSelectedData={(major) =>
                             major.id === field.value.id

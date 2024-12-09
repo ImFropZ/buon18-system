@@ -154,6 +154,13 @@ function ActionSchool({
     },
   });
 
+  React.useEffect(() => {
+    form.reset({
+      ...redeemCode,
+      expired_at: new Date(redeemCode.expired_at),
+    });
+  }, [form, redeemCode]);
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialog>

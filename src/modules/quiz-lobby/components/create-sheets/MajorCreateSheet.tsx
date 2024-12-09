@@ -153,7 +153,7 @@ export function MajorCreateSheet({
                           }}
                           onSelected={field.onChange}
                           getLabel={(data) =>
-                            !data.id ? "" : `${data.id} ${data.name}`
+                            !data.id ? "" : `${data.id} - ${data.name}`
                           }
                           isSelectedData={(data) => data.id === field.value.id}
                         />

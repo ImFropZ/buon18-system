@@ -115,6 +115,13 @@ function ActionSchool({
     },
   });
 
+  React.useEffect(() => {
+    form.reset({
+      name: school.name,
+      image_url: school.image_url,
+    });
+  }, [form, school]);
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialog>

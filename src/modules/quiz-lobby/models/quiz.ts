@@ -25,12 +25,12 @@ export const quizzesResponseSchema = generateSystemDefaultResponseSchema(
 );
 
 export const createQuizOptionSchema = z.object({
-  label: z.string(),
+  label: z.string().min(1),
   is_correct: z.boolean(),
 });
 
 export const createQuizSchema = z.object({
-  question: z.string(),
+  question: z.string().min(1),
   image_url: z.string(),
   options: z.array(createQuizOptionSchema),
 });
@@ -43,12 +43,12 @@ export const createQuizzesSchema = z.object({
 
 export const updateQuizOptionSchema = z.object({
   id: z.number(),
-  label: z.string(),
+  label: z.string().min(1),
   is_correct: z.boolean(),
 });
 
 export const updateQuizSchema = z.object({
-  question: z.string(),
+  question: z.string().min(1),
   image_url: z.string(),
   archived: z.boolean(),
   professor: professorSchema.omit({ subjects: true }),

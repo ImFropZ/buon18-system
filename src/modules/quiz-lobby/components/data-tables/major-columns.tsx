@@ -121,6 +121,14 @@ function ActionMajor({
     },
   });
 
+  React.useEffect(() => {
+    form.reset({
+      id: major.id,
+      name: major.name,
+      school: major.school,
+    });
+  }, [form, major]);
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialog>
@@ -251,7 +259,7 @@ function ActionMajor({
                     }}
                     onSelected={field.onChange}
                     getLabel={(school) =>
-                      school.id ? "" : `${school.id} - ${school.name}`
+                      !school.id ? "" : `${school.id} - ${school.name}`
                     }
                     isSelectedData={(school) => school.id === field.value.id}
                   />

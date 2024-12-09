@@ -4,8 +4,8 @@ import { generateSystemDefaultResponseSchema } from "@modules/shared/model";
 
 export const professorSchema = z.object({
   id: z.number(),
-  title: z.string(),
-  full_name: z.string(),
+  title: z.string().min(1),
+  full_name: z.string().min(1),
   subjects: z.array(subjectSchema.omit({ major: true })),
 });
 
@@ -14,8 +14,8 @@ export const professorsResponseSchema = generateSystemDefaultResponseSchema(
 );
 
 export const createProfessorSchema = z.object({
-  title: z.enum(["Dr.", "Prof.", "Assoc. Prof.", "Asst. Prof."]).or(z.string()),
-  full_name: z.string(),
+  title: z.enum(["Dr.", "Prof.", "Assoc. Prof.", "Asst. Prof."]).or(z.string().min(1)),
+  full_name: z.string().min(1),
   subjects: z.array(subjectSchema.omit({ major: true })),
 });
 
@@ -24,8 +24,8 @@ export const createProfessorsSchema = z.object({
 });
 
 export const updateProfessorSchema = z.object({
-  title: z.enum(["Dr.", "Prof.", "Assoc. Prof.", "Asst. Prof."]).or(z.string()),
-  full_name: z.string(),
+  title: z.enum(["Dr.", "Prof.", "Assoc. Prof.", "Asst. Prof."]).or(z.string().min(1)),
+  full_name: z.string().min(1),
   subjects: z.array(subjectSchema.omit({ major: true })),
   add_subjects: z.array(subjectSchema.omit({ major: true })),
   remove_subject_ids: z.array(z.number()),

@@ -13,7 +13,7 @@ export const majorsResponseSchema = generateSystemDefaultResponseSchema(
 );
 
 export const createMajorSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   school: schoolSchema,
 });
 
@@ -22,6 +22,6 @@ export const createMajorsSchema = z.object({
 });
 
 export const updateMajorSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   school: schoolSchema,
 });
