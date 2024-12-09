@@ -1,27 +1,32 @@
-import { Subject } from "./subject";
 import { z } from "zod";
+import { subjectSchema } from "./subject";
+import { generateSystemDefaultResponseSchema } from "@modules/shared/model";
 
-export interface Professor {
-  id: number;
-  title: string;
-  full_name: string;
-  subjects: Subject[];
-}
-
-export const CreateProfessorSchema = z.object({
-  title: z.enum(["Dr.", "Prof.", "Assoc. Prof.", "Asst. Prof."]),
+export const professorSchema = z.object({
+  id: z.number(),
+  title: z.string(),
   full_name: z.string(),
-  subjects: z.array(z.object({ id: z.number(), name: z.string() })),
+  subjects: z.array(subjectSchema.omit({ major: true })),
 });
 
-export const CreateProfessorsSchema = z.object({
-  professors: z.array(CreateProfessorSchema),
+export const professorsResponseSchema = generateSystemDefaultResponseSchema(
+  z.object({ professors: z.array(professorSchema) }),
+);
+
+export const createProfessorSchema = z.object({
+  title: z.enum(["Dr.", "Prof.", "Assoc. Prof.", "Asst. Prof."]).or(z.string()),
+  full_name: z.string(),
+  subjects: z.array(subjectSchema.omit({ major: true })),
 });
 
-export const UpdateProfessorSchema = z.object({
-  title: z.enum(["Dr.", "Prof.", "Assoc. Prof.", "Asst. Prof."]),
+export const createProfessorsSchema = z.object({
+  professors: z.array(createProfessorSchema),
+});
+
+export const updateProfessorSchema = z.object({
+  title: z.enum(["Dr.", "Prof.", "Assoc. Prof.", "Asst. Prof."]).or(z.string()),
   full_name: z.string(),
-  subjects: z.array(z.object({ id: z.number(), name: z.string() })),
-  add_subjects: z.array(z.object({ id: z.number(), name: z.string() })),
-  remove_subjects: z.array(z.object({ id: z.number(), name: z.string() })),
+  subjects: z.array(subjectSchema.omit({ major: true })),
+  add_subjects: z.array(subjectSchema.omit({ major: true })),
+  remove_subject_ids: z.array(z.number()),
 });

@@ -6,7 +6,11 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateUserSchema, Role } from "@modules/setting/models";
+import {
+  createUserSchema,
+  rolesResponseSchema,
+  roleSchema,
+} from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { User } from "lucide-react";
 import Link from "next/link";
@@ -15,7 +19,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-async function onCreateHandler(data: z.infer<typeof CreateUserSchema>) {
+async function onCreateHandler(data: z.infer<typeof createUserSchema>) {
   const body = {
     name: data.name,
     email: data.email,
@@ -29,13 +33,14 @@ async function onCreateHandler(data: z.infer<typeof CreateUserSchema>) {
 export default function Page() {
   const router = useRouter();
   const form = useForm({
-    resolver: zodResolver(CreateUserSchema),
+    resolver: zodResolver(createUserSchema),
     defaultValues: {
       name: "",
       email: "",
       role: {
         id: 0,
         name: "",
+        description: "",
       },
     },
   });
@@ -117,14 +122,10 @@ export default function Page() {
               name="role"
               render={({ field }) => {
                 return (
-                  <SearchSelectFormField
-                    id="role"
+                  <SearchSelectFormField<z.infer<typeof roleSchema>>
+                    ids={["role"]}
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors.role
-                        : undefined
-                    }
+                    errorField={form.formState.errors.role}
                     placeholder="Select Role"
                     fetchResource={async (searchPhase) => {
                       return systemAxiosInstance
@@ -132,14 +133,21 @@ export default function Page() {
                           params: { ["name:ilike"]: searchPhase },
                         })
                         .then((res) => {
-                          return res.data.data.roles;
+                          const result = rolesResponseSchema.safeParse(res.data);
+
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+
+                          return result.data.data.roles;
                         });
                     }}
-                    optionLabel="name"
-                    optionValue="id"
-                    onSelected={function (value: Role) {
-                      field.onChange({ id: value.id, name: value.name });
-                    }}
+                    onSelected={field.onChange}
+                    getLabel={(role) =>
+                      !role.id ? "" : `${role.id} - ${role.name}`
+                    }
+                    isSelectedData={(role) => role.id === field.value.id}
                   />
                 );
               }}

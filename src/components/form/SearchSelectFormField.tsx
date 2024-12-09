@@ -21,35 +21,31 @@ import {
   Merge,
 } from "react-hook-form";
 
-interface SearchSelectFormFieldProps {
-  id: string;
-  optionValue: string;
-  optionLabel: string;
-  additionalOptionLabels?: string[];
+interface SearchSelectFormFieldProps<T> {
+  ids: Array<string>;
   field: ControllerRenderProps<any, string>;
   errorField?: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
   placeholder?: string;
-  onSelected: (data: any) => void;
-  fetchResource: (searchPhase: string) => Promise<any>;
   className?: HTMLAttributes<HTMLDivElement>["className"];
-  additionalKeys?: string[];
+  onSelected: (data: T) => void;
+  fetchResource: (searchPhase: string) => Promise<Array<T>>;
   disabled?: boolean;
+  getLabel(data: T): string;
+  isSelectedData: (data: T, value: T) => boolean;
 }
 
-export function SearchSelectFormField({
-  id,
-  optionValue,
-  optionLabel,
-  additionalOptionLabels,
+export function SearchSelectFormField<T extends { id: number }>({
+  ids,
   field,
   errorField,
   placeholder,
   onSelected,
   fetchResource,
-  additionalKeys,
   disabled,
+  getLabel,
+  isSelectedData,
   ...props
-}: SearchSelectFormFieldProps) {
+}: SearchSelectFormFieldProps<T>) {
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce({
     value: search,
@@ -57,7 +53,7 @@ export function SearchSelectFormField({
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["search", debouncedSearch, id, additionalKeys],
+    queryKey: ["search", debouncedSearch, ids],
     queryFn: async () => {
       if (fetchResource) {
         return await fetchResource(debouncedSearch);
@@ -82,8 +78,8 @@ export function SearchSelectFormField({
                 )}
                 disabled={disabled}
               >
-                {field.value[optionValue]
-                  ? `${field.value[optionValue]} - ${field.value[optionLabel]}${additionalOptionLabels ? " (" + additionalOptionLabels.map((ol) => `${ol} ${field.value[ol]}`).join(":") + ")" : ""}`
+                {field.value && getLabel(field.value) !== ""
+                  ? `${getLabel(field.value)}`
                   : placeholder || "Select"}
               </Button>
             </PopoverTrigger>
@@ -91,7 +87,7 @@ export function SearchSelectFormField({
         </FormControl>
         <PopoverContent className="min-w-[40ch]">
           <Input onChange={(e) => setSearch(e.target.value)} value={search} />
-          <div className="flex flex-col gap-1 pt-2">
+          <div className="flex max-h-96 flex-col gap-1 overflow-y-auto pt-2">
             {isLoading ? (
               <div className="loader"></div>
             ) : (
@@ -103,24 +99,10 @@ export function SearchSelectFormField({
                           <div
                             className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-primary/20 data-[active=true]:bg-primary/10"
                             key={data.id}
-                            data-active={
-                              field.value[optionValue] === data[optionValue]
-                            }
+                            data-active={isSelectedData(data, field.value as T)}
                             onClick={() => onSelected(data)}
                           >
-                            <p>
-                              {data[optionValue]} -{" "}
-                              {data[optionLabel].length > 29
-                                ? data[optionLabel].slice(0, 30) + " ..."
-                                : data[optionLabel]}
-                              {additionalOptionLabels
-                                ? " (" +
-                                  additionalOptionLabels
-                                    .map((ol) => `${ol} ${data[ol]}`)
-                                    .join(":") +
-                                  ")"
-                                : ""}
-                            </p>
+                            <p>{getLabel(data)}</p>
                           </div>
                         </PopoverClose>
                       );

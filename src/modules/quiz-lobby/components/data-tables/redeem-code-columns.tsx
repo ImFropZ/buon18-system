@@ -34,14 +34,15 @@ import {
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
-import { RedeemCode, UpdateRedeemCodeSchema } from "@modules/quiz-lobby/models";
+import { redeemCodeSchema, updateRedeemCodeSchema } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { compareAsc, format } from "date-fns";
 import { Copy, MoreHorizontal } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-export const redeemCodeColumns: ColumnDef<RedeemCode>[] = [
+export const redeemCodeColumns: ColumnDef<z.infer<typeof redeemCodeSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -140,13 +141,13 @@ function ActionSchool({
   redeemCode,
   meta,
 }: {
-  redeemCode: RedeemCode;
+  redeemCode: z.infer<typeof redeemCodeSchema>;
   meta: { refetch: () => void } | undefined;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const form = useForm({
-    resolver: zodResolver(UpdateRedeemCodeSchema),
+    resolver: zodResolver(updateRedeemCodeSchema),
     defaultValues: {
       ...redeemCode,
       expired_at: new Date(redeemCode.expired_at),

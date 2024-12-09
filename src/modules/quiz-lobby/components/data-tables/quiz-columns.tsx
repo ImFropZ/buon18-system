@@ -41,10 +41,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@lib/utils";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import {
-  Professor,
-  Quiz,
-  Subject,
-  UpdateQuizSchema,
+  professorsResponseSchema,
+  professorSchema,
+  quizSchema,
+  subjectsResponseSchema,
+  subjectSchema,
+  updateQuizSchema,
 } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { Eye, MoreHorizontal, Trash, Undo } from "lucide-react";
@@ -52,7 +54,7 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-export const quizColumns: ColumnDef<Quiz>[] = [
+export const quizColumns: ColumnDef<z.infer<typeof quizSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -181,20 +183,16 @@ function ActionQuiz({
   quiz,
   meta,
 }: {
-  quiz: Quiz;
+  quiz: z.infer<typeof quizSchema>;
   meta?: { refetch: () => void };
 }) {
   const [professorId, setProfessorId] = React.useState(0);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const form = useForm<z.infer<typeof UpdateQuizSchema>>({
-    resolver: zodResolver(UpdateQuizSchema),
+  const form = useForm<z.infer<typeof updateQuizSchema>>({
+    resolver: zodResolver(updateQuizSchema),
     defaultValues: {
-      question: quiz.question,
-      image_url: quiz.image_url,
-      archived: quiz.archived,
-      professor: quiz.professor,
-      subject: quiz.subject,
+      ...quiz,
       update_options: quiz.options.map((option) => ({
         id: option.id,
         label: option.label,
@@ -350,11 +348,7 @@ function ActionQuiz({
                   render={({ field }) => (
                     <SwitchFormField
                       field={field}
-                      errorField={
-                        form.formState.errors
-                          ? form.formState.errors?.archived
-                          : undefined
-                      }
+                      errorField={form.formState.errors?.archived}
                     />
                   )}
                 />
@@ -367,11 +361,7 @@ function ActionQuiz({
                 render={({ field }) => (
                   <InputFormField
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors?.question
-                        : undefined
-                    }
+                    errorField={form.formState.errors?.question}
                     placeholder="Question"
                   />
                 )}
@@ -386,11 +376,7 @@ function ActionQuiz({
                       <InputFormField
                         className="flex-1"
                         field={field}
-                        errorField={
-                          form.formState.errors
-                            ? form.formState.errors?.image_url
-                            : undefined
-                        }
+                        errorField={form.formState.errors?.image_url}
                         placeholder="https://placehold.co/200x200"
                       />
                     )}
@@ -405,14 +391,10 @@ function ActionQuiz({
                 control={form.control}
                 name={`professor`}
                 render={({ field }) => (
-                  <SearchSelectFormField
-                    id="professor"
+                  <SearchSelectFormField<z.infer<typeof professorSchema>>
+                    ids={["professors"]}
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors.professor
-                        : undefined
-                    }
+                    errorField={form.formState.errors.professor}
                     placeholder="Select Professor"
                     fetchResource={async (searchPhase) => {
                       return axiosInstance
@@ -420,17 +402,21 @@ function ActionQuiz({
                           params: { ["full-name:ilike"]: searchPhase },
                         })
                         .then((res) => {
-                          return res.data.data.professors;
+                          const result = professorsResponseSchema.safeParse(
+                            res.data,
+                          );
+
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+
+                          return result.data.data.professors;
                         });
                     }}
-                    optionLabel="full_name"
-                    optionValue="id"
-                    onSelected={function (value: Professor) {
-                      field.onChange({
-                        id: value.id,
-                        full_name: value.full_name,
-                      });
-                      setProfessorId(value.id);
+                    onSelected={function (v) {
+                      field.onChange(v);
+                      setProfessorId(v.id);
                       form.setValue(`subject`, {
                         id: 0,
                         name: "",
@@ -438,6 +424,14 @@ function ActionQuiz({
                         year: 0,
                       });
                     }}
+                    getLabel={(professor) =>
+                      !professor.id
+                        ? ""
+                        : `${professor.id} - ${professor.title} ${professor.full_name}`
+                    }
+                    isSelectedData={(professor) =>
+                      professor.id === field.value.id
+                    }
                   />
                 )}
               />
@@ -446,40 +440,41 @@ function ActionQuiz({
                 control={form.control}
                 name={`subject`}
                 render={({ field }) => (
-                  <SearchSelectFormField
-                    id="subject"
+                  <SearchSelectFormField<z.infer<typeof subjectSchema>>
+                    ids={["subjects", professorId.toString()]}
                     field={field}
-                    additionalKeys={[professorId.toString()]}
                     disabled={professorId === 0}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors.subject
-                        : undefined
-                    }
+                    errorField={form.formState.errors.subject}
                     placeholder="Select Subject"
                     fetchResource={async (searchPhase) => {
                       return axiosInstance
                         .get(`/admin/subjects`, {
                           params: {
                             ["name:ilike"]: searchPhase,
-                            ["professor-id:eq"]: professorId === 0 ? undefined : professorId,
+                            ["professor-id:eq"]:
+                              professorId === 0 ? undefined : professorId,
                           },
                         })
                         .then((res) => {
-                          return res.data.data.subjects;
+                          const result = subjectsResponseSchema.safeParse(
+                            res.data,
+                          );
+
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+
+                          return result.data.data.subjects;
                         });
                     }}
-                    optionLabel="name"
-                    additionalOptionLabels={["semester", "year"]}
-                    optionValue="id"
-                    onSelected={function (value: Subject) {
-                      field.onChange({
-                        id: value.id,
-                        name: value.name,
-                        semester: value.semester,
-                        year: value.year,
-                      });
-                    }}
+                    onSelected={field.onChange}
+                    getLabel={(subject) =>
+                      !subject.id
+                        ? ""
+                        : `${subject.id} - ${subject.name} (semester:${subject.semester}-year:${subject.year})`
+                    }
+                    isSelectedData={(subject) => subject.id === field.value.id}
                   />
                 )}
               />
@@ -540,11 +535,8 @@ function ActionQuiz({
                               className="flex-1"
                               field={field}
                               errorField={
-                                form.formState.errors
-                                  ? form.formState.errors.update_options?.[
-                                      index
-                                    ]?.label
-                                  : undefined
+                                form.formState.errors.update_options?.[index]
+                                  ?.label
                               }
                               placeholder="Label"
                             />
@@ -582,11 +574,8 @@ function ActionQuiz({
                                 }}
                                 field={field}
                                 errorField={
-                                  form.formState.errors
-                                    ? form.formState.errors.update_options?.[
-                                        index
-                                      ]?.is_correct
-                                    : undefined
+                                  form.formState.errors.update_options?.[index]
+                                    ?.is_correct
                                 }
                               />
                             );
@@ -606,10 +595,8 @@ function ActionQuiz({
                               className="flex-1"
                               field={field}
                               errorField={
-                                form.formState.errors
-                                  ? form.formState.errors.add_options?.[index]
-                                      ?.label
-                                  : undefined
+                                form.formState.errors.add_options?.[index]
+                                  ?.label
                               }
                               placeholder="Label"
                             />
@@ -647,10 +634,8 @@ function ActionQuiz({
                                 }}
                                 field={field}
                                 errorField={
-                                  form.formState.errors
-                                    ? form.formState.errors.add_options?.[index]
-                                        ?.is_correct
-                                    : undefined
+                                  form.formState.errors.add_options?.[index]
+                                    ?.is_correct
                                 }
                               />
                             );

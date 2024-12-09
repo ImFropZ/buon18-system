@@ -7,14 +7,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@components/ui/dropdown-menu";
-import { Order } from "@modules/sales/models";
+import { orderSchema } from "@modules/sales/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { z } from "zod";
 
-export const orderColumns: ColumnDef<Order>[] = [
+export const orderColumns: ColumnDef<z.infer<typeof orderSchema>>[] = [
   {
     accessorKey: "id",
     header: "ID",

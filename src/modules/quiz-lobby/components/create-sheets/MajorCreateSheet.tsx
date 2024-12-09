@@ -2,7 +2,11 @@ import React from "react";
 import { InputFormField, SearchSelectFormField } from "@components/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateMajorsSchema, School } from "@modules/quiz-lobby/models";
+import {
+  createMajorsSchema,
+  schoolsResponseSchema,
+  schoolSchema,
+} from "@modules/quiz-lobby/models";
 import { z } from "zod";
 import { Form, FormField } from "@components/ui/form";
 import {
@@ -18,7 +22,8 @@ import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import { toast } from "@components/ui/use-toast";
 import { Label } from "@components/ui/label";
 import { Button } from "@components/ui/button";
-async function onCreateHandler(data: z.infer<typeof CreateMajorsSchema>) {
+
+async function onCreateHandler(data: z.infer<typeof createMajorsSchema>) {
   const majors = data.majors.map((major) => {
     return {
       name: major.name,
@@ -38,9 +43,11 @@ export function MajorCreateSheet({
   refetch: () => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const form = useForm<z.infer<typeof CreateMajorsSchema>>({
-    resolver: zodResolver(CreateMajorsSchema),
-    defaultValues: { majors: [{ name: "", school: { id: 0, name: "" } }] },
+  const form = useForm<z.infer<typeof createMajorsSchema>>({
+    resolver: zodResolver(createMajorsSchema),
+    defaultValues: {
+      majors: [{ name: "", school: { id: 0, name: "", image_url: "" } }],
+    },
   });
 
   const fieldArray = useFieldArray({
@@ -108,9 +115,7 @@ export function MajorCreateSheet({
                         <InputFormField
                           field={field}
                           errorField={
-                            form.formState.errors
-                              ? form.formState.errors.majors?.[index]?.name
-                              : undefined
+                            form.formState.errors.majors?.[index]?.name
                           }
                           placeholder="Name"
                         />
@@ -121,13 +126,11 @@ export function MajorCreateSheet({
                       control={form.control}
                       name={`majors.${index}.school`}
                       render={({ field }) => (
-                        <SearchSelectFormField
-                          id="school"
+                        <SearchSelectFormField<z.infer<typeof schoolSchema>>
+                          ids={["schools"]}
                           field={field}
                           errorField={
-                            form.formState.errors
-                              ? form.formState.errors.majors?.[index]?.school
-                              : undefined
+                            form.formState.errors.majors?.[index]?.school
                           }
                           placeholder="Select School"
                           fetchResource={async (searchPhase) => {
@@ -136,14 +139,23 @@ export function MajorCreateSheet({
                                 params: { ["name:ilike"]: searchPhase },
                               })
                               .then((res) => {
-                                return res.data.data.schools;
+                                const result = schoolsResponseSchema.safeParse(
+                                  res.data,
+                                );
+
+                                if (!result.success) {
+                                  console.error(result.error.errors);
+                                  return [];
+                                }
+
+                                return result.data.data.schools;
                               });
                           }}
-                          optionLabel="name"
-                          optionValue="id"
-                          onSelected={function (value: School) {
-                            field.onChange({ id: value.id, name: value.name });
-                          }}
+                          onSelected={field.onChange}
+                          getLabel={(data) =>
+                            !data.id ? "" : `${data.id} ${data.name}`
+                          }
+                          isSelectedData={(data) => data.id === field.value.id}
                         />
                       )}
                     />
@@ -155,7 +167,10 @@ export function MajorCreateSheet({
               <Button
                 type="button"
                 onClick={() =>
-                  fieldArray.append({ name: "", school: { id: 0, name: "" } })
+                  fieldArray.append({
+                    name: "",
+                    school: { id: 0, name: "", image_url: "" },
+                  })
                 }
               >
                 Add Major

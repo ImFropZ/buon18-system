@@ -1,6 +1,6 @@
 "use client";
 
-import { Order } from "@modules/sales/models";
+import { orderResponseSchema } from "@modules/sales/models";
 import { UpdateOrderForm } from "@modules/sales/components/forms";
 import { systemAxiosInstance } from "@modules/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -20,10 +20,16 @@ export default function Page({ params }: { params: { id: string } }) {
   const { data, isLoading } = useQuery({
     queryKey: ["orders", { id: params.id }],
     queryFn: async () => {
-      const response = await systemAxiosInstance.get(
-        `/sales/orders/${params.id}`,
-      );
-      return response.data.data.order as Order;
+      return await systemAxiosInstance
+        .get(`/sales/orders/${params.id}`)
+        .then((res) => {
+          const result = orderResponseSchema.safeParse(res.data);
+          if (!result.success) {
+            console.error(result.error.errors);
+            return Promise.reject(result.error.errors);
+          }
+          return result.data.data.order;
+        });
     },
   });
 

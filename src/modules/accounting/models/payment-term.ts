@@ -1,21 +1,30 @@
 import { numberInString } from "@models";
+import { generateSystemDefaultResponseSchema } from "@modules/shared/model";
 import { z } from "zod";
 
-export interface PaymentTerm {
-  id: number;
-  name: string;
-  description: string;
-  lines: PaymentTermLine[];
-}
+export const paymentTermLineSchema = z.object({
+  id: z.number(),
+  sequence: z.number(),
+  value_amount_percent: z.number(),
+  number_of_days: z.number(),
+});
 
-export interface PaymentTermLine {
-  id: number;
-  sequence: number;
-  value_amount_percent: number;
-  number_of_days: number;
-}
+export const paymentTermSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  description: z.string(),
+  lines: z.array(paymentTermLineSchema),
+});
 
-export const CreatePaymentTermLineSchema = z.object({
+export const paymentTermResponseSchema = generateSystemDefaultResponseSchema(
+  z.object({ payment_term: paymentTermSchema }),
+);
+
+export const paymentTermsResponseSchema = generateSystemDefaultResponseSchema(
+  z.object({ payment_terms: z.array(paymentTermSchema) }),
+);
+
+export const createPaymentTermLineSchema = z.object({
   sequence: numberInString.pipe(
     z.number().int({ message: "Sequence must be an integer" }),
   ),
@@ -37,13 +46,13 @@ export const CreatePaymentTermLineSchema = z.object({
   ),
 });
 
-export const CreatePaymentTermSchema = z.object({
+export const createPaymentTermSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   description: z.string().min(1, { message: "Description is required" }),
-  lines: z.array(CreatePaymentTermLineSchema),
+  lines: z.array(createPaymentTermLineSchema),
 });
 
-export const UpdatePaymentTermLineSchema = z.object({
+export const updatePaymentTermLineSchema = z.object({
   id: z.number(),
   sequence: numberInString.pipe(
     z.number().int({ message: "Sequence must be an integer" }),
@@ -66,10 +75,10 @@ export const UpdatePaymentTermLineSchema = z.object({
   ),
 });
 
-export const UpdatePaymentTermSchema = z.object({
+export const updatePaymentTermSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   description: z.string().min(1, { message: "Description is required" }),
   remove_line_ids: z.array(z.number()),
-  update_lines: z.array(UpdatePaymentTermLineSchema),
-  add_lines: z.array(CreatePaymentTermLineSchema),
+  update_lines: z.array(updatePaymentTermLineSchema),
+  add_lines: z.array(createPaymentTermLineSchema),
 });

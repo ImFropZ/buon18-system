@@ -11,8 +11,11 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateQuotationSchema } from "@modules/sales/models";
-import { Customer } from "@modules/setting/models";
+import { createQuotationSchema } from "@modules/sales/models";
+import {
+  customersResponseSchema,
+  customerSchema,
+} from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,7 +23,7 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-async function onCreateHandler(data: z.infer<typeof CreateQuotationSchema>) {
+async function onCreateHandler(data: z.infer<typeof createQuotationSchema>) {
   const body = {
     name: data.name,
     creation_date: data.creation_date,
@@ -39,8 +42,8 @@ async function onCreateHandler(data: z.infer<typeof CreateQuotationSchema>) {
 
 export default function Page() {
   const router = useRouter();
-  const form = useForm<z.infer<typeof CreateQuotationSchema>>({
-    resolver: zodResolver(CreateQuotationSchema),
+  const form = useForm<z.infer<typeof createQuotationSchema>>({
+    resolver: zodResolver(createQuotationSchema),
     defaultValues: {
       name: "",
       creation_date: new Date(),
@@ -185,32 +188,38 @@ export default function Page() {
                 name="customer"
                 render={({ field }) => {
                   return (
-                    <SearchSelectFormField
-                      id="customer"
+                    <SearchSelectFormField<z.infer<typeof customerSchema>>
+                      ids={["customers"]}
                       field={field}
-                      errorField={
-                        form.formState.errors
-                          ? form.formState.errors.customer
-                          : undefined
-                      }
-                      placeholder="Select customer"
+                      errorField={form.formState.errors.customer}
+                      placeholder="Select Customer"
                       fetchResource={async (searchPhase) => {
                         return systemAxiosInstance
                           .get(`/setting/customers`, {
                             params: { ["full-name:ilike"]: searchPhase },
                           })
                           .then((res) => {
-                            return res.data.data.customers;
+                            const result = customersResponseSchema.safeParse(
+                              res.data,
+                            );
+
+                            if (!result.success) {
+                              console.error(result.error.errors);
+                              return [];
+                            }
+
+                            return result.data.data.customers;
                           });
                       }}
-                      optionLabel="full_name"
-                      optionValue="id"
-                      onSelected={function (value: Customer) {
-                        field.onChange({
-                          id: value.id,
-                          full_name: value.full_name,
-                        });
-                      }}
+                      onSelected={field.onChange}
+                      getLabel={(customer) =>
+                        !customer.id
+                          ? ""
+                          : `${customer.id} - ${customer.full_name}`
+                      }
+                      isSelectedData={(customer) =>
+                        customer.id === field.value.id
+                      }
                     />
                   );
                 }}

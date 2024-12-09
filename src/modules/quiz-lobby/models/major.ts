@@ -1,22 +1,27 @@
 import { z } from "zod";
-import { School } from "./school";
+import { schoolSchema } from "./school";
+import { generateSystemDefaultResponseSchema } from "@modules/shared/model";
 
-export interface Major {
-  id: number;
-  name: string;
-  school: School;
-}
-
-export const CreateMajorSchema = z.object({
+export const majorSchema = z.object({
+  id: z.number(),
   name: z.string(),
-  school: z.object({ id: z.number(), name: z.string() }),
+  school: schoolSchema,
 });
 
-export const CreateMajorsSchema = z.object({
-  majors: z.array(CreateMajorSchema),
+export const majorsResponseSchema = generateSystemDefaultResponseSchema(
+  z.object({ majors: z.array(majorSchema) }),
+);
+
+export const createMajorSchema = z.object({
+  name: z.string(),
+  school: schoolSchema,
 });
 
-export const UpdateMajorSchema = z.object({
+export const createMajorsSchema = z.object({
+  majors: z.array(createMajorSchema),
+});
+
+export const updateMajorSchema = z.object({
   name: z.string(),
-  school: z.object({ id: z.number(), name: z.string() }),
+  school: schoolSchema,
 });

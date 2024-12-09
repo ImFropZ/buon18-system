@@ -6,14 +6,14 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreatePaymentTermSchema } from "@modules/accounting/models";
+import { createPaymentTermSchema } from "@modules/accounting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-async function onCreateHandler(data: z.infer<typeof CreatePaymentTermSchema>) {
+async function onCreateHandler(data: z.infer<typeof createPaymentTermSchema>) {
   const body = {
     name: data.name,
     description: data.description,
@@ -27,8 +27,8 @@ async function onCreateHandler(data: z.infer<typeof CreatePaymentTermSchema>) {
 
 export default function Page() {
   const router = useRouter();
-  const form = useForm<z.infer<typeof CreatePaymentTermSchema>>({
-    resolver: zodResolver(CreatePaymentTermSchema),
+  const form = useForm<z.infer<typeof createPaymentTermSchema>>({
+    resolver: zodResolver(createPaymentTermSchema),
     defaultValues: {
       name: "",
       description: "",

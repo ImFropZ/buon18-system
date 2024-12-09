@@ -3,7 +3,7 @@
 import { InputFormField } from "@components/form";
 import React from "react";
 import { z } from "zod";
-import { CreateTransactionsSchema } from "@modules/quiz-lobby/models";
+import { createTransactionsSchema } from "@modules/quiz-lobby/models";
 import { useFieldArray, useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField } from "@components/ui/form";
@@ -23,7 +23,7 @@ import { Button } from "@components/ui/button";
 import { scanTransactionFromImage } from "@lib/ocr-transaction-extractor";
 import { Upload } from "lucide-react";
 
-async function onCreateHandler(data: z.infer<typeof CreateTransactionsSchema>) {
+async function onCreateHandler(data: z.infer<typeof createTransactionsSchema>) {
   const body = data.transactions.map((t) => {
     return {
       id: t.id,
@@ -44,8 +44,8 @@ export function TransactionCreateSheet({
   refetch: () => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const form = useForm<z.infer<typeof CreateTransactionsSchema>>({
-    resolver: zodResolver(CreateTransactionsSchema),
+  const form = useForm<z.infer<typeof createTransactionsSchema>>({
+    resolver: zodResolver(createTransactionsSchema),
     defaultValues: {
       transactions: [{ id: "", amount: 0 }],
     },
@@ -121,10 +121,8 @@ export function TransactionCreateSheet({
                             <InputFormField
                               field={field}
                               errorField={
-                                form.formState.errors
-                                  ? form.formState.errors.transactions?.[index]
-                                      ?.amount
-                                  : undefined
+                                form.formState.errors.transactions?.[index]
+                                  ?.amount
                               }
                               type="number"
                               placeholder="Amount"
@@ -174,7 +172,7 @@ export function TransactionCreateSheet({
 }
 
 function TransactionIDInputField(props: {
-  form: UseFormReturn<z.infer<typeof CreateTransactionsSchema>, any, undefined>;
+  form: UseFormReturn<z.infer<typeof createTransactionsSchema>, any, undefined>;
   index: number;
 }) {
   const [isIDLoading, setIsIDLoading] = React.useState(false);
@@ -188,9 +186,7 @@ function TransactionIDInputField(props: {
           <InputFormField
             field={field}
             errorField={
-              props.form.formState.errors
-                ? props.form.formState.errors.transactions?.[props.index]?.id
-                : undefined
+              props.form.formState.errors.transactions?.[props.index]?.id
             }
             placeholder="Transaction ID"
             className="flex-1"

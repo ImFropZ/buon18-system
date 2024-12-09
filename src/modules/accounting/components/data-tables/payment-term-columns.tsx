@@ -19,14 +19,15 @@ import {
   DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { toast } from "@components/ui/use-toast";
-import { PaymentTerm } from "@modules/accounting/models";
+import { paymentTermSchema } from "@modules/accounting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { z } from "zod";
 
-export const paymentTermColumns: ColumnDef<PaymentTerm>[] = [
+export const paymentTermColumns: ColumnDef<z.infer<typeof paymentTermSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -77,7 +78,7 @@ function ActionPaymentTerm({
   paymentTerm,
   meta,
 }: {
-  paymentTerm: PaymentTerm;
+  paymentTerm: z.infer<typeof paymentTermSchema>;
   meta?: { refetch: () => void };
 }) {
   return (

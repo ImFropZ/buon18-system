@@ -35,13 +35,14 @@ import {
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
-import { School, UpdateSchoolSchema } from "@modules/quiz-lobby/models";
+import { schoolSchema, updateSchoolSchema } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { Eye, MoreHorizontal } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-export const schoolColumns: ColumnDef<School>[] = [
+export const schoolColumns: ColumnDef<z.infer<typeof schoolSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -101,13 +102,13 @@ function ActionSchool({
   school,
   meta,
 }: {
-  school: School;
+  school: z.infer<typeof schoolSchema>;
   meta: { refetch: () => void } | undefined;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const form = useForm({
-    resolver: zodResolver(UpdateSchoolSchema),
+    resolver: zodResolver(updateSchoolSchema),
     defaultValues: {
       name: school.name,
       image_url: school.image_url,
@@ -208,11 +209,7 @@ function ActionSchool({
                 render={({ field }) => (
                   <InputFormField
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors?.name
-                        : undefined
-                    }
+                    errorField={form.formState.errors?.name}
                     placeholder="Name"
                   />
                 )}
@@ -228,11 +225,7 @@ function ActionSchool({
                     <InputFormField
                       className="flex-1"
                       field={field}
-                      errorField={
-                        form.formState.errors
-                          ? form.formState.errors?.image_url
-                          : undefined
-                      }
+                      errorField={form.formState.errors?.image_url}
                       placeholder="https://placehold.co/200x200"
                     />
                   )}

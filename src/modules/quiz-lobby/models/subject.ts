@@ -1,29 +1,36 @@
-import { numberInString } from "@models";
-import { Major } from "./major";
 import { z } from "zod";
+import { numberInString } from "@models";
+import { majorSchema } from "./major";
+import { generateSystemDefaultResponseSchema } from "@modules/shared/model";
 
-export interface Subject {
-  id: number;
-  name: string;
-  semester: number;
-  year: number;
-  major: Major;
-}
+export const subjectSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  semester: z.number(),
+  year: z.number(),
+  major: majorSchema.omit({ school: true }),
+});
 
-export const CreateSubjectSchema = z.object({
+export const subjectsResponseSchema = generateSystemDefaultResponseSchema(
+  z.object({
+    subjects: z.array(subjectSchema),
+  }),
+);
+
+export const createSubjectSchema = z.object({
   name: z.string(),
   semester: numberInString.pipe(z.number()),
   year: numberInString.pipe(z.number()),
-  major: z.object({ id: z.number(), name: z.string() }),
+  major: majorSchema.omit({ school: true }),
 });
 
-export const CreateSubjectsSchema = z.object({
-  subjects: z.array(CreateSubjectSchema),
+export const createSubjectsSchema = z.object({
+  subjects: z.array(createSubjectSchema),
 });
 
-export const UpdateSubjectSchema = z.object({
+export const updateSubjectSchema = z.object({
   name: z.string(),
   semester: numberInString.pipe(z.number()),
   year: numberInString.pipe(z.number()),
-  major: z.object({ id: z.number(), name: z.string() }),
+  major: majorSchema.omit({ school: true }),
 });

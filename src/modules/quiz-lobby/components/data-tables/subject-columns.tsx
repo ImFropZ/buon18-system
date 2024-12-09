@@ -35,16 +35,18 @@ import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import {
-  Major,
-  Subject,
-  UpdateSubjectSchema,
+  majorsResponseSchema,
+  majorSchema,
+  subjectSchema,
+  updateSubjectSchema,
 } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-export const subjectColumns: ColumnDef<Subject>[] = [
+export const subjectColumns: ColumnDef<z.infer<typeof subjectSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -123,13 +125,13 @@ function ActionSubject({
   subject,
   meta,
 }: {
-  subject: Subject;
+  subject: z.infer<typeof subjectSchema>;
   meta?: { refetch: () => void };
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const form = useForm({
-    resolver: zodResolver(UpdateSubjectSchema),
+    resolver: zodResolver(updateSubjectSchema),
     defaultValues: {
       ...subject,
     },
@@ -238,11 +240,7 @@ function ActionSubject({
                 render={({ field }) => (
                   <InputFormField
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors?.name
-                        : undefined
-                    }
+                    errorField={form.formState.errors?.name}
                     placeholder="Name"
                   />
                 )}
@@ -256,11 +254,7 @@ function ActionSubject({
                     render={({ field }) => (
                       <InputFormField
                         field={field}
-                        errorField={
-                          form.formState.errors
-                            ? form.formState.errors.semester
-                            : undefined
-                        }
+                        errorField={form.formState.errors.semester}
                         placeholder="Semester"
                       />
                     )}
@@ -274,11 +268,7 @@ function ActionSubject({
                     render={({ field }) => (
                       <InputFormField
                         field={field}
-                        errorField={
-                          form.formState.errors
-                            ? form.formState.errors.year
-                            : undefined
-                        }
+                        errorField={form.formState.errors.year}
                         placeholder="Year"
                       />
                     )}
@@ -290,14 +280,10 @@ function ActionSubject({
                 control={form.control}
                 name={`major`}
                 render={({ field }) => (
-                  <SearchSelectFormField
-                    id="major"
+                  <SearchSelectFormField<z.infer<typeof majorSchema>>
+                    ids={["majors"]}
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors.major
-                        : undefined
-                    }
+                    errorField={form.formState.errors.major}
                     placeholder="Select Major"
                     fetchResource={async (searchPhase) => {
                       return axiosInstance
@@ -305,14 +291,25 @@ function ActionSubject({
                           params: { ["name:ilike"]: searchPhase },
                         })
                         .then((res) => {
+                          const result = majorsResponseSchema.safeParse(
+                            res.data,
+                          );
+
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+
                           return res.data.data.majors;
                         });
                     }}
-                    optionLabel="name"
-                    optionValue="id"
-                    onSelected={function (value: Major) {
-                      field.onChange({ id: value.id, name: value.name });
-                    }}
+                    onSelected={field.onChange}
+                    getLabel={(major) =>
+                      !major.id
+                        ? ""
+                        : `${major.id} - ${major.name}${major.school ? ` from ${major.school.name}` : ""}`
+                    }
+                    isSelectedData={(major) => major.id === field.value.id}
                   />
                 )}
               />

@@ -11,8 +11,11 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PaymentTerm } from "@modules/accounting/models";
-import { Order, UpdateOrderSchema } from "@modules/sales/models";
+import {
+  paymentTermsResponseSchema,
+  paymentTermSchema,
+} from "@modules/accounting/models";
+import { orderSchema, updateOrderSchema } from "@modules/sales/models";
 import { systemAxiosInstance } from "@modules/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,7 +25,7 @@ import { z } from "zod";
 
 async function onEditHandler(
   id: number,
-  data: z.infer<typeof UpdateOrderSchema>,
+  data: z.infer<typeof updateOrderSchema>,
 ) {
   const body = {
     name: data.name,
@@ -37,13 +40,13 @@ async function onEditHandler(
 }
 
 interface UpdateOrderFormProps {
-  data: Order;
+  data: z.infer<typeof orderSchema>;
 }
 
 export function UpdateOrderForm({ data }: UpdateOrderFormProps) {
   const router = useRouter();
-  const form = useForm<z.infer<typeof UpdateOrderSchema>>({
-    resolver: zodResolver(UpdateOrderSchema),
+  const form = useForm<z.infer<typeof updateOrderSchema>>({
+    resolver: zodResolver(updateOrderSchema),
     defaultValues: {
       name: data.name,
       commitment_date: new Date(data.commitment_date),
@@ -178,11 +181,11 @@ export function UpdateOrderForm({ data }: UpdateOrderFormProps) {
               name="payment_term"
               render={({ field }) => {
                 return (
-                  <SearchSelectFormField
-                    id="payment-term"
+                  <SearchSelectFormField<z.infer<typeof paymentTermSchema>>
+                    ids={["payment-terms"]}
                     field={field}
                     errorField={form.formState.errors.quotation}
-                    placeholder="Select payment term"
+                    placeholder="Select Payment Term"
                     fetchResource={async (searchPhase) => {
                       return systemAxiosInstance
                         .get(`/accounting/payment-terms`, {
@@ -191,14 +194,27 @@ export function UpdateOrderForm({ data }: UpdateOrderFormProps) {
                           },
                         })
                         .then((res) => {
-                          return res.data.data.payment_terms;
+                          const result = paymentTermsResponseSchema.safeParse(
+                            res.data,
+                          );
+
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+
+                          return result.data.data.payment_terms;
                         });
                     }}
-                    optionLabel="name"
-                    optionValue="id"
-                    onSelected={function (value: PaymentTerm) {
-                      field.onChange({ id: value.id, name: value.name });
-                    }}
+                    onSelected={field.onChange}
+                    getLabel={(paymentTerm) =>
+                      !paymentTerm.id
+                        ? ""
+                        : `${paymentTerm.id} - ${paymentTerm.name}`
+                    }
+                    isSelectedData={(paymentTerm) =>
+                      paymentTerm.id === field.value.id
+                    }
                   />
                 );
               }}

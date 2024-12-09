@@ -6,7 +6,12 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Permission, Role, UpdateRoleSchema } from "@modules/setting/models";
+import {
+  permissionsResponseSchema,
+  permissionSchema,
+  roleSchema,
+  updateRoleSchema,
+} from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { Trash, Undo } from "lucide-react";
 import Link from "next/link";
@@ -17,7 +22,7 @@ import { z } from "zod";
 
 async function onEditHandler(
   id: number,
-  data: z.infer<typeof UpdateRoleSchema>,
+  data: z.infer<typeof updateRoleSchema>,
 ) {
   const body = {
     name: data.name,
@@ -36,13 +41,13 @@ async function onEditHandler(
 }
 
 interface UpdateRoleFormProps {
-  data: Role;
+  data: z.infer<typeof roleSchema>;
 }
 
 export function UpdateRoleForm({ data }: UpdateRoleFormProps) {
   const router = useRouter();
-  const form = useForm<z.infer<typeof UpdateRoleSchema>>({
-    resolver: zodResolver(UpdateRoleSchema),
+  const form = useForm<z.infer<typeof updateRoleSchema>>({
+    resolver: zodResolver(updateRoleSchema),
     defaultValues: {
       ...data,
       add_permissions: [],
@@ -191,14 +196,10 @@ export function UpdateRoleForm({ data }: UpdateRoleFormProps) {
                   control={form.control}
                   name={`add_permissions.${i}`}
                   render={({ field }) => (
-                    <SearchSelectFormField
-                      id="permission"
+                    <SearchSelectFormField<z.infer<typeof permissionSchema>>
+                      ids={["permissions"]}
                       field={field}
-                      errorField={
-                        form.formState.errors
-                          ? form.formState.errors.add_permissions?.[i]
-                          : undefined
-                      }
+                      errorField={form.formState.errors.add_permissions?.[i]}
                       placeholder="Select Permission"
                       fetchResource={async (searchPhase) => {
                         return systemAxiosInstance
@@ -206,17 +207,27 @@ export function UpdateRoleForm({ data }: UpdateRoleFormProps) {
                             params: { ["name:ilike"]: searchPhase },
                           })
                           .then((res) => {
-                            return res.data.data.permissions;
+                            const result = permissionsResponseSchema.safeParse(
+                              res.data,
+                            );
+
+                            if (!result.success) {
+                              console.error(result.error.errors);
+                              return [];
+                            }
+
+                            return result.data.data.permissions;
                           });
                       }}
-                      optionLabel="name"
-                      optionValue="id"
-                      onSelected={function (value: Permission) {
-                        field.onChange({
-                          id: value.id,
-                          name: value.name,
-                        });
-                      }}
+                      onSelected={field.onChange}
+                      getLabel={(permission) =>
+                        !permission.id
+                          ? ""
+                          : `${permission.id} - ${permission.name}`
+                      }
+                      isSelectedData={(permission) =>
+                        permission.id === field.value.id
+                      }
                     />
                   )}
                 />

@@ -19,14 +19,15 @@ import {
   DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { toast } from "@components/ui/use-toast";
-import { Role } from "@modules/setting/models";
+import { roleSchema } from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { z } from "zod";
 
-export const roleColumns: ColumnDef<Role>[] = [
+export const roleColumns: ColumnDef<z.infer<typeof roleSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (
