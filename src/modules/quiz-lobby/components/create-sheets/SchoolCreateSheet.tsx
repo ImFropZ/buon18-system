@@ -24,7 +24,9 @@ import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-async function onCreateHandler(data: { schools: { name: string }[] }) {
+async function onCreateHandler(data: {
+  schools: z.infer<typeof createSchoolSchema>[];
+}) {
   return axiosInstance.post(`/admin/schools`, data.schools).then((res) => {
     return res.data as { code: number; message: string };
   });

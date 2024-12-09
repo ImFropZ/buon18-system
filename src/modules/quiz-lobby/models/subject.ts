@@ -18,7 +18,7 @@ export const subjectsResponseSchema = generateSystemDefaultResponseSchema(
 );
 
 export const createSubjectSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   semester: numberInString.pipe(z.number()),
   year: numberInString.pipe(z.number()),
   major: majorSchema.omit({ school: true }),
@@ -29,7 +29,7 @@ export const createSubjectsSchema = z.object({
 });
 
 export const updateSubjectSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   semester: numberInString.pipe(z.number()),
   year: numberInString.pipe(z.number()),
   major: majorSchema.omit({ school: true }),

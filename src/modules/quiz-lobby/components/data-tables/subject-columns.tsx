@@ -137,6 +137,16 @@ function ActionSubject({
     },
   });
 
+  React.useEffect(() => {
+    form.reset({
+      id: subject.id,
+      name: subject.name,
+      semester: subject.semester,
+      year: subject.year,
+      major: subject.major,
+    });
+  }, [form, subject]);
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialog>

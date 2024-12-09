@@ -4,7 +4,7 @@ import { z } from "zod";
 export const schoolSchema = z.object({
   id: z.number(),
   name: z.string(),
-  image_url: z.string().optional(),
+  image_url: z.string().url().optional(),
 });
 
 export const schoolsResponseSchema = generateSystemDefaultResponseSchema(
@@ -12,8 +12,8 @@ export const schoolsResponseSchema = generateSystemDefaultResponseSchema(
 );
 
 export const createSchoolSchema = z.object({
-  name: z.string(),
-  image_url: z.string(),
+  name: z.string().min(1),
+  image_url: z.string().url(),
 });
 
 export const createSchoolsSchema = z.object({
@@ -21,6 +21,6 @@ export const createSchoolsSchema = z.object({
 });
 
 export const updateSchoolSchema = z.object({
-  name: z.string().optional(),
-  image_url: z.string(),
+  name: z.string().min(1).optional(),
+  image_url: z.string().url(),
 });
