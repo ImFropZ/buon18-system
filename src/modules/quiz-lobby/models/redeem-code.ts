@@ -1,16 +1,23 @@
 import { numberInString } from "@models";
+import { generateSystemDefaultResponseSchema } from "@modules/shared/model";
 import { z } from "zod";
 
-export interface RedeemCode {
-  id: number;
-  code: string;
-  amount: number;
-  amount_left: number;
-  credit: number;
-  expired_at: string;
-}
+export const redeemCodeSchema = z.object({
+  id: z.number(),
+  code: z.string(),
+  amount: z.number(),
+  amount_left: z.number(),
+  credit: z.number(),
+  expired_at: z.string().datetime(),
+});
 
-export const CreateRedeemCodeSchema = z.object({
+export const redeemCodesResponseSchema = generateSystemDefaultResponseSchema(
+  z.object({
+    redeem_codes: z.array(redeemCodeSchema),
+  }),
+);
+
+export const createRedeemCodeSchema = z.object({
   code: z
     .string()
     .min(1, { message: "Code must be at least 1 character" })
@@ -26,11 +33,11 @@ export const CreateRedeemCodeSchema = z.object({
     .min(new Date(), { message: "Expired date must be in the future" }),
 });
 
-export const CreateRedeemCodesSchema = z.object({
-  redeemCodes: z.array(CreateRedeemCodeSchema),
+export const createRedeemCodesSchema = z.object({
+  redeemCodes: z.array(createRedeemCodeSchema),
 });
 
-export const UpdateRedeemCodeSchema = z.object({
+export const updateRedeemCodeSchema = z.object({
   code: z
     .string()
     .min(1, { message: "Code must be at least 1 character" })

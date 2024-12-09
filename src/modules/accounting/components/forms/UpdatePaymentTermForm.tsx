@@ -7,8 +7,8 @@ import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  PaymentTerm,
-  UpdatePaymentTermSchema,
+  paymentTermSchema,
+  updatePaymentTermSchema,
 } from "@modules/accounting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { Trash, Undo } from "lucide-react";
@@ -20,7 +20,7 @@ import { z } from "zod";
 
 async function onEditHandler(
   id: number,
-  data: z.infer<typeof UpdatePaymentTermSchema>,
+  data: z.infer<typeof updatePaymentTermSchema>,
 ) {
   const update_lines = data.update_lines.filter((l) => {
     return !data.remove_line_ids.some((id) => id === l.id);
@@ -41,13 +41,13 @@ async function onEditHandler(
 }
 
 interface UpdatePaymentTermFormProps {
-  data: PaymentTerm;
+  data: z.infer<typeof paymentTermSchema>;
 }
 
 export function UpdatePaymentTermForm({ data }: UpdatePaymentTermFormProps) {
   const router = useRouter();
-  const form = useForm<z.infer<typeof UpdatePaymentTermSchema>>({
-    resolver: zodResolver(UpdatePaymentTermSchema),
+  const form = useForm<z.infer<typeof updatePaymentTermSchema>>({
+    resolver: zodResolver(updatePaymentTermSchema),
     defaultValues: {
       name: data.name,
       description: data.description,

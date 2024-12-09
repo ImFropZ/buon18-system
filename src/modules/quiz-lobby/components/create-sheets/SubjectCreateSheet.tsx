@@ -3,7 +3,12 @@
 import { InputFormField, SearchSelectFormField } from "@components/form";
 import React from "react";
 import { z } from "zod";
-import { CreateSubjectsSchema, Major } from "@modules/quiz-lobby/models";
+import {
+  createSubjectSchema,
+  createSubjectsSchema,
+  majorsResponseSchema,
+  majorSchema,
+} from "@modules/quiz-lobby/models";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField } from "@components/ui/form";
@@ -21,7 +26,7 @@ import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import { Label } from "@components/ui/label";
 import { Button } from "@components/ui/button";
 
-async function onCreateHandler(data: z.infer<typeof CreateSubjectsSchema>) {
+async function onCreateHandler(data: z.infer<typeof createSubjectsSchema>) {
   const subjects = data.subjects.map((subject) => {
     return {
       name: subject.name,
@@ -43,11 +48,16 @@ export function SubjectCreateSheet({
   refetch: () => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const form = useForm<z.infer<typeof CreateSubjectsSchema>>({
-    resolver: zodResolver(CreateSubjectsSchema),
+  const form = useForm<{ subjects: z.infer<typeof createSubjectSchema>[] }>({
+    resolver: zodResolver(createSubjectsSchema),
     defaultValues: {
       subjects: [
-        { name: "", year: 0, semester: 0, major: { id: 0, name: "" } },
+        {
+          name: "",
+          year: 0,
+          semester: 0,
+          major: { id: 0, name: "" },
+        },
       ],
     },
   });
@@ -117,9 +127,7 @@ export function SubjectCreateSheet({
                         <InputFormField
                           field={field}
                           errorField={
-                            form.formState.errors
-                              ? form.formState.errors.subjects?.[index]?.name
-                              : undefined
+                            form.formState.errors.subjects?.[index]?.name
                           }
                           placeholder="Name"
                         />
@@ -135,10 +143,8 @@ export function SubjectCreateSheet({
                             <InputFormField
                               field={field}
                               errorField={
-                                form.formState.errors
-                                  ? form.formState.errors.subjects?.[index]
-                                      ?.semester
-                                  : undefined
+                                form.formState.errors.subjects?.[index]
+                                  ?.semester
                               }
                               placeholder="Semester"
                             />
@@ -154,10 +160,7 @@ export function SubjectCreateSheet({
                             <InputFormField
                               field={field}
                               errorField={
-                                form.formState.errors
-                                  ? form.formState.errors.subjects?.[index]
-                                      ?.year
-                                  : undefined
+                                form.formState.errors.subjects?.[index]?.year
                               }
                               placeholder="Year"
                             />
@@ -170,29 +173,40 @@ export function SubjectCreateSheet({
                       control={form.control}
                       name={`subjects.${index}.major`}
                       render={({ field }) => (
-                        <SearchSelectFormField
-                          id="major"
+                        <SearchSelectFormField<z.infer<typeof majorSchema>>
+                          ids={["majors"]}
                           field={field}
                           errorField={
-                            form.formState.errors
-                              ? form.formState.errors.subjects?.[index]?.major
-                              : undefined
+                            form.formState.errors.subjects?.[index]?.major
                           }
                           placeholder="Select Major"
                           fetchResource={async (searchPhase) => {
-                            return axiosInstance
+                            return await axiosInstance
                               .get(`/admin/majors`, {
                                 params: { ["name:ilike"]: searchPhase },
                               })
                               .then((res) => {
-                                return res.data.data.majors;
+                                const result = majorsResponseSchema.safeParse(
+                                  res.data,
+                                );
+
+                                if (!result.success) {
+                                  console.error(result.error.errors);
+                                  return [];
+                                }
+
+                                return result.data.data.majors;
                               });
                           }}
-                          optionLabel="name"
-                          optionValue="id"
-                          onSelected={function (value: Major) {
-                            field.onChange({ id: value.id, name: value.name });
-                          }}
+                          getLabel={(major) =>
+                            !major.id
+                              ? ""
+                              : `${major.id} - ${major.name} from ${major.school}`
+                          }
+                          isSelectedData={(major) =>
+                            major.id === field.value.id
+                          }
+                          onSelected={field.onChange}
                         />
                       )}
                     />

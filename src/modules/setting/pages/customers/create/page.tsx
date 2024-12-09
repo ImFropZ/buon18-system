@@ -6,14 +6,14 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateCustomerSchema } from "@modules/setting/models";
+import { createCustomerSchema } from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 
-async function onCreateHandler(data: z.infer<typeof CreateCustomerSchema>) {
+async function onCreateHandler(data: z.infer<typeof createCustomerSchema>) {
   const body = {
     full_name: data.full_name,
     gender: data.gender,
@@ -29,7 +29,7 @@ async function onCreateHandler(data: z.infer<typeof CreateCustomerSchema>) {
 export default function Page() {
   const router = useRouter();
   const form = useForm({
-    resolver: zodResolver(CreateCustomerSchema),
+    resolver: zodResolver(createCustomerSchema),
     defaultValues: {
       full_name: "",
       gender: "u" as "u" | "m" | "f",

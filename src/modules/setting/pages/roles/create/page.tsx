@@ -6,14 +6,18 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateRoleSchema, Permission } from "@modules/setting/models";
+import {
+  createRoleSchema,
+  permissionsResponseSchema,
+  permissionSchema,
+} from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-async function onCreateHandler(data: z.infer<typeof CreateRoleSchema>) {
+async function onCreateHandler(data: z.infer<typeof createRoleSchema>) {
   const body = {
     name: data.name,
     description: data.description,
@@ -28,7 +32,7 @@ async function onCreateHandler(data: z.infer<typeof CreateRoleSchema>) {
 export default function Page() {
   const router = useRouter();
   const form = useForm({
-    resolver: zodResolver(CreateRoleSchema),
+    resolver: zodResolver(createRoleSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -122,14 +126,10 @@ export default function Page() {
                     control={form.control}
                     name={`permissions.${i}`}
                     render={({ field }) => (
-                      <SearchSelectFormField
-                        id="subject"
+                      <SearchSelectFormField<z.infer<typeof permissionSchema>>
+                        ids={["permissions"]}
                         field={field}
-                        errorField={
-                          form.formState.errors
-                            ? form.formState.errors.permissions?.[i]
-                            : undefined
-                        }
+                        errorField={form.formState.errors.permissions?.[i]}
                         placeholder="Select Permission"
                         fetchResource={async (searchPhase) => {
                           return systemAxiosInstance
@@ -137,17 +137,27 @@ export default function Page() {
                               params: { ["name:ilike"]: searchPhase },
                             })
                             .then((res) => {
-                              return res.data.data.permissions;
+                              const result = permissionsResponseSchema.safeParse(
+                                res.data,
+                              );
+
+                              if (!result.success) {
+                                console.error(result.error.errors);
+                                return [];
+                              }
+
+                              return result.data.data.permissions;
                             });
                         }}
-                        optionLabel="name"
-                        optionValue="id"
-                        onSelected={function (value: Permission) {
-                          field.onChange({
-                            id: value.id,
-                            name: value.name,
-                          });
-                        }}
+                        onSelected={field.onChange}
+                        getLabel={(permission) =>
+                          !permission.id
+                            ? ""
+                            : `${permission.id} - ${permission.name}`
+                        }
+                        isSelectedData={(permission) =>
+                          permission.id === field.value.id
+                        }
                       />
                     )}
                   />

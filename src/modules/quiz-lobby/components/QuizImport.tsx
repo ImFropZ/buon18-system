@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@components/ui/select";
 import { ParseMeta } from "papaparse";
-import { CreateQuizSchema } from "../models";
+import { createQuizSchema } from "../models";
 import React from "react";
 import { z } from "zod";
 
@@ -27,7 +27,7 @@ interface QuizImportProps extends React.HTMLAttributes<HTMLDivElement> {
   data: Array<{ [key in string]: any }>;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  onImport: (data: z.infer<typeof CreateQuizSchema>[]) => void;
+  onImport: (data: z.infer<typeof createQuizSchema>[]) => void;
 }
 
 export function QuizImport({
@@ -116,7 +116,7 @@ export function QuizImport({
           <Button variant="secondary">Cancel</Button>
           <Button
             onClick={() => {
-              const mappedData: z.infer<typeof CreateQuizSchema>[] = [];
+              const mappedData: z.infer<typeof createQuizSchema>[] = [];
               let prevId = "";
               data.forEach((d) => {
                 if (Object.keys(d).length !== matchFields.length) return;

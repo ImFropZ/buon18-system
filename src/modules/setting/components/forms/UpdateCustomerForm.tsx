@@ -6,7 +6,7 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Customer, UpdateCustomerSchema } from "@modules/setting/models";
+import { customerSchema, updateCustomerSchema } from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ import { z } from "zod";
 
 async function onEditHandler(
   id: number,
-  data: z.infer<typeof UpdateCustomerSchema>,
+  data: z.infer<typeof updateCustomerSchema>,
 ) {
   const body = {
     full_name: data.full_name,
@@ -32,13 +32,13 @@ async function onEditHandler(
 }
 
 interface UpdateCustomerFormProps {
-  data: Customer;
+  data: z.infer<typeof customerSchema>;
 }
 
 export function UpdateCustomerForm({ data }: UpdateCustomerFormProps) {
   const router = useRouter();
   const form = useForm({
-    resolver: zodResolver(UpdateCustomerSchema),
+    resolver: zodResolver(updateCustomerSchema),
     defaultValues: {
       ...data,
       gender: data.gender as "m" | "f" | "u",

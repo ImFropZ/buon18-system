@@ -34,13 +34,19 @@ import {
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
-import { Major, School, UpdateMajorSchema } from "@modules/quiz-lobby/models";
+import {
+  majorSchema,
+  schoolsResponseSchema,
+  schoolSchema,
+  updateMajorSchema,
+} from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-export const majorColumns: ColumnDef<Major>[] = [
+export const majorColumns: ColumnDef<z.infer<typeof majorSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -103,13 +109,13 @@ function ActionMajor({
   major,
   meta,
 }: {
-  major: Major;
+  major: z.infer<typeof majorSchema>;
   meta?: { refetch: () => void };
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const form = useForm({
-    resolver: zodResolver(UpdateMajorSchema),
+    resolver: zodResolver(updateMajorSchema),
     defaultValues: {
       ...major,
     },
@@ -211,11 +217,7 @@ function ActionMajor({
                 render={({ field }) => (
                   <InputFormField
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors?.name
-                        : undefined
-                    }
+                    errorField={form.formState.errors?.name}
                     placeholder="Name"
                   />
                 )}
@@ -226,14 +228,10 @@ function ActionMajor({
                 control={form.control}
                 name={`school`}
                 render={({ field }) => (
-                  <SearchSelectFormField
-                    id="school"
+                  <SearchSelectFormField<z.infer<typeof schoolSchema>>
+                    ids={["schools"]}
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors.school
-                        : undefined
-                    }
+                    errorField={form.formState.errors.school}
                     placeholder="Select School"
                     fetchResource={async (searchPhase) => {
                       return axiosInstance
@@ -241,14 +239,21 @@ function ActionMajor({
                           params: { ["name:ilike"]: searchPhase },
                         })
                         .then((res) => {
-                          return res.data.data.schools;
+                          const result = schoolsResponseSchema.safeParse(
+                            res.data,
+                          );
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+                          return result.data.data.schools;
                         });
                     }}
-                    optionLabel="name"
-                    optionValue="id"
-                    onSelected={function (value: School) {
-                      field.onChange({ id: value.id, name: value.name });
-                    }}
+                    onSelected={field.onChange}
+                    getLabel={(school) =>
+                      school.id ? "" : `${school.id} - ${school.name}`
+                    }
+                    isSelectedData={(school) => school.id === field.value.id}
                   />
                 )}
               />

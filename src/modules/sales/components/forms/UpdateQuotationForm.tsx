@@ -11,8 +11,11 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Quotation, UpdateQuotationSchema } from "@modules/sales/models";
-import { Customer } from "@modules/setting/models";
+import { quotationSchema, updateQuotationSchema } from "@modules/sales/models";
+import {
+  customersResponseSchema,
+  customerSchema,
+} from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { Trash, Undo } from "lucide-react";
 import Link from "next/link";
@@ -23,7 +26,7 @@ import { z } from "zod";
 
 async function onEditHandler(
   id: number,
-  data: z.infer<typeof UpdateQuotationSchema>,
+  data: z.infer<typeof updateQuotationSchema>,
 ) {
   const update_items = data.update_items.filter((i) => {
     return !data.delete_item_ids.some((id) => id === i.id);
@@ -49,13 +52,13 @@ async function onEditHandler(
 }
 
 interface UpdateQuotationFormProps {
-  data: Quotation;
+  data: z.infer<typeof quotationSchema>;
 }
 
 export function UpdateQuotationForm({ data }: UpdateQuotationFormProps) {
   const router = useRouter();
-  const form = useForm<z.infer<typeof UpdateQuotationSchema>>({
-    resolver: zodResolver(UpdateQuotationSchema),
+  const form = useForm<z.infer<typeof updateQuotationSchema>>({
+    resolver: zodResolver(updateQuotationSchema),
     defaultValues: {
       name: data.name,
       creation_date: new Date(data.creation_date),
@@ -220,32 +223,38 @@ export function UpdateQuotationForm({ data }: UpdateQuotationFormProps) {
               name="customer"
               render={({ field }) => {
                 return (
-                  <SearchSelectFormField
-                    id="customer"
+                  <SearchSelectFormField<z.infer<typeof customerSchema>>
+                    ids={["customers"]}
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors.customer
-                        : undefined
-                    }
-                    placeholder="Select customer"
+                    errorField={form.formState.errors.customer}
+                    placeholder="Select Customer"
                     fetchResource={async (searchPhase) => {
                       return systemAxiosInstance
                         .get(`/setting/customers`, {
                           params: { ["full-name:ilike"]: searchPhase },
                         })
                         .then((res) => {
-                          return res.data.data.customers;
+                          const result = customersResponseSchema.safeParse(
+                            res.data,
+                          );
+
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+
+                          return result.data.data.customers;
                         });
                     }}
-                    optionLabel="full_name"
-                    optionValue="id"
-                    onSelected={function (value: Customer) {
-                      field.onChange({
-                        id: value.id,
-                        full_name: value.full_name,
-                      });
-                    }}
+                    onSelected={field.onChange}
+                    getLabel={(customer) =>
+                      !customer.id
+                        ? ""
+                        : `${customer.id} - ${customer.full_name}`
+                    }
+                    isSelectedData={(customer) =>
+                      customer.id === field.value.id
+                    }
                   />
                 );
               }}

@@ -39,16 +39,18 @@ import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import {
-  Professor,
-  Subject,
-  UpdateProfessorSchema,
+  professorSchema,
+  subjectsResponseSchema,
+  subjectSchema,
+  updateProfessorSchema,
 } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Trash, Undo } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
 
-export const professorColumns: ColumnDef<Professor>[] = [
+export const professorColumns: ColumnDef<z.infer<typeof professorSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -117,17 +119,17 @@ function ActionProfessor({
   professor,
   meta,
 }: {
-  professor: Professor;
+  professor: z.infer<typeof professorSchema>;
   meta?: { refetch: () => void };
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const form = useForm({
-    resolver: zodResolver(UpdateProfessorSchema),
+  const form = useForm<z.infer<typeof updateProfessorSchema>>({
+    resolver: zodResolver(updateProfessorSchema),
     defaultValues: {
       ...professor,
-      add_subjects: [] as { id: number; name: string }[],
-      remove_subjects: [] as { id: number; name: string }[],
+      add_subjects: [],
+      remove_subject_ids: [],
     },
   });
 
@@ -135,7 +137,7 @@ function ActionProfessor({
     form.reset({
       ...professor,
       add_subjects: [],
-      remove_subjects: [],
+      remove_subject_ids: [],
     });
   }, [form, professor]);
 
@@ -148,12 +150,6 @@ function ActionProfessor({
   const addSubjectFieldArray = useFieldArray({
     control: form.control,
     name: "add_subjects",
-    keyName: "key",
-  });
-
-  const removeSubjectFieldArray = useFieldArray({
-    control: form.control,
-    name: "remove_subjects",
     keyName: "key",
   });
 
@@ -219,8 +215,7 @@ function ActionProfessor({
           <form
             className="grid h-full grid-rows-[auto,1fr,auto]"
             onSubmit={form.handleSubmit((d) => {
-              const { title, full_name } = d;
-              const removeSubjectIds = d.remove_subjects.map((s) => s.id);
+              const { title, full_name, remove_subject_ids } = d;
               const addSubjectIds = d.add_subjects.map((s) => s.id);
 
               axiosInstance
@@ -229,7 +224,7 @@ function ActionProfessor({
                     title,
                     full_name,
                     add_subject_ids: addSubjectIds,
-                    remove_subject_ids: removeSubjectIds,
+                    remove_subject_ids,
                     id: professor.id,
                   },
                 ])
@@ -266,11 +261,7 @@ function ActionProfessor({
                   render={({ field }) => (
                     <SelectFormField
                       field={field}
-                      errorField={
-                        form.formState.errors
-                          ? form.formState.errors?.title
-                          : undefined
-                      }
+                      errorField={form.formState.errors?.title}
                       options={[
                         { value: "Dr.", label: "Dr." },
                         { value: "Prof.", label: "Prof." },
@@ -291,11 +282,7 @@ function ActionProfessor({
                   render={({ field }) => (
                     <InputFormField
                       field={field}
-                      errorField={
-                        form.formState.errors
-                          ? form.formState.errors?.full_name
-                          : undefined
-                      }
+                      errorField={form.formState.errors?.full_name}
                       placeholder="Full Name"
                     />
                   )}
@@ -312,23 +299,23 @@ function ActionProfessor({
                           className="flex items-center justify-center gap-2 text-sm"
                         >
                           <p className="flex-1 rounded-lg border py-2 text-center">
-                            {field.id} - {field.name} ({field.semester}:{field.year})
+                            {`${field.id} - ${field.name} (semester:${field.semester}-year:${field.year})`}
                           </p>
-                          {removeSubjectFieldArray.fields.some(
-                            (rs) => rs.id === field.id,
-                          ) ? (
+                          {form
+                            .watch("remove_subject_ids")
+                            .some((removeId) => removeId === field.id) ? (
                             <Button
                               variant="ghost"
                               type="button"
                               onClick={() => {
-                                removeSubjectFieldArray.remove(
-                                  removeSubjectFieldArray.fields.findIndex(
-                                    (rs) => rs.id === field.id,
+                                const removeSubjectIds =
+                                  form.getValues("remove_subject_ids");
+                                form.setValue(
+                                  "remove_subject_ids",
+                                  removeSubjectIds.filter(
+                                    (removeId) => removeId !== field.id,
                                   ),
                                 );
-                                form.setValue(`subjects`, professor.subjects, {
-                                  shouldValidate: true,
-                                });
                               }}
                             >
                               <Undo />
@@ -338,13 +325,12 @@ function ActionProfessor({
                               variant="destructive"
                               type="button"
                               onClick={() => {
-                                removeSubjectFieldArray.append({
-                                  id: field.id,
-                                  name: field.name,
-                                });
-                                form.setValue(`subjects`, professor.subjects, {
-                                  shouldValidate: true,
-                                });
+                                const removeSubjectIds =
+                                  form.getValues("remove_subject_ids");
+                                form.setValue("remove_subject_ids", [
+                                  ...removeSubjectIds,
+                                  field.id,
+                                ]);
                               }}
                             >
                               <Trash />
@@ -365,13 +351,13 @@ function ActionProfessor({
                           control={form.control}
                           name={`add_subjects.${index}`}
                           render={({ field }) => (
-                            <SearchSelectFormField
-                              id="subject"
+                            <SearchSelectFormField<
+                              z.infer<typeof subjectSchema>
+                            >
+                              ids={["subjects"]}
                               field={field}
                               errorField={
-                                form.formState.errors
-                                  ? form.formState.errors.add_subjects?.[index]
-                                  : undefined
+                                form.formState.errors.add_subjects?.[index]
                               }
                               placeholder="Select Subject"
                               fetchResource={async (searchPhase) => {
@@ -380,20 +366,26 @@ function ActionProfessor({
                                     params: { ["name:ilike"]: searchPhase },
                                   })
                                   .then((res) => {
-                                    return res.data.data.subjects;
+                                    const result =
+                                      subjectsResponseSchema.safeParse(res.data);
+
+                                    if (!result.success) {
+                                      console.error(result.error.errors);
+                                      return [];
+                                    }
+
+                                    return result.data.data.subjects;
                                   });
                               }}
-                              optionLabel="name"
-                              additionalOptionLabels={["semester", "year"]}
-                              optionValue="id"
-                              onSelected={function (value: Subject) {
-                                field.onChange({
-                                  id: value.id,
-                                  name: value.name,
-                                  semester: value.semester,
-                                  year: value.year,
-                                });
-                              }}
+                              onSelected={field.onChange}
+                              getLabel={(subject) =>
+                                !subject.id
+                                  ? ""
+                                  : `${subject.id} - ${subject.name} (semester:${subject.semester}-year:${subject.year})`
+                              }
+                              isSelectedData={(subject) =>
+                                subject.id === field.value.id
+                              }
                             />
                           )}
                         />
@@ -419,7 +411,12 @@ function ActionProfessor({
                 <Button
                   type="button"
                   onClick={() => {
-                    addSubjectFieldArray.append({ id: 0, name: "" });
+                    addSubjectFieldArray.append({
+                      id: 0,
+                      name: "",
+                      semester: 0,
+                      year: 0,
+                    });
                   }}
                 >
                   Add Subject

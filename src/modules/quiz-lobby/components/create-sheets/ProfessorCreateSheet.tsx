@@ -2,7 +2,11 @@
 
 import React from "react";
 import { z } from "zod";
-import { CreateProfessorsSchema, Subject } from "@modules/quiz-lobby/models";
+import {
+  createProfessorsSchema,
+  subjectsResponseSchema,
+  subjectSchema,
+} from "@modules/quiz-lobby/models";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField } from "@components/ui/form";
@@ -25,7 +29,7 @@ import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import { Label } from "@components/ui/label";
 import { Button } from "@components/ui/button";
 
-async function onCreateHandler(data: z.infer<typeof CreateProfessorsSchema>) {
+async function onCreateHandler(data: z.infer<typeof createProfessorsSchema>) {
   const professors = data.professors.map((subject) => {
     return {
       title: subject.title,
@@ -48,8 +52,8 @@ export function ProfessorCreateSheet({
   refetch: () => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const form = useForm<z.infer<typeof CreateProfessorsSchema>>({
-    resolver: zodResolver(CreateProfessorsSchema),
+  const form = useForm<z.infer<typeof createProfessorsSchema>>({
+    resolver: zodResolver(createProfessorsSchema),
     defaultValues: {
       professors: [
         { title: "Dr.", full_name: "", subjects: [{ id: 0, name: "" }] },
@@ -122,9 +126,7 @@ export function ProfessorCreateSheet({
                         <SelectFormField
                           field={field}
                           errorField={
-                            form.formState.errors
-                              ? form.formState.errors.professors?.[index]?.title
-                              : undefined
+                            form.formState.errors.professors?.[index]?.title
                           }
                           options={[
                             { value: "Dr.", label: "Dr." },
@@ -145,10 +147,7 @@ export function ProfessorCreateSheet({
                         <InputFormField
                           field={field}
                           errorField={
-                            form.formState.errors
-                              ? form.formState.errors.professors?.[index]
-                                  ?.full_name
-                              : undefined
+                            form.formState.errors.professors?.[index]?.full_name
                           }
                           placeholder="Full Name"
                         />
@@ -164,15 +163,14 @@ export function ProfessorCreateSheet({
                               control={form.control}
                               name={`professors.${index}.subjects.${sIndex}`}
                               render={({ field }) => (
-                                <SearchSelectFormField
-                                  id="subject"
+                                <SearchSelectFormField<
+                                  z.infer<typeof subjectSchema>
+                                >
+                                  ids={["subjects"]}
                                   field={field}
                                   errorField={
-                                    form.formState.errors
-                                      ? form.formState.errors.professors?.[
-                                          index
-                                        ]?.subjects?.[sIndex]
-                                      : undefined
+                                    form.formState.errors.professors?.[index]
+                                      ?.subjects?.[sIndex]
                                   }
                                   placeholder="Select Subject"
                                   fetchResource={async (searchPhase) => {
@@ -181,20 +179,28 @@ export function ProfessorCreateSheet({
                                         params: { ["name:ilike"]: searchPhase },
                                       })
                                       .then((res) => {
-                                        return res.data.data.subjects;
+                                        const result =
+                                          subjectsResponseSchema.safeParse(
+                                            res.data,
+                                          );
+
+                                        if (!result.success) {
+                                          console.error(result.error.errors);
+                                          return [];
+                                        }
+
+                                        return result.data.data.subjects;
                                       });
                                   }}
-                                  optionLabel="name"
-                                  additionalOptionLabels={["semester", "year"]}
-                                  optionValue="id"
-                                  onSelected={function (value: Subject) {
-                                    field.onChange({
-                                      id: value.id,
-                                      name: value.name,
-                                      semester: value.semester,
-                                      year: value.year,
-                                    });
-                                  }}
+                                  getLabel={(data) =>
+                                    !data.id
+                                      ? ""
+                                      : `${data.id} - ${data.name} (semester:${data.semester}-year:${data.year})`
+                                  }
+                                  isSelectedData={(data) =>
+                                    data.id === field.value.id
+                                  }
+                                  onSelected={field.onChange}
                                 />
                               )}
                             />
@@ -228,7 +234,12 @@ export function ProfessorCreateSheet({
                         type="button"
                         onClick={() => {
                           const professor = fieldArray.fields[index];
-                          professor.subjects.push({ id: 0, name: "" });
+                          professor.subjects.push({
+                            id: 0,
+                            name: "",
+                            semester: 0,
+                            year: 0,
+                          });
 
                           form.setValue(
                             `professors.${index}.subjects`,
@@ -253,7 +264,7 @@ export function ProfessorCreateSheet({
                   fieldArray.append({
                     title: "Dr.",
                     full_name: "",
-                    subjects: [{ id: 0, name: "" }],
+                    subjects: [{ id: 0, name: "", semester: 0, year: 0 }],
                   })
                 }
               >

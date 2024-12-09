@@ -19,14 +19,15 @@ import {
   DropdownMenuItem,
 } from "@components/ui/dropdown-menu";
 import { toast } from "@components/ui/use-toast";
-import { Customer } from "@modules/setting/models";
+import { customerSchema } from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { Copy, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { z } from "zod";
 
-export const customerColumns: ColumnDef<Customer>[] = [
+export const customerColumns: ColumnDef<z.infer<typeof customerSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (

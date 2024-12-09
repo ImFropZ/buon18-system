@@ -20,15 +20,16 @@ import {
   DropdownMenuSeparator,
 } from "@components/ui/dropdown-menu";
 import { toast } from "@components/ui/use-toast";
-import { Quotation } from "@modules/sales/models";
+import { quotationSchema } from "@modules/sales/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { z } from "zod";
 
-export const quotationColumns: ColumnDef<Quotation>[] = [
+export const quotationColumns: ColumnDef<z.infer<typeof quotationSchema>>[] = [
   {
     id: "select",
     header: ({ table }) => (

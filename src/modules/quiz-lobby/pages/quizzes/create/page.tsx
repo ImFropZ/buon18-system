@@ -2,9 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  CreateQuizzesSchema,
-  Professor,
-  Subject,
+  createQuizzesSchema,
+  professorsResponseSchema,
+  professorSchema,
+  subjectsResponseSchema,
+  subjectSchema,
 } from "@modules/quiz-lobby/models";
 import { useFieldArray, useForm } from "react-hook-form";
 import React from "react";
@@ -23,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { QuizImport } from "@modules/quiz-lobby/components";
 import Papa, { ParseResult } from "papaparse";
 
-const onCreateHandler = async (data: z.infer<typeof CreateQuizzesSchema>) => {
+const onCreateHandler = async (data: z.infer<typeof createQuizzesSchema>) => {
   const quizzes = data.quizzes.map((quiz) => {
     return {
       question: quiz.question,
@@ -81,8 +83,8 @@ export default function Page() {
   });
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof CreateQuizzesSchema>>({
-    resolver: zodResolver(CreateQuizzesSchema),
+  const form = useForm<z.infer<typeof createQuizzesSchema>>({
+    resolver: zodResolver(createQuizzesSchema),
     defaultValues: {
       professor: {
         id: 0,
@@ -171,14 +173,10 @@ export default function Page() {
                 control={form.control}
                 name="professor"
                 render={({ field }) => (
-                  <SearchSelectFormField
-                    id="professor"
+                  <SearchSelectFormField<z.infer<typeof professorSchema>>
+                    ids={["professors"]}
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors.professor
-                        : undefined
-                    }
+                    errorField={form.formState.errors.professor}
                     placeholder="Select Professor"
                     fetchResource={async (searchPhase) => {
                       return axiosInstance
@@ -186,17 +184,21 @@ export default function Page() {
                           params: { ["full-name:ilike"]: searchPhase },
                         })
                         .then((res) => {
-                          return res.data.data.professors;
+                          const result = professorsResponseSchema.safeParse(
+                            res.data,
+                          );
+
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+
+                          return result.data.data.professors;
                         });
                     }}
-                    optionLabel="full_name"
-                    optionValue="id"
-                    onSelected={function (value: Professor) {
-                      field.onChange({
-                        id: value.id,
-                        full_name: value.full_name,
-                      });
-                      setProfessorId(value.id);
+                    onSelected={(v) => {
+                      field.onChange(v);
+                      setProfessorId(v.id);
                       form.setValue(
                         "subject",
                         {
@@ -210,6 +212,14 @@ export default function Page() {
                         },
                       );
                     }}
+                    getLabel={(professor) =>
+                      !professor.id
+                        ? ""
+                        : `${professor.id} - ${professor.title} ${professor.full_name}`
+                    }
+                    isSelectedData={(professor) =>
+                      professor.id === field.value.id
+                    }
                   />
                 )}
               />
@@ -220,16 +230,11 @@ export default function Page() {
                 control={form.control}
                 name="subject"
                 render={({ field }) => (
-                  <SearchSelectFormField
-                    id={`subject`}
-                    additionalKeys={[professorId.toString()]}
+                  <SearchSelectFormField<z.infer<typeof subjectSchema>>
+                    ids={[`subjects`, professorId.toString()]}
                     disabled={professorId === 0}
                     field={field}
-                    errorField={
-                      form.formState.errors
-                        ? form.formState.errors.subject
-                        : undefined
-                    }
+                    errorField={form.formState.errors.subject}
                     placeholder="Select Subject"
                     fetchResource={async (searchPhase) => {
                       return axiosInstance
@@ -243,20 +248,25 @@ export default function Page() {
                           },
                         })
                         .then((res) => {
-                          return res.data.data.subjects;
+                          const result = subjectsResponseSchema.safeParse(
+                            res.data,
+                          );
+
+                          if (!result.success) {
+                            console.error(result.error.errors);
+                            return [];
+                          }
+
+                          return result.data.data.subjects;
                         });
                     }}
-                    optionLabel="name"
-                    additionalOptionLabels={["semester", "year"]}
-                    optionValue="id"
-                    onSelected={function (value: Subject) {
-                      field.onChange({
-                        id: value.id,
-                        name: value.name,
-                        semester: value.semester,
-                        year: value.year,
-                      });
-                    }}
+                    onSelected={field.onChange}
+                    getLabel={(subject) =>
+                      !subject.id
+                        ? ""
+                        : `${subject.id} - ${subject.name} (semester${subject.semester}-year:${subject.year})`
+                    }
+                    isSelectedData={(data) => data.id === field.value.id}
                   />
                 )}
               />
@@ -280,10 +290,7 @@ export default function Page() {
                         <InputFormField
                           field={field}
                           errorField={
-                            form.formState.errors
-                              ? form.formState.errors?.quizzes?.[index]
-                                  ?.question
-                              : undefined
+                            form.formState.errors?.quizzes?.[index]?.question
                           }
                           placeholder="Question"
                         />
@@ -300,10 +307,8 @@ export default function Page() {
                               className="flex-1"
                               field={field}
                               errorField={
-                                form.formState.errors
-                                  ? form.formState.errors?.quizzes?.[index]
-                                      ?.image_url
-                                  : undefined
+                                form.formState.errors?.quizzes?.[index]
+                                  ?.image_url
                               }
                               placeholder="https://placehold.co/200x200"
                             />
@@ -330,10 +335,8 @@ export default function Page() {
                                   className="flex-1"
                                   field={field}
                                   errorField={
-                                    form.formState.errors
-                                      ? form.formState.errors.quizzes?.[index]
-                                          ?.options?.[j]?.label
-                                      : undefined
+                                    form.formState.errors.quizzes?.[index]
+                                      ?.options?.[j]?.label
                                   }
                                   placeholder="Label"
                                 />
@@ -361,10 +364,8 @@ export default function Page() {
                                     }}
                                     field={field}
                                     errorField={
-                                      form.formState.errors
-                                        ? form.formState.errors.quizzes?.[index]
-                                            ?.options?.[j]?.is_correct
-                                        : undefined
+                                      form.formState.errors.quizzes?.[index]
+                                        ?.options?.[j]?.is_correct
                                     }
                                   />
                                 );

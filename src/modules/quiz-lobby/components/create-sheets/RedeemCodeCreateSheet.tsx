@@ -17,15 +17,15 @@ import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import {
-  CreateRedeemCodeSchema,
-  CreateRedeemCodesSchema,
+  createRedeemCodeSchema,
+  createRedeemCodesSchema,
 } from "@modules/quiz-lobby/models";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
 async function onCreateHandler(data: {
-  redeemCodes: z.infer<typeof CreateRedeemCodeSchema>[];
+  redeemCodes: z.infer<typeof createRedeemCodeSchema>[];
 }) {
   return axiosInstance
     .post(`/admin/redeem-codes`, data.redeemCodes)
@@ -43,9 +43,9 @@ export function RedeemCodeCreateSheet({
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const form = useForm<{
-    redeemCodes: z.infer<typeof CreateRedeemCodeSchema>[];
+    redeemCodes: z.infer<typeof createRedeemCodeSchema>[];
   }>({
-    resolver: zodResolver(CreateRedeemCodesSchema),
+    resolver: zodResolver(createRedeemCodesSchema),
     defaultValues: {
       redeemCodes: [
         {
@@ -126,10 +126,8 @@ export function RedeemCodeCreateSheet({
                               <InputFormField
                                 field={field}
                                 errorField={
-                                  form.formState.errors
-                                    ? form.formState.errors.redeemCodes?.[index]
-                                        ?.code
-                                    : undefined
+                                  form.formState.errors.redeemCodes?.[index]
+                                    ?.code
                                 }
                                 placeholder="Code"
                               />
@@ -147,11 +145,8 @@ export function RedeemCodeCreateSheet({
                                 className="flex-1"
                                 field={field}
                                 errorField={
-                                  form.formState.errors
-                                    ? form.formState.errors?.redeemCodes?.[
-                                        index
-                                      ]?.expired_at
-                                    : undefined
+                                  form.formState.errors?.redeemCodes?.[index]
+                                    ?.expired_at
                                 }
                                 placeholder="Expired At"
                               />
@@ -171,11 +166,8 @@ export function RedeemCodeCreateSheet({
                                 className="flex-1"
                                 field={field}
                                 errorField={
-                                  form.formState.errors
-                                    ? form.formState.errors?.redeemCodes?.[
-                                        index
-                                      ]?.credit
-                                    : undefined
+                                  form.formState.errors?.redeemCodes?.[index]
+                                    ?.credit
                                 }
                                 placeholder="Credit amount"
                               />
@@ -192,11 +184,8 @@ export function RedeemCodeCreateSheet({
                                 className="flex-1"
                                 field={field}
                                 errorField={
-                                  form.formState.errors
-                                    ? form.formState.errors?.redeemCodes?.[
-                                        index
-                                      ]?.amount
-                                    : undefined
+                                  form.formState.errors?.redeemCodes?.[index]
+                                    ?.amount
                                 }
                                 placeholder="Amount"
                               />

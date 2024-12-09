@@ -35,8 +35,8 @@ import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import {
-  Transaction,
-  UpdateTransactionSchema,
+  transactionSchema,
+  updateTransactionSchema,
 } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
@@ -44,7 +44,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-export const transactionColumns: ColumnDef<Transaction>[] = [
+export const transactionColumns: ColumnDef<
+  z.infer<typeof transactionSchema>
+>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -123,13 +125,13 @@ function ActionTransaction({
   transaction,
   meta,
 }: {
-  transaction: Transaction;
+  transaction: z.infer<typeof transactionSchema>;
   meta?: { refetch: () => void };
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const form = useForm<z.infer<typeof UpdateTransactionSchema>>({
-    resolver: zodResolver(UpdateTransactionSchema),
+  const form = useForm<z.infer<typeof updateTransactionSchema>>({
+    resolver: zodResolver(updateTransactionSchema),
   });
 
   React.useEffect(() => {
@@ -293,7 +295,7 @@ function ActionTransaction({
                     render={({ field }) => (
                       <SelectFormField
                         field={field}
-                        errorField={form.formState.errors.status ?? undefined}
+                        errorField={form.formState.errors.status}
                         options={[
                           { value: "completed", label: "Completed" },
                           { value: "failed", label: "Failed" },
@@ -322,7 +324,7 @@ function ActionTransaction({
                   render={({ field }) => (
                     <InputFormField
                       field={field}
-                      errorField={form.formState.errors.id ?? undefined}
+                      errorField={form.formState.errors.id}
                       placeholder="Transaction ID"
                       readOnly
                       disabled
@@ -336,11 +338,7 @@ function ActionTransaction({
                   render={({ field }) => (
                     <InputFormField
                       field={field}
-                      errorField={
-                        form.formState.errors
-                          ? form.formState.errors.amount
-                          : undefined
-                      }
+                      errorField={form.formState.errors.amount}
                       placeholder="Amount"
                       type="number"
                     />

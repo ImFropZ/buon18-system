@@ -17,8 +17,8 @@ import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import {
-  CreateSchoolSchema,
-  CreateSchoolsSchema,
+  createSchoolSchema,
+  createSchoolsSchema,
 } from "@modules/quiz-lobby/models";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -38,8 +38,8 @@ export function SchoolCreateSheet({
   refetch: () => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const form = useForm<{ schools: z.infer<typeof CreateSchoolSchema>[] }>({
-    resolver: zodResolver(CreateSchoolsSchema),
+  const form = useForm<{ schools: z.infer<typeof createSchoolSchema>[] }>({
+    resolver: zodResolver(createSchoolsSchema),
     defaultValues: { schools: [{ name: "", image_url: "" }] },
   });
 
@@ -110,9 +110,7 @@ export function SchoolCreateSheet({
                           <InputFormField
                             field={field}
                             errorField={
-                              form.formState.errors
-                                ? form.formState.errors.schools?.[index]?.name
-                                : undefined
+                              form.formState.errors.schools?.[index]?.name
                             }
                             placeholder="Name"
                           />
@@ -128,10 +126,8 @@ export function SchoolCreateSheet({
                               className="flex-1"
                               field={field}
                               errorField={
-                                form.formState.errors
-                                  ? form.formState.errors?.schools?.[index]
-                                      ?.image_url
-                                  : undefined
+                                form.formState.errors?.schools?.[index]
+                                  ?.image_url
                               }
                               placeholder="https://placehold.co/200x200"
                             />

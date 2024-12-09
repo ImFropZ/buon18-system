@@ -6,7 +6,12 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Role, UpdateUserSchema, User } from "@modules/setting/models";
+import {
+  rolesResponseSchema,
+  roleSchema,
+  updateUserSchema,
+  userSchema,
+} from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,7 +21,7 @@ import { z } from "zod";
 
 async function onEditHandler(
   id: number,
-  data: z.infer<typeof UpdateUserSchema>,
+  data: z.infer<typeof updateUserSchema>,
 ) {
   const body = {
     name: data.name,
@@ -31,13 +36,13 @@ async function onEditHandler(
 }
 
 interface UpdateUserFormProps {
-  data: User;
+  data: z.infer<typeof userSchema>;
 }
 
 export function UpdateUserForm({ data }: UpdateUserFormProps) {
   const router = useRouter();
   const form = useForm({
-    resolver: zodResolver(UpdateUserSchema),
+    resolver: zodResolver(updateUserSchema),
     defaultValues: { ...data, password: "" },
   });
 
@@ -126,12 +131,10 @@ export function UpdateUserForm({ data }: UpdateUserFormProps) {
             control={form.control}
             name="role"
             render={({ field }) => (
-              <SearchSelectFormField
-                id="role"
+              <SearchSelectFormField<z.infer<typeof roleSchema>>
+                ids={["roles"]}
                 field={field}
-                errorField={
-                  form.formState.errors ? form.formState.errors.role : undefined
-                }
+                errorField={form.formState.errors.role}
                 placeholder="Select Role"
                 fetchResource={async (searchPhase) => {
                   return systemAxiosInstance
@@ -139,14 +142,21 @@ export function UpdateUserForm({ data }: UpdateUserFormProps) {
                       params: { ["name:ilike"]: searchPhase },
                     })
                     .then((res) => {
-                      return res.data.data.roles;
+                      const result = rolesResponseSchema.safeParse(res.data);
+
+                      if (!result.success) {
+                        console.error(result.error.errors);
+                        return [];
+                      }
+
+                      return result.data.data.roles;
                     });
                 }}
-                optionLabel="name"
-                optionValue="id"
-                onSelected={function (value: Role) {
-                  field.onChange({ id: value.id, name: value.name });
-                }}
+                onSelected={field.onChange}
+                getLabel={(role) =>
+                  !role.id ? "" : `${role.id} - ${role.name}`
+                }
+                isSelectedData={(role) => role.id === field.value.id}
               />
             )}
           />

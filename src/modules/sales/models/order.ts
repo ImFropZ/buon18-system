@@ -1,40 +1,37 @@
-import { PaymentTerm } from "@modules/accounting/models";
-import { Quotation } from "./quotation";
+import { paymentTermSchema } from "@modules/accounting/models";
+import { quotationSchema } from "./quotation";
 import { z } from "zod";
+import { generateSystemDefaultResponseSchema } from "@modules/shared/model";
 
-export interface Order {
-  id: number;
-  name: string;
-  commitment_date: string;
-  note: string;
-  quotation: Quotation;
-  payment_term: PaymentTerm;
-}
-
-export const CreateOrderSchema = z.object({
-  name: z.string().min(1),
-  commitment_date: z.date(),
+export const orderSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  commitment_date: z.string(),
   note: z.string(),
-  quotation: z.object({
-    id: z.number().min(1),
-    name: z.string(),
-  }),
-  payment_term: z.object({
-    id: z.number().min(1),
-    name: z.string(),
-  }),
+  quotation: quotationSchema,
+  payment_term: paymentTermSchema,
 });
 
-export const UpdateOrderSchema = z.object({
+export const orderResponseSchema = generateSystemDefaultResponseSchema(
+  z.object({ order: orderSchema }),
+);
+
+export const ordersResponseSchema = generateSystemDefaultResponseSchema(
+  z.object({ orders: z.array(orderSchema) }),
+);
+
+export const createOrderSchema = z.object({
   name: z.string().min(1),
   commitment_date: z.date(),
   note: z.string(),
-  quotation: z.object({
-    id: z.number().min(1),
-    name: z.string(),
-  }),
-  payment_term: z.object({
-    id: z.number().min(1),
-    name: z.string(),
-  }),
+  quotation: quotationSchema,
+  payment_term: paymentTermSchema,
+});
+
+export const updateOrderSchema = z.object({
+  name: z.string().min(1),
+  commitment_date: z.date(),
+  note: z.string(),
+  quotation: quotationSchema,
+  payment_term: paymentTermSchema,
 });

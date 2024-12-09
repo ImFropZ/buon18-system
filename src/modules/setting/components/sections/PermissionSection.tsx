@@ -1,7 +1,7 @@
 "use client";
 
 import { CustomTooltip } from "@components";
-import { Permission } from "@modules/setting/models";
+import { permissionsResponseSchema } from "@modules/setting/models";
 import { systemAxiosInstance } from "@modules/shared";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
@@ -19,10 +19,18 @@ export function PermissionSection() {
   const { data, isLoading } = useQuery({
     queryKey: ["permissions", { limit: 100 }],
     queryFn: async () => {
-      const response = await systemAxiosInstance.get("/setting/permissions", {
-        params: { limit: 100 },
-      });
-      return response.data.data.permissions as Permission[];
+      return await systemAxiosInstance
+        .get("/setting/permissions", {
+          params: { limit: 100 },
+        })
+        .then((res) => {
+          const result = permissionsResponseSchema.safeParse(res.data);
+          if (!result.success) {
+            console.error(result.error.errors);
+            return Promise.reject(result.error.errors);
+          }
+          return result.data.data.permissions;
+        });
     },
   });
 

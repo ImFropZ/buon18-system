@@ -11,8 +11,12 @@ import { Form, FormField } from "@components/ui/form";
 import { Label } from "@components/ui/label";
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PaymentTerm } from "@modules/accounting/models";
-import { CreateOrderSchema, Quotation } from "@modules/sales/models";
+import { paymentTermSchema } from "@modules/accounting/models";
+import {
+  createOrderSchema,
+  quotationsResponseSchema,
+  quotationSchema,
+} from "@modules/sales/models";
 import { systemAxiosInstance } from "@modules/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,7 +24,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-async function onCreateHandler(data: z.infer<typeof CreateOrderSchema>) {
+async function onCreateHandler(data: z.infer<typeof createOrderSchema>) {
   const body = {
     name: data.name,
     commitment_date: data.commitment_date,
@@ -36,8 +40,8 @@ async function onCreateHandler(data: z.infer<typeof CreateOrderSchema>) {
 
 export default function Page() {
   const router = useRouter();
-  const form = useForm<z.infer<typeof CreateOrderSchema>>({
-    resolver: zodResolver(CreateOrderSchema),
+  const form = useForm<z.infer<typeof createOrderSchema>>({
+    resolver: zodResolver(createOrderSchema),
     defaultValues: {
       name: "",
       commitment_date: new Date(),
@@ -134,11 +138,11 @@ export default function Page() {
                 name="quotation"
                 render={({ field }) => {
                   return (
-                    <SearchSelectFormField
-                      id="quotation-sales-order"
+                    <SearchSelectFormField<z.infer<typeof quotationSchema>>
+                      ids={["quotation-sales-orders"]}
                       field={field}
                       errorField={form.formState.errors.quotation}
-                      placeholder="Select quotation"
+                      placeholder="Select Quotation"
                       fetchResource={async (searchPhase) => {
                         return systemAxiosInstance
                           .get(`/sales/quotations`, {
@@ -148,14 +152,23 @@ export default function Page() {
                             },
                           })
                           .then((res) => {
+                            const result = quotationsResponseSchema.safeParse(
+                              res.data,
+                            );
+
+                            if (!result.success) {
+                              console.error(result.error.errors);
+                              return [];
+                            }
+
                             return res.data.data.quotations;
                           });
                       }}
-                      optionLabel="name"
-                      optionValue="id"
-                      onSelected={function (value: Quotation) {
-                        field.onChange({ id: value.id, name: value.name });
-                      }}
+                      onSelected={field.onChange}
+                      getLabel={(data) =>
+                        !data.id ? "" : `${data.id} - ${data.name}`
+                      }
+                      isSelectedData={(data) => data.id === field.value.id}
                     />
                   );
                 }}
@@ -170,11 +183,11 @@ export default function Page() {
                 name="payment_term"
                 render={({ field }) => {
                   return (
-                    <SearchSelectFormField
-                      id="payment-term"
+                    <SearchSelectFormField<z.infer<typeof paymentTermSchema>>
+                      ids={["payment-terms"]}
                       field={field}
                       errorField={form.formState.errors.quotation}
-                      placeholder="Select payment term"
+                      placeholder="Select Payment Term"
                       fetchResource={async (searchPhase) => {
                         return systemAxiosInstance
                           .get(`/accounting/payment-terms`, {
@@ -183,14 +196,23 @@ export default function Page() {
                             },
                           })
                           .then((res) => {
+                            const result = quotationsResponseSchema.safeParse(
+                              res.data,
+                            );
+
+                            if (!result.success) {
+                              console.error(result.error.errors);
+                              return [];
+                            }
+
                             return res.data.data.payment_terms;
                           });
                       }}
-                      optionLabel="name"
-                      optionValue="id"
-                      onSelected={function (value: PaymentTerm) {
-                        field.onChange({ id: value.id, name: value.name });
-                      }}
+                      onSelected={field.onChange}
+                      getLabel={(data) =>
+                        !data.id ? "" : `${data.id} - ${data.name}`
+                      }
+                      isSelectedData={(data) => data.id === field.value.id}
                     />
                   );
                 }}
