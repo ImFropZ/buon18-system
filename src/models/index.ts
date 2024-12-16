@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export const basicResponseSchema = z.object({
+  code: z.number(),
+  message: z.string(),
+});
+
 export const numberInString = z.any().transform((val, ctx) => {
   const parsed = Number(val);
   if (isNaN(parsed)) {

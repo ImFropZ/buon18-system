@@ -13,6 +13,7 @@ import { addMonths, format } from "date-fns";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { Profile } from "./Profile";
 
 interface LayoutProps extends PropsWithChildren {
   defaultCollapsed: boolean;
@@ -43,6 +44,7 @@ export const Layout: React.FC<LayoutProps> = ({
             />
           </Link>
         </div>
+        <Profile />
       </div>
       <div className="relative h-full">
         <ResizablePanelGroup
