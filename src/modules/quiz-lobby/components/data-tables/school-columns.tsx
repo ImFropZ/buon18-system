@@ -156,7 +156,7 @@ function ActionSchool({
               onClick={() => {
                 axiosInstance
                   .delete(`/admin/schools`, {
-                    data: [{ id: school.id }],
+                    data: { ids: [school.id] },
                   })
                   .then((res) => {
                     toast({
@@ -184,7 +184,16 @@ function ActionSchool({
           <form
             onSubmit={form.handleSubmit((d) => {
               axiosInstance
-                .patch("/admin/schools", [{ ...d, id: school.id }])
+                .put("/admin/schools", [
+                  {
+                    id: school.id,
+                    name: d.name,
+                    image_url:
+                      d.image_url !== undefined && d.image_url !== ""
+                        ? d.image_url
+                        : undefined,
+                  },
+                ])
                 .then((res) => {
                   toast({
                     title: "Success",

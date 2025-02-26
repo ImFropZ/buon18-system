@@ -25,10 +25,10 @@ import Link from "next/link";
 import { SearchBar } from "@components";
 import { DeleteSelectButton } from "@components";
 import { QuizAdvanceSearch } from "../advance-searchs";
+import { QuizImportTxtFile } from "../QuizImport";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/quizzes`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/quizzes`, { data: { ids } });
 }
 
 export function QuizDataTable() {
@@ -187,6 +187,7 @@ export function QuizDataTable() {
           refetch={refetch}
           table={table}
         />
+        <QuizImportTxtFile refetch={refetch} />
         <Link href="/quiz-lobby/quizzes/create">
           <Button>Create</Button>
         </Link>

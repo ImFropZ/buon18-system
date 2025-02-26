@@ -4,7 +4,7 @@ import { majorSchema } from "./major";
 import { generateSystemDefaultResponseSchema } from "@modules/shared/model";
 
 export const subjectSchema = z.object({
-  id: z.number(),
+  id: z.number().min(1, { message: "Subject is required" }),
   name: z.string(),
   semester: z.number(),
   year: z.number(),

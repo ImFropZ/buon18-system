@@ -34,7 +34,10 @@ import {
 import { toast } from "@components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { axiosInstance } from "@modules/quiz-lobby/fetch";
-import { redeemCodeSchema, updateRedeemCodeSchema } from "@modules/quiz-lobby/models";
+import {
+  redeemCodeSchema,
+  updateRedeemCodeSchema,
+} from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
 import { compareAsc, format } from "date-fns";
 import { Copy, MoreHorizontal } from "lucide-react";
@@ -42,100 +45,118 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-export const redeemCodeColumns: ColumnDef<z.infer<typeof redeemCodeSchema>>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
-    header: "Code",
-    cell: ({ row }) => {
-      const redeemCode = row.original;
-      return (
-        <p className="flex justify-between gap-2">
-          <span className="rounded-lg bg-blue-500 px-4 text-gray-100 select-none">
-            {redeemCode.code}
-          </span>
-          <Copy
-            size={20}
-            className="cursor-pointer rounded-lg p-1 outline outline-2 outline-gray-400 hover:text-blue-800 hover:outline-blue-500"
-            onClick={() => {
-              navigator.clipboard.writeText(redeemCode.code);
-              toast({ description: "Copied to clipboard" });
-            }}
-          />
-        </p>
-      );
+export const redeemCodeColumns: ColumnDef<z.infer<typeof redeemCodeSchema>>[] =
+  [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-  },
-  {
-    header: "Credit",
-    cell: ({ row }) => {
-      const redeemCode = row.original;
-      return <p className="text-center">{redeemCode.credit}</p>;
+    {
+      accessorKey: "id",
+      header: "ID",
     },
-  },
-  {
-    header: "Used / Total",
-    cell: ({ row }) => {
-      const redeemCode = row.original;
-      return (
-        <p>
-          {redeemCode.amount - redeemCode.amount_left} / {redeemCode.amount}
-        </p>
-      );
+    {
+      header: "Code",
+      cell: ({ row }) => {
+        const redeemCode = row.original;
+        return (
+          <p className="flex justify-between gap-2">
+            <span className="select-none rounded-lg bg-blue-500 px-4 text-gray-100">
+              {redeemCode.code}
+            </span>
+            <Copy
+              size={20}
+              className="cursor-pointer rounded-lg p-1 outline outline-2 outline-gray-400 hover:text-blue-800 hover:outline-blue-500"
+              onClick={() => {
+                navigator.clipboard.writeText(redeemCode.code);
+                toast({ description: "Copied to clipboard" });
+              }}
+            />
+          </p>
+        );
+      },
     },
-  },
-  {
-    header: "Expiry Date",
-    cell: ({ row }) => {
-      const redeemCode = row.original;
-      const expiredDate = new Date(redeemCode.expired_at);
-      const now = new Date();
+    {
+      header: "Days",
+      cell: ({ row }) => {
+        const redeemCode = row.original;
+        return <p className="text-center">{redeemCode.days}</p>;
+      },
+    },
+    {
+      header: "Used / Total",
+      cell: ({ row }) => {
+        const redeemCode = row.original;
+        return (
+          <p>
+            {redeemCode.amount - redeemCode.amount_left} / {redeemCode.amount}
+          </p>
+        );
+      },
+    },
+    {
+      header: "Start Date",
+      cell: ({ row }) => {
+        const redeemCode = row.original;
+        const startFrom = new Date(redeemCode.start_from);
+        const now = new Date();
 
-      return (
-        <p
-          className="data-[isexpired='true']:text-red-500"
-          data-isexpired={compareAsc(now, expiredDate) === 1}
-        >
-          {format(expiredDate, "yyyy-MM-dd HH:mm:ss")}
-        </p>
-      );
+        return (
+          <p
+            className="data-[isnotstart='true']:text-yellow-500"
+            data-isnotstart={compareAsc(now, startFrom) === -1}
+          >
+            {format(startFrom, "yyyy-MM-dd")}
+          </p>
+        );
+      },
     },
-  },
-  {
-    header: "Actions",
-    cell: ({ row, table }) => {
-      const redeemCode = row.original;
-      // NOTE: This is a hack to get the refetch function from the table options. Seems like the table meta is not being passed to the header component.
-      const meta = table.options.meta as { refetch: () => void } | undefined;
+    {
+      header: "Expiry Date",
+      cell: ({ row }) => {
+        const redeemCode = row.original;
+        const expiredDate = new Date(redeemCode.expired_at);
+        const now = new Date();
 
-      return <ActionSchool redeemCode={redeemCode} meta={meta} />;
+        return (
+          <p
+            className="data-[isexpired='true']:text-red-500"
+            data-isexpired={compareAsc(now, expiredDate) === 1}
+          >
+            {format(expiredDate, "yyyy-MM-dd")}
+          </p>
+        );
+      },
     },
-  },
-];
+    {
+      header: "Actions",
+      cell: ({ row, table }) => {
+        const redeemCode = row.original;
+        // NOTE: This is a hack to get the refetch function from the table options. Seems like the table meta is not being passed to the header component.
+        const meta = table.options.meta as { refetch: () => void } | undefined;
+
+        return <ActionSchool redeemCode={redeemCode} meta={meta} />;
+      },
+    },
+  ];
 
 function ActionSchool({
   redeemCode,
@@ -195,7 +216,7 @@ function ActionSchool({
               onClick={() => {
                 axiosInstance
                   .delete(`/admin/redeem-codes`, {
-                    data: [{ id: redeemCode.id }],
+                    data: { ids: [redeemCode.id] },
                   })
                   .then((res) => {
                     toast({
@@ -223,12 +244,13 @@ function ActionSchool({
           <form
             onSubmit={form.handleSubmit((d) => {
               axiosInstance
-                .patch("/admin/redeem-codes", [
+                .put("/admin/redeem-codes", [
                   {
                     id: redeemCode.id,
                     code: d.code,
-                    credit: d.credit,
+                    days: d.days,
                     amount: d.amount,
+                    start_from: d.start_from,
                     expired_at: d.expired_at,
                   },
                 ])
@@ -292,16 +314,16 @@ function ActionSchool({
 
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <Label>Credit</Label>
+                  <Label>Days</Label>
                   <FormField
                     control={form.control}
-                    name={`credit`}
+                    name={`days`}
                     render={({ field }) => (
                       <InputFormField
                         className="flex-1"
                         field={field}
-                        errorField={form.formState.errors.credit}
-                        placeholder="Credit amount"
+                        errorField={form.formState.errors.days}
+                        placeholder="Number of days"
                       />
                     )}
                   />

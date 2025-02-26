@@ -224,7 +224,7 @@ function ActionTransaction({
               onClick={() => {
                 axiosInstance
                   .delete(`/admin/transactions`, {
-                    data: [{ id: transaction.id }],
+                    data: { ids: [transaction.id] },
                   })
                   .then((res) => {
                     toast({
@@ -253,7 +253,7 @@ function ActionTransaction({
             className="grid h-full grid-rows-[auto,1fr,auto]"
             onSubmit={form.handleSubmit((d) => {
               axiosInstance
-                .patch("/admin/transactions", [
+                .put("/admin/transactions", [
                   {
                     id: transaction.id,
                     amount: d.amount,

@@ -27,8 +27,9 @@ import { MajorAdvanceSearch } from "../advance-searchs";
 import { DeleteSelectButton } from "@components";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/majors`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/majors`, {
+    data: { ids },
+  });
 }
 
 export function MajorDataTable() {

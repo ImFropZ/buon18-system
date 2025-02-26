@@ -5,9 +5,10 @@ import { z } from "zod";
 export const redeemCodeSchema = z.object({
   id: z.number(),
   code: z.string(),
+  days: z.number(),
   amount: z.number(),
   amount_left: z.number(),
-  credit: z.number(),
+  start_from: z.string().datetime(),
   expired_at: z.string().datetime(),
 });
 
@@ -22,12 +23,15 @@ export const createRedeemCodeSchema = z.object({
     .string()
     .min(1, { message: "Code must be at least 1 character" })
     .max(16, { message: "Code must be at most 16 characters" }),
-  credit: numberInString.pipe(
-    z.number().int().min(1, { message: "Credit must be at least 1" }),
+  days: numberInString.pipe(
+    z.number().int().min(1, { message: "Days must be at least 1" }),
   ),
   amount: numberInString.pipe(
     z.number().int().min(1, { message: "Amount must be at least 1" }),
   ),
+  start_from: z
+    .date()
+    .min(new Date(), { message: "Start date must be today or in the future" }),
   expired_at: z
     .date()
     .min(new Date(), { message: "Expired date must be in the future" }),
@@ -42,12 +46,15 @@ export const updateRedeemCodeSchema = z.object({
     .string()
     .min(1, { message: "Code must be at least 1 character" })
     .max(16, { message: "Code must be at most 16 characters" }),
-  credit: numberInString.pipe(
-    z.number().int().min(1, { message: "Credit must be at least 1" }),
+  days: numberInString.pipe(
+    z.number().int().min(1, { message: "Days must be at least 1" }),
   ),
   amount: numberInString.pipe(
     z.number().int().min(1, { message: "Amount must be at least 1" }),
   ),
+  start_from: z
+    .date()
+    .min(new Date(), { message: "Start date must be today or in the future" }),
   expired_at: z
     .date()
     .min(new Date(), { message: "Expired date must be in the future" }),

@@ -25,8 +25,7 @@ import { Button } from "@components/ui/button";
 import { RedeemCodeCreateSheet } from "../create-sheets";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/redeem-codes`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/redeem-codes`, { data: { ids } });
 }
 
 export function RedeemCodeDataTable() {

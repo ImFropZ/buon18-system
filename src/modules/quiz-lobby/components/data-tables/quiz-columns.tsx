@@ -91,8 +91,12 @@ export const quizColumns: ColumnDef<z.infer<typeof quizSchema>>[] = [
       const quiz = row.original;
       return (
         <div className="flex items-center justify-between gap-2">
-          <p>{quiz.question}</p>
-          {quiz.image_url !== "" ? (
+          <p>
+            {quiz.question.length > 50
+              ? quiz.question.slice(0, 50) + "..."
+              : quiz.question}
+          </p>
+          {quiz.image_url && quiz.image_url.trim() !== "" ? (
             <ImageDialog src={quiz.image_url}>
               <Eye className="cursor-pointer rounded-lg px-1 outline outline-2 outline-gray-400" />
             </ImageDialog>
@@ -109,12 +113,18 @@ export const quizColumns: ColumnDef<z.infer<typeof quizSchema>>[] = [
         (option) => option.id === quiz.answer_id,
       );
 
+      if (!answer) return null;
+
       return (
         <div className="flex items-center gap-2">
           <p className="inline rounded bg-gray-300 px-2 py-1 dark:bg-gray-700">
-            {answer?.id}
+            {answer.id}
           </p>
-          <p>{answer?.label}</p>
+          <p>
+            {answer.label.length > 50
+              ? answer.label.slice(0, 50) + "..."
+              : answer.label}
+          </p>
         </div>
       );
     },
@@ -193,13 +203,11 @@ function ActionQuiz({
     resolver: zodResolver(updateQuizSchema),
     defaultValues: {
       ...quiz,
-      update_options: quiz.options.map((option) => ({
+      options: quiz.options.map((option) => ({
         id: option.id,
         label: option.label,
         is_correct: option.id === quiz.answer_id,
       })),
-      add_options: [],
-      remove_option_ids: [],
     },
   });
 
@@ -210,26 +218,19 @@ function ActionQuiz({
       archived: quiz.archived,
       professor: quiz.professor,
       subject: quiz.subject,
-      update_options: quiz.options.map((option) => ({
+      options: quiz.options.map((option) => ({
         id: option.id,
         label: option.label,
         is_correct: option.id === quiz.answer_id,
       })),
-      add_options: [],
-      remove_option_ids: [],
     });
     setProfessorId(quiz.professor.id);
   }, [form, quiz]);
 
-  const updateOptionFieldArray = useFieldArray({
+  const optionFieldArray = useFieldArray({
     control: form.control,
-    name: "update_options",
+    name: "options",
     keyName: "key",
-  });
-
-  const addOptionFieldArray = useFieldArray({
-    control: form.control,
-    name: "add_options",
   });
 
   return (
@@ -266,7 +267,7 @@ function ActionQuiz({
               onClick={() => {
                 axiosInstance
                   .delete(`/admin/quizzes`, {
-                    data: [{ id: quiz.id }],
+                    data: { ids: [quiz.id] },
                   })
                   .then((res) => {
                     toast({
@@ -294,26 +295,19 @@ function ActionQuiz({
           <form
             className="flex h-full flex-col"
             onSubmit={form.handleSubmit((d) => {
-              const update_options = d.update_options.filter((o) => {
-                return !d.remove_option_ids.some((id) => id === o.id);
-              });
-              const add_options = d.add_options.map((o) => {
-                return { label: o.label, is_correct: o.is_correct };
-              });
-
               axiosInstance
-                .patch("/admin/quizzes", [
+                .put("/admin/quizzes", [
                   {
                     question: d.question,
-                    image_url: d.image_url,
+                    image_url: d.image_url === "" ? null : d.image_url,
                     archived: d.archived,
                     professor_id: d.professor.id,
                     subject_id: d.subject.id,
-                    ...(d.remove_option_ids.length > 0
-                      ? { remove_option_ids: d.remove_option_ids }
-                      : {}),
-                    ...(update_options.length > 0 ? { update_options } : {}),
-                    ...(add_options.length > 0 ? { add_options } : {}),
+                    options: d.options.map((option) => ({
+                      id: "id" in option ? option.id : null,
+                      label: option.label,
+                      is_correct: option.is_correct,
+                    })),
                     id: quiz.id,
                   },
                 ])
@@ -481,122 +475,27 @@ function ActionQuiz({
               <Label>Options: Label, Correct</Label>
               <div className="relative flex-1">
                 <div className="absolute inset-0 space-y-2 overflow-y-auto p-2 pr-4">
-                  {updateOptionFieldArray.fields.map((field, index) => {
+                  {optionFieldArray.fields.map((field, index) => {
                     return (
-                      <div key={field.id} className="flex items-center gap-2">
-                        {form
-                          .getValues("remove_option_ids")
-                          .some((id) => id === field.id) ? (
-                          <Button
-                            variant="ghost"
-                            type="button"
-                            onClick={() => {
-                              const removeOptionIds = form
-                                .getValues("remove_option_ids")
-                                .filter((id) => id !== field.id);
-                              form.setValue(
-                                `remove_option_ids`,
-                                removeOptionIds,
-                                {
-                                  shouldValidate: true,
-                                },
-                              );
-                            }}
-                          >
-                            <Undo />
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="destructive"
-                            type="button"
-                            onClick={() => {
-                              if (field.id) {
-                                form.setValue(
-                                  `remove_option_ids`,
-                                  [
-                                    ...form.getValues("remove_option_ids"),
-                                    field.id,
-                                  ],
-                                  {
-                                    shouldValidate: true,
-                                  },
-                                );
-                              }
-                            }}
-                          >
-                            <Trash />
-                          </Button>
-                        )}
-                        <FormField
-                          control={form.control}
-                          name={`update_options.${index}.label`}
-                          render={({ field }) => (
-                            <InputFormField
-                              className="flex-1"
-                              field={field}
-                              errorField={
-                                form.formState.errors.update_options?.[index]
-                                  ?.label
-                              }
-                              placeholder="Label"
-                            />
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`update_options.${index}.is_correct`}
-                          render={({ field }) => {
-                            return (
-                              <SwitchFormField
-                                onUpdate={(e) => {
-                                  if (e) {
-                                    updateOptionFieldArray.fields.forEach(
-                                      (_, i) => {
-                                        if (i !== index) {
-                                          form.setValue(
-                                            `update_options.${i}.is_correct`,
-                                            false,
-                                          );
-                                        }
-                                      },
-                                    );
-                                    addOptionFieldArray.fields.forEach(
-                                      (_, i) => {
-                                        if (i !== index) {
-                                          form.setValue(
-                                            `add_options.${i}.is_correct`,
-                                            false,
-                                          );
-                                        }
-                                      },
-                                    );
-                                  }
-                                }}
-                                field={field}
-                                errorField={
-                                  form.formState.errors.update_options?.[index]
-                                    ?.is_correct
-                                }
-                              />
-                            );
+                      <div key={field.key} className="flex items-center gap-2">
+                        <Button
+                          variant="destructive"
+                          type="button"
+                          onClick={() => {
+                            optionFieldArray.remove(index);
                           }}
-                        />
-                      </div>
-                    );
-                  })}
-                  {addOptionFieldArray.fields.map((field, index) => {
-                    return (
-                      <div key={field.id} className="flex items-center gap-2">
+                        >
+                          <Trash />
+                        </Button>
                         <FormField
                           control={form.control}
-                          name={`add_options.${index}.label`}
+                          name={`options.${index}.label`}
                           render={({ field }) => (
                             <InputFormField
                               className="flex-1"
                               field={field}
                               errorField={
-                                form.formState.errors.add_options?.[index]
-                                  ?.label
+                                form.formState.errors.options?.[index]?.label
                               }
                               placeholder="Label"
                             />
@@ -604,37 +503,25 @@ function ActionQuiz({
                         />
                         <FormField
                           control={form.control}
-                          name={`add_options.${index}.is_correct`}
+                          name={`options.${index}.is_correct`}
                           render={({ field }) => {
                             return (
                               <SwitchFormField
                                 onUpdate={(e) => {
                                   if (e) {
-                                    updateOptionFieldArray.fields.forEach(
-                                      (_, i) => {
-                                        if (i !== index) {
-                                          form.setValue(
-                                            `update_options.${i}.is_correct`,
-                                            false,
-                                          );
-                                        }
-                                      },
-                                    );
-                                    addOptionFieldArray.fields.forEach(
-                                      (_, i) => {
-                                        if (i !== index) {
-                                          form.setValue(
-                                            `add_options.${i}.is_correct`,
-                                            false,
-                                          );
-                                        }
-                                      },
-                                    );
+                                    optionFieldArray.fields.forEach((_, i) => {
+                                      if (i !== index) {
+                                        form.setValue(
+                                          `options.${i}.is_correct`,
+                                          false,
+                                        );
+                                      }
+                                    });
                                   }
                                 }}
                                 field={field}
                                 errorField={
-                                  form.formState.errors.add_options?.[index]
+                                  form.formState.errors.options?.[index]
                                     ?.is_correct
                                 }
                               />
@@ -647,13 +534,13 @@ function ActionQuiz({
                 </div>
               </div>
               <div className="flex justify-end gap-2">
-                {addOptionFieldArray.fields.length > 0 ? (
+                {optionFieldArray.fields.length > 0 ? (
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      addOptionFieldArray.remove(
-                        addOptionFieldArray.fields.length - 1,
+                      optionFieldArray.remove(
+                        optionFieldArray.fields.length - 1,
                       );
                     }}
                   >
@@ -663,7 +550,7 @@ function ActionQuiz({
                 <Button
                   type="button"
                   onClick={() => {
-                    addOptionFieldArray.append({
+                    optionFieldArray.append({
                       label: "",
                       is_correct: false,
                     });
