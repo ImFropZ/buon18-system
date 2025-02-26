@@ -194,6 +194,7 @@ export function RedeemCodeCreateSheet({
                             )}
                           />
                         </div>
+                        
                         <div className="flex-1">
                           <Label>Amount</Label>
                           <FormField

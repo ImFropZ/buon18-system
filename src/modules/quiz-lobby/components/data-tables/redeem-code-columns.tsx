@@ -171,6 +171,7 @@ function ActionSchool({
     resolver: zodResolver(updateRedeemCodeSchema),
     defaultValues: {
       ...redeemCode,
+      start_from: new Date(redeemCode.start_from),
       expired_at: new Date(redeemCode.expired_at),
     },
   });
@@ -178,6 +179,7 @@ function ActionSchool({
   React.useEffect(() => {
     form.reset({
       ...redeemCode,
+      start_from: new Date(redeemCode.start_from),
       expired_at: new Date(redeemCode.expired_at),
     });
   }, [form, redeemCode]);
@@ -295,24 +297,6 @@ function ActionSchool({
                   />
                 </div>
 
-                <div className="min-w-44">
-                  <Label>Expired At</Label>
-                  <FormField
-                    control={form.control}
-                    name={`expired_at`}
-                    render={({ field }) => (
-                      <DateFormField
-                        className="flex-1"
-                        field={field}
-                        errorField={form.formState.errors.expired_at}
-                        placeholder="Expired At"
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-4">
                 <div className="flex-1">
                   <Label>Days</Label>
                   <FormField
@@ -328,6 +312,41 @@ function ActionSchool({
                     )}
                   />
                 </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="min-w-44">
+                  <Label>Start From</Label>
+                  <FormField
+                    control={form.control}
+                    name={`start_from`}
+                    render={({ field }) => (
+                      <DateFormField
+                        className="flex-1"
+                        field={field}
+                        errorField={form.formState.errors.start_from}
+                        placeholder="Start From"
+                      />
+                    )}
+                  />
+                </div>
+
+                <div className="min-w-44">
+                  <Label>Expired At</Label>
+                  <FormField
+                    control={form.control}
+                    name={`expired_at`}
+                    render={({ field }) => (
+                      <DateFormField
+                        className="flex-1"
+                        field={field}
+                        errorField={form.formState.errors.expired_at}
+                        placeholder="Expired At"
+                      />
+                    )}
+                  />
+                </div>
+
                 <div className="flex-1">
                   <Label>Amount</Label>
                   <FormField
