@@ -49,7 +49,7 @@ import {
   updateQuizSchema,
 } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Trash, Undo } from "lucide-react";
+import { Eye, MoreHorizontal, Trash } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";

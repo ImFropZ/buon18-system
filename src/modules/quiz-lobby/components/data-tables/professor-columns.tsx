@@ -45,7 +45,7 @@ import {
   updateProfessorSchema,
 } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Trash, Undo } from "lucide-react";
+import { MoreHorizontal, Trash } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
