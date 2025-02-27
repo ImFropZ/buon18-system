@@ -283,7 +283,15 @@ export default function Page() {
                         </div>
                       </div>
                     </div>
-                    <Label>Options: Label, Correct</Label>
+                    <div className="flex gap-2">
+                      <Label>Options: Label, Correct</Label>
+                      <p className="text-sm font-medium leading-none text-destructive peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        {
+                          form.formState.errors?.quizzes?.[index]?.options?.root
+                            ?.message
+                        }
+                      </p>
+                    </div>
                     <div className="flex h-64 flex-col gap-2 overflow-y-auto p-2 pr-4">
                       {field.options.map((_, j) => {
                         return (
@@ -369,7 +377,7 @@ export default function Page() {
               })}
             </div>
           </div>
-          <div className="flex justify-between">
+          <div className="flex items-center gap-2">
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -416,7 +424,10 @@ export default function Page() {
                 </Button>
               ) : null}
             </div>
-            <div className="flex gap-2">
+            <p className="text-sm font-medium leading-none text-destructive peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {form.formState.errors?.quizzes?.root?.message || null}
+            </p>
+            <div className="ml-auto flex gap-2">
               <QuizImportTxt
                 isOpen={isQuizImportOpen}
                 setIsOpen={(value) => setIsQuizImportOpen(value)}
@@ -427,7 +438,7 @@ export default function Page() {
                   // So we need to add a delay to make sure the form is updated
                   setTimeout(() => {
                     quizFieldArray.append(data);
-                  }, 100); 
+                  }, 100);
 
                   toast({
                     title: "Success",

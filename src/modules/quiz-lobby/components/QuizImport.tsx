@@ -54,6 +54,13 @@ interface QuizImportTxtProps extends React.HTMLAttributes<HTMLDivElement> {
   onImport: (data: z.infer<typeof createQuizSchema>[]) => void;
 }
 
+const FORMAT_TYPE = {
+  QUESTION: "[+]",
+  IMAGE: "[i]",
+  OPTION_INCORRECT: "[-][]",
+  OPTION_CORRECT: "[-][x]",
+};
+
 export function QuizImportTxt(props: QuizImportTxtProps) {
   return (
     <Dialog open={props.isOpen} onOpenChange={props.setIsOpen}>
@@ -68,7 +75,7 @@ export function QuizImportTxt(props: QuizImportTxtProps) {
             Make sure the format are matched correctly before import. This is a
             one-way operation. Format of Txt file should be as follows:
           </DialogDescription>
-          <pre>
+          <pre className="text-sm text-muted-foreground">
             [+]: question <br />
             [i]: image (URL) <br />
             [-][]: option incorrect <br />
@@ -80,76 +87,80 @@ export function QuizImportTxt(props: QuizImportTxtProps) {
             type="button"
             onClick={() => {
               onImportHandler().then(async (f) => {
-                // setIsOpen(false);
                 const reader = f.stream().getReader();
                 const decoder = new TextDecoder("utf-8");
-                let { value, done } = await reader.read();
+                let { value } = await reader.read();
                 let buffer = "";
                 let isError = false;
 
                 const data: z.infer<typeof createQuizSchema>[] = [];
 
-                while (!done) {
-                  buffer += decoder.decode(value, { stream: true });
-                  let lines = buffer.split(/\r\n|\n/);
-                  buffer = lines.pop() || "";
+                buffer += decoder.decode(value, { stream: true });
+                let lines = buffer.split(/\r\n|\n/);
 
-                  let tmp_q: z.infer<typeof createQuizSchema> = {
-                    question: "",
-                    image_url: "",
-                    options: [],
-                  };
-                  let options: z.infer<typeof createQuizSchema>["options"] = [];
+                let tmp_q: z.infer<typeof createQuizSchema> = {
+                  question: "",
+                  image_url: "",
+                  options: [],
+                };
+                let options: z.infer<typeof createQuizSchema>["options"] = [];
 
-                  let lineCount = 0;
-                  for (let line of lines) {
-                    lineCount++;
-                    line = line.trim();
-                    if (line === "") continue;
-                    
-                    if (line.startsWith("[+]")) {
-                      if (tmp_q.question !== "") {
-                        tmp_q.options = options;
-                        data.push({ ...tmp_q });
-                        options = [];
-                      }
-                      tmp_q.question = line.slice(3, -1).trim();
-                      continue;
+                let lineCount = 0;
+                for (let l of lines) {
+                  lineCount++;
+                  l = l.trim();
+                  if (l === "") continue;
+
+                  if (l.startsWith(FORMAT_TYPE.QUESTION)) {
+                    if (tmp_q.question !== "") {
+                      tmp_q.options = options;
+                      data.push({ ...tmp_q });
+                      options = [];
+                      tmp_q.image_url = "";
                     }
+                    tmp_q.question = l
+                      .substring(FORMAT_TYPE.QUESTION.length)
+                      .trim();
+                    continue;
+                  }
 
-                    if (line.startsWith("[i]")) {
-                      tmp_q.image_url = line.slice(3, -1).trim();
-                      continue;
-                    }
+                  if (l.startsWith(FORMAT_TYPE.IMAGE)) {
+                    tmp_q.image_url = l
+                      .substring(FORMAT_TYPE.IMAGE.length)
+                      .trim();
+                    continue;
+                  }
 
-                    if (line.startsWith("[-][]")) {
-                      options.push({
-                        label: line.slice(5, -1).trim(),
-                        is_correct: false,
-                      });
-                      continue;
-                    } else if (line.startsWith("[-][x]")) {
-                      options.forEach((o) => (o.is_correct = false)); // Reset all options to false
-                      options.push({
-                        label: line.slice(6, -1).trim(),
-                        is_correct: true,
-                      });
-                      continue;
-                    }
-
-                    toast({
-                      title: "Error",
-                      description: `Invalid format at line: #${lineCount} - ${line}`,
-                      variant: "destructive",
+                  if (l.startsWith(FORMAT_TYPE.OPTION_INCORRECT)) {
+                    options.push({
+                      label: l
+                        .substring(FORMAT_TYPE.OPTION_INCORRECT.length)
+                        .trim(),
+                      is_correct: false,
                     });
-                    return;
-                  }
-                  if (Object.keys(tmp_q).length !== 0) {
-                    tmp_q.options = options;
-                    data.push(tmp_q);
+                    continue;
+                  } else if (l.startsWith(FORMAT_TYPE.OPTION_CORRECT)) {
+                    options.forEach((o) => (o.is_correct = false)); // Reset all options to false
+                    options.push({
+                      label: l
+                        .substring(FORMAT_TYPE.OPTION_CORRECT.length)
+                        .trim(),
+                      is_correct: true,
+                    });
+                    continue;
                   }
 
-                  ({ value, done } = await reader.read());
+                  isError = true;
+                  toast({
+                    title: "Error",
+                    description: `Invalid format at line: #${lineCount} - ${l}`,
+                    variant: "destructive",
+                  });
+                  break;
+                }
+                if (tmp_q.question !== "") {
+                  tmp_q.options = options;
+                  data.push({ ...tmp_q });
                 }
 
                 if (!isError) {

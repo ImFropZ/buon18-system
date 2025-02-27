@@ -472,7 +472,12 @@ function ActionQuiz({
                   />
                 )}
               />
-              <Label>Options: Label, Correct</Label>
+              <div className="flex gap-2">
+                <Label>Options: Label, Correct</Label>
+                <p className="text-sm font-medium leading-none text-destructive peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  {form.formState.errors?.options?.root?.message}
+                </p>
+              </div>
               <div className="relative flex-1">
                 <div className="absolute inset-0 space-y-2 overflow-y-auto p-2 pr-4">
                   {optionFieldArray.fields.map((field, index) => {
