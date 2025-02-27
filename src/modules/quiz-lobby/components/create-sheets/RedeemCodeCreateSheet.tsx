@@ -50,8 +50,9 @@ export function RedeemCodeCreateSheet({
       redeemCodes: [
         {
           code: "",
-          credit: 0,
+          days: 0,
           amount: 0,
+          start_from: new Date(),
           expired_at: new Date(),
         },
       ],
@@ -135,6 +136,46 @@ export function RedeemCodeCreateSheet({
                           />
                         </div>
 
+                        <div className="flex-1">
+                          <Label>Days</Label>
+                          <FormField
+                            control={form.control}
+                            name={`redeemCodes.${index}.days`}
+                            render={({ field }) => (
+                              <InputFormField
+                                className="flex-1"
+                                field={field}
+                                errorField={
+                                  form.formState.errors?.redeemCodes?.[index]
+                                    ?.days
+                                }
+                                placeholder="Number of days"
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-4">
+                        <div className="min-w-44">
+                          <Label>Start From</Label>
+                          <FormField
+                            control={form.control}
+                            name={`redeemCodes.${index}.start_from`}
+                            render={({ field }) => (
+                              <DateFormField
+                                className="flex-1"
+                                field={field}
+                                errorField={
+                                  form.formState.errors?.redeemCodes?.[index]
+                                    ?.start_from
+                                }
+                                placeholder="Start From"
+                              />
+                            )}
+                          />
+                        </div>
+
                         <div className="min-w-44">
                           <Label>Expired At</Label>
                           <FormField
@@ -153,27 +194,7 @@ export function RedeemCodeCreateSheet({
                             )}
                           />
                         </div>
-                      </div>
-
-                      <div className="flex gap-4">
-                        <div className="flex-1">
-                          <Label>Credit</Label>
-                          <FormField
-                            control={form.control}
-                            name={`redeemCodes.${index}.credit`}
-                            render={({ field }) => (
-                              <InputFormField
-                                className="flex-1"
-                                field={field}
-                                errorField={
-                                  form.formState.errors?.redeemCodes?.[index]
-                                    ?.credit
-                                }
-                                placeholder="Credit amount"
-                              />
-                            )}
-                          />
-                        </div>
+                        
                         <div className="flex-1">
                           <Label>Amount</Label>
                           <FormField
@@ -204,8 +225,9 @@ export function RedeemCodeCreateSheet({
                 onClick={() =>
                   fieldArray.append({
                     code: "",
-                    credit: 0,
+                    days: 0,
                     amount: 0,
+                    start_from: new Date(),
                     expired_at: new Date(),
                   })
                 }

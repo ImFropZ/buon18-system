@@ -22,7 +22,7 @@ import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import { Button } from "@components/ui/button";
 import { toast } from "@components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { QuizImport } from "@modules/quiz-lobby/components";
+import { QuizImportCSV } from "@modules/quiz-lobby/components";
 import Papa, { ParseResult } from "papaparse";
 
 const onCreateHandler = async (data: z.infer<typeof createQuizzesSchema>) => {
@@ -456,7 +456,7 @@ export default function Page() {
               ) : null}
             </div>
             <div className="flex gap-2">
-              <QuizImport
+              <QuizImportCSV
                 meta={parseResult.meta}
                 data={parseResult.data as { [x: string]: any }[]}
                 isOpen={isQuizImportOpen}
@@ -483,7 +483,7 @@ export default function Page() {
                 >
                   Import Quizzes
                 </Button>
-              </QuizImport>
+              </QuizImportCSV>
               <Button>Create</Button>
             </div>
           </div>

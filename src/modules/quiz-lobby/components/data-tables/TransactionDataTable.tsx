@@ -26,8 +26,7 @@ import { DeleteSelectButton } from "@components";
 import { TransactionCreateSheet } from "../create-sheets";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/transactions`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/transactions`, { data: { ids } });
 }
 
 export function TransactionDataTable() {

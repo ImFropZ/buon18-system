@@ -181,7 +181,7 @@ function ActionSubject({
               onClick={() => {
                 axiosInstance
                   .delete(`/admin/subjects`, {
-                    data: [{ id: subject.id }],
+                    data: { ids: [subject.id] },
                   })
                   .then((res) => {
                     toast({
@@ -209,7 +209,7 @@ function ActionSubject({
           <form
             onSubmit={form.handleSubmit((d) => {
               axiosInstance
-                .patch("/admin/subjects", [
+                .put("/admin/subjects", [
                   {
                     name: d.name,
                     semester: d.semester,

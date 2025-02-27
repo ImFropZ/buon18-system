@@ -27,8 +27,7 @@ import { SchoolAdvanceSearch } from "../advance-searchs";
 import { DeleteSelectButton } from "@components";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/schools`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/schools`, { data: { ids } });
 }
 
 export function SchoolDataTable() {

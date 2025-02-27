@@ -49,11 +49,14 @@ export const updateQuizOptionSchema = z.object({
 
 export const updateQuizSchema = z.object({
   question: z.string().min(1),
-  image_url: z.string(),
+  image_url: z.string().optional(),
   archived: z.boolean(),
   professor: professorSchema.omit({ subjects: true }),
   subject: subjectSchema.omit({ major: true }),
-  add_options: z.array(createQuizOptionSchema),
-  update_options: z.array(updateQuizOptionSchema),
-  remove_option_ids: z.array(z.number()),
+  options: z.array(z.union([createQuizOptionSchema, updateQuizOptionSchema])),
+});
+
+export const createUploadQuizzesSchema = z.object({
+  professor: professorSchema.omit({ subjects: true }),
+  subject: subjectSchema.omit({ major: true }),
 });

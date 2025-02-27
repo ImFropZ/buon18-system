@@ -45,7 +45,7 @@ import {
   updateProfessorSchema,
 } from "@modules/quiz-lobby/models";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Trash, Undo } from "lucide-react";
+import { MoreHorizontal, Trash } from "lucide-react";
 import React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -128,28 +128,18 @@ function ActionProfessor({
     resolver: zodResolver(updateProfessorSchema),
     defaultValues: {
       ...professor,
-      add_subjects: [],
-      remove_subject_ids: [],
     },
   });
 
   React.useEffect(() => {
     form.reset({
       ...professor,
-      add_subjects: [],
-      remove_subject_ids: [],
     });
   }, [form, professor]);
 
   const subjectFieldArray = useFieldArray({
     control: form.control,
     name: "subjects",
-    keyName: "key",
-  });
-
-  const addSubjectFieldArray = useFieldArray({
-    control: form.control,
-    name: "add_subjects",
     keyName: "key",
   });
 
@@ -187,7 +177,7 @@ function ActionProfessor({
               onClick={() => {
                 axiosInstance
                   .delete(`/admin/professors`, {
-                    data: [{ id: professor.id }],
+                    data: { ids: [professor.id] },
                   })
                   .then((res) => {
                     toast({
@@ -215,16 +205,14 @@ function ActionProfessor({
           <form
             className="grid h-full grid-rows-[auto,1fr,auto]"
             onSubmit={form.handleSubmit((d) => {
-              const { title, full_name, remove_subject_ids } = d;
-              const addSubjectIds = d.add_subjects.map((s) => s.id);
+              const { title, full_name, subjects } = d;
 
               axiosInstance
-                .patch("/admin/professors", [
+                .put("/admin/professors", [
                   {
                     title,
                     full_name,
-                    add_subject_ids: addSubjectIds,
-                    remove_subject_ids,
+                    subject_ids: subjects.map((subject) => subject.id),
                     id: professor.id,
                   },
                 ])
@@ -288,120 +276,84 @@ function ActionProfessor({
                   )}
                 />
               </div>
-              <div className="my-2 grid grid-rows-2 gap-2">
+              <div className="my-2 grid grid-rows-1 gap-2">
                 <div className="grid grid-rows-[auto,1fr] space-y-2">
                   <Label>Subjects</Label>
                   <div className="relative">
                     <div className="absolute inset-0 space-y-2 overflow-y-auto">
-                      {subjectFieldArray.fields.map((field, _) => (
+                      {subjectFieldArray.fields.map((field, i) => (
                         <div
                           key={field.id}
                           className="flex items-center justify-center gap-2 text-sm"
                         >
-                          <p className="flex-1 rounded-lg border py-2 text-center">
-                            {`${field.id} - ${field.name} (semester:${field.semester}-year:${field.year})`}
-                          </p>
-                          {form
-                            .watch("remove_subject_ids")
-                            .some((removeId) => removeId === field.id) ? (
-                            <Button
-                              variant="ghost"
-                              type="button"
-                              onClick={() => {
-                                const removeSubjectIds =
-                                  form.getValues("remove_subject_ids");
-                                form.setValue(
-                                  "remove_subject_ids",
-                                  removeSubjectIds.filter(
-                                    (removeId) => removeId !== field.id,
-                                  ),
-                                );
-                              }}
-                            >
-                              <Undo />
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="destructive"
-                              type="button"
-                              onClick={() => {
-                                const removeSubjectIds =
-                                  form.getValues("remove_subject_ids");
-                                form.setValue("remove_subject_ids", [
-                                  ...removeSubjectIds,
-                                  field.id,
-                                ]);
-                              }}
-                            >
-                              <Trash />
-                            </Button>
-                          )}
+                          <FormField
+                            key={field.key}
+                            control={form.control}
+                            name={`subjects.${i}`}
+                            render={({ field }) => (
+                              <SearchSelectFormField<
+                                z.infer<typeof subjectSchema>
+                              >
+                                className="w-full"
+                                ids={["subjects"]}
+                                field={field}
+                                errorField={form.formState.errors.subjects?.[i]}
+                                placeholder="Select Subject"
+                                fetchResource={async (searchPhase) => {
+                                  return axiosInstance
+                                    .get(`/admin/subjects`, {
+                                      params: { ["name:ilike"]: searchPhase },
+                                    })
+                                    .then((res) => {
+                                      const result =
+                                        subjectsResponseSchema.safeParse(
+                                          res.data,
+                                        );
+
+                                      if (!result.success) {
+                                        console.error(result.error.errors);
+                                        return [];
+                                      }
+
+                                      return result.data.data.subjects;
+                                    });
+                                }}
+                                onSelected={field.onChange}
+                                getLabel={(subject) =>
+                                  !subject.id
+                                    ? ""
+                                    : `${subject.id} - ${subject.name} (semester:${subject.semester}-year:${subject.year})`
+                                }
+                                isSelectedData={(subject) =>
+                                  subject.id === field.value.id
+                                }
+                              />
+                            )}
+                          />
+                          <Button
+                            variant="destructive"
+                            type="button"
+                            disabled={field.id === 0}
+                            onClick={() => {
+                              subjectFieldArray.remove(i);
+                            }}
+                          >
+                            <Trash />
+                          </Button>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-rows-[auto,1fr] space-y-2">
-                  <Label>New Subjects</Label>
-                  <div className="relative">
-                    <div className="absolute inset-0 space-y-2 overflow-y-auto">
-                      {addSubjectFieldArray.fields.map((field, index) => (
-                        <FormField
-                          key={field.key}
-                          control={form.control}
-                          name={`add_subjects.${index}`}
-                          render={({ field }) => (
-                            <SearchSelectFormField<
-                              z.infer<typeof subjectSchema>
-                            >
-                              ids={["subjects"]}
-                              field={field}
-                              errorField={
-                                form.formState.errors.add_subjects?.[index]
-                              }
-                              placeholder="Select Subject"
-                              fetchResource={async (searchPhase) => {
-                                return axiosInstance
-                                  .get(`/admin/subjects`, {
-                                    params: { ["name:ilike"]: searchPhase },
-                                  })
-                                  .then((res) => {
-                                    const result =
-                                      subjectsResponseSchema.safeParse(res.data);
-
-                                    if (!result.success) {
-                                      console.error(result.error.errors);
-                                      return [];
-                                    }
-
-                                    return result.data.data.subjects;
-                                  });
-                              }}
-                              onSelected={field.onChange}
-                              getLabel={(subject) =>
-                                !subject.id
-                                  ? ""
-                                  : `${subject.id} - ${subject.name} (semester:${subject.semester}-year:${subject.year})`
-                              }
-                              isSelectedData={(subject) =>
-                                subject.id === field.value.id
-                              }
-                            />
-                          )}
-                        />
                       ))}
                     </div>
                   </div>
                 </div>
               </div>
               <div className="my-2 flex justify-end gap-2">
-                {addSubjectFieldArray.fields.length > 0 ? (
+                {subjectFieldArray.fields.length > 0 ? (
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      addSubjectFieldArray.remove(
-                        addSubjectFieldArray.fields.length - 1,
+                      subjectFieldArray.remove(
+                        subjectFieldArray.fields.length - 1,
                       );
                     }}
                   >
@@ -411,7 +363,7 @@ function ActionProfessor({
                 <Button
                   type="button"
                   onClick={() => {
-                    addSubjectFieldArray.append({
+                    subjectFieldArray.append({
                       id: 0,
                       name: "",
                       semester: 0,

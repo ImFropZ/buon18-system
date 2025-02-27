@@ -27,8 +27,7 @@ import { ProfessorAdvanceSearch } from "../advance-searchs";
 import { SearchBar } from "@components";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/professors`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/professors`, { data: { ids } });
 }
 
 export function ProfessorDataTable() {

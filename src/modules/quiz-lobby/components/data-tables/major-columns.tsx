@@ -163,7 +163,7 @@ function ActionMajor({
               onClick={() => {
                 axiosInstance
                   .delete(`/admin/majors`, {
-                    data: [{ id: major.id }],
+                    data: { ids: [major.id] },
                   })
                   .then((res) => {
                     toast({
@@ -191,7 +191,7 @@ function ActionMajor({
           <form
             onSubmit={form.handleSubmit((d) => {
               axiosInstance
-                .patch("/admin/majors", [
+                .put("/admin/majors", [
                   { name: d.name, school_id: d.school.id, id: major.id },
                 ])
                 .then((res) => {

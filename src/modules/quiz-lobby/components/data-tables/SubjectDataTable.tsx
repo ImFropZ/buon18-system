@@ -27,8 +27,7 @@ import { SubjectCreateSheet } from "../create-sheets";
 import { SubjectAdvanceSearch } from "../advance-searchs";
 
 function onDeleteSelectedHandler(ids: number[]) {
-  const deleteBody = ids.map((id) => ({ id }));
-  return axiosInstance.delete(`/admin/subjects`, { data: deleteBody });
+  return axiosInstance.delete(`/admin/subjects`, { data: { ids } });
 }
 
 export function SubjectDataTable() {
