@@ -13,14 +13,6 @@ import {
 } from "@components/ui/dialog";
 import { Label } from "@components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@components/ui/select";
-import { ParseMeta } from "papaparse";
-import {
   createQuizSchema,
   createUploadQuizzesSchema,
   professorSchema,
@@ -39,135 +31,137 @@ import { Form, FormField } from "@components/ui/form";
 import { SearchSelectFormField } from "@components/form";
 import { toast } from "@components/ui/use-toast";
 
-interface QuizImportCSVProps extends React.HTMLAttributes<HTMLDivElement> {
-  meta: ParseMeta;
-  data: Array<{ [key in string]: any }>;
+const onImportHandler = async () => {
+  return new Promise((resolve: (f: File) => void, _) => {
+    const inputEl = document.createElement("input");
+    inputEl.type = "file";
+    inputEl.accept = "text/plain";
+    inputEl.onchange = (e) => {
+      const target = e.currentTarget as HTMLInputElement;
+      if (!target || !target.files) return;
+      const file = target.files[0];
+
+      resolve(file);
+    };
+
+    inputEl.click();
+  });
+};
+
+interface QuizImportTxtProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   onImport: (data: z.infer<typeof createQuizSchema>[]) => void;
 }
 
-export function QuizImportCSV({
-  meta,
-  data,
-  isOpen,
-  setIsOpen,
-  children,
-  onImport,
-}: QuizImportCSVProps) {
-  // NOTED: from is the field in the CSV file, to is the field in the form
-  const [matchFields, setMatchFields] = React.useState<
-    { from: string; to: string }[]
-  >([]);
-
-  React.useEffect(() => {
-    setMatchFields([
-      {
-        from: meta.fields?.[0] ?? "",
-        to: "id",
-      },
-      {
-        from: meta.fields?.[1] ?? "",
-        to: "question",
-      },
-      {
-        from: meta.fields?.[2] ?? "",
-        to: "image_url",
-      },
-      {
-        from: meta.fields?.[3] ?? "",
-        to: "label",
-      },
-      {
-        from: meta.fields?.[4] ?? "",
-        to: "is_correct",
-      },
-    ]);
-  }, [meta.fields]);
-
+export function QuizImportTxt(props: QuizImportTxtProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {children}
+    <Dialog open={props.isOpen} onOpenChange={props.setIsOpen}>
+      <DialogTrigger asChild>
+        <Button type="button">Import</Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Import Quiz Configuration</DialogTitle>
           <DialogDescription>
             Make any adjustment here before import into form on the website.
-            Make sure the id field is unique. The id field is used to identify
-            the quiz. Make sure the fields are matched correctly before import.
-            This is a one-time operation.
+            Make sure the format are matched correctly before import. This is a
+            one-way operation. Format of Txt file should be as follows:
           </DialogDescription>
+          <pre>
+            [+]: question <br />
+            [i]: image (URL) <br />
+            [-][]: option incorrect <br />
+            [-][x]: option correct
+          </pre>
         </DialogHeader>
         <div className="flex flex-col gap-2">
-          {matchFields.map((f, i) => {
-            return (
-              <div key={i} className="flex items-center gap-4">
-                <Select
-                  defaultValue={meta.fields?.[i]}
-                  onValueChange={(value) => {
-                    const newMatchFields = [...matchFields];
-                    newMatchFields[i].from = value;
-                    setMatchFields(newMatchFields);
-                  }}
-                >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Select your perfer field" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {meta.fields?.map((field, i) => {
-                      return (
-                        <SelectItem key={i} value={field}>
-                          {field}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                <p> = </p>
-                <Label className="flex-1">{f.to}</Label>
-              </div>
-            );
-          })}
-        </div>
-        <DialogFooter>
-          <Button variant="secondary">Cancel</Button>
           <Button
+            type="button"
             onClick={() => {
-              const mappedData: z.infer<typeof createQuizSchema>[] = [];
-              let prevId = "";
-              data.forEach((d) => {
-                if (Object.keys(d).length !== matchFields.length) return;
-                const quiz = {
-                  id: d[matchFields[0].from],
-                  question: d[matchFields[1].from],
-                  image_url: d[matchFields[2].from],
-                  options: [
-                    {
-                      label: d[matchFields[3].from],
-                      is_correct:
-                        d[matchFields[4].from].toLowerCase() === "true",
-                    },
-                  ],
-                };
+              onImportHandler().then(async (f) => {
+                // setIsOpen(false);
+                const reader = f.stream().getReader();
+                const decoder = new TextDecoder("utf-8");
+                let { value, done } = await reader.read();
+                let buffer = "";
+                let isError = false;
 
-                if (prevId === quiz.id) {
-                  mappedData[mappedData.length - 1].options.push({
-                    label: d[matchFields[3].from],
-                    is_correct: d[matchFields[4].from].toLowerCase() === "true",
-                  });
-                  return;
+                const data: z.infer<typeof createQuizSchema>[] = [];
+
+                while (!done) {
+                  buffer += decoder.decode(value, { stream: true });
+                  let lines = buffer.split(/\r\n|\n/);
+                  buffer = lines.pop() || "";
+
+                  let tmp_q: z.infer<typeof createQuizSchema> = {
+                    question: "",
+                    image_url: "",
+                    options: [],
+                  };
+                  let options: z.infer<typeof createQuizSchema>["options"] = [];
+
+                  let lineCount = 0;
+                  for (let line of lines) {
+                    lineCount++;
+                    line = line.trim();
+                    if (line === "") continue;
+                    
+                    if (line.startsWith("[+]")) {
+                      if (tmp_q.question !== "") {
+                        tmp_q.options = options;
+                        data.push({ ...tmp_q });
+                        options = [];
+                      }
+                      tmp_q.question = line.slice(3, -1).trim();
+                      continue;
+                    }
+
+                    if (line.startsWith("[i]")) {
+                      tmp_q.image_url = line.slice(3, -1).trim();
+                      continue;
+                    }
+
+                    if (line.startsWith("[-][]")) {
+                      options.push({
+                        label: line.slice(5, -1).trim(),
+                        is_correct: false,
+                      });
+                      continue;
+                    } else if (line.startsWith("[-][x]")) {
+                      options.forEach((o) => (o.is_correct = false)); // Reset all options to false
+                      options.push({
+                        label: line.slice(6, -1).trim(),
+                        is_correct: true,
+                      });
+                      continue;
+                    }
+
+                    toast({
+                      title: "Error",
+                      description: `Invalid format at line: #${lineCount} - ${line}`,
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  if (Object.keys(tmp_q).length !== 0) {
+                    tmp_q.options = options;
+                    data.push(tmp_q);
+                  }
+
+                  ({ value, done } = await reader.read());
                 }
 
-                prevId = quiz.id;
-                mappedData.push(quiz);
+                if (!isError) {
+                  props.setIsOpen(false);
+                  props.onImport(data);
+                }
               });
-              onImport(mappedData);
-              setIsOpen(false);
             }}
           >
-            Import
+            Upload File
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

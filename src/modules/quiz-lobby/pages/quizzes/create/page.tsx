@@ -22,8 +22,7 @@ import { axiosInstance } from "@modules/quiz-lobby/fetch";
 import { Button } from "@components/ui/button";
 import { toast } from "@components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { QuizImportCSV } from "@modules/quiz-lobby/components";
-import Papa, { ParseResult } from "papaparse";
+import { QuizImportTxt } from "@modules/quiz-lobby/components";
 
 const onCreateHandler = async (data: z.infer<typeof createQuizzesSchema>) => {
   const quizzes = data.quizzes.map((quiz) => {
@@ -40,47 +39,9 @@ const onCreateHandler = async (data: z.infer<typeof createQuizzesSchema>) => {
     .then((res) => res.data as { code: number; message: string });
 };
 
-const onImportHandler = async () => {
-  return new Promise(
-    (resolve: (value: ParseResult<unknown>) => void, reject) => {
-      const inputEl = document.createElement("input");
-      inputEl.type = "file";
-      inputEl.accept = ".csv";
-      inputEl.onchange = (e) => {
-        const target = e.currentTarget as HTMLInputElement;
-        if (!target || !target.files) return;
-        const file = target.files[0];
-
-        Papa.parse(file, {
-          header: true,
-          complete: (results) => {
-            resolve(results);
-          },
-          error: (error) => {
-            reject(error);
-          },
-        });
-      };
-
-      inputEl.click();
-    },
-  );
-};
-
 export default function Page() {
   const [professorId, setProfessorId] = React.useState(0);
   const [isQuizImportOpen, setIsQuizImportOpen] = React.useState(false);
-  const [parseResult, setParseResult] = React.useState<ParseResult<unknown>>({
-    data: [],
-    errors: [],
-    meta: {
-      delimiter: ",",
-      linebreak: "\r\n",
-      aborted: false,
-      truncated: false,
-      cursor: 0,
-    },
-  });
   const router = useRouter();
 
   const form = useForm<z.infer<typeof createQuizzesSchema>>({
@@ -456,34 +417,24 @@ export default function Page() {
               ) : null}
             </div>
             <div className="flex gap-2">
-              <QuizImportCSV
-                meta={parseResult.meta}
-                data={parseResult.data as { [x: string]: any }[]}
+              <QuizImportTxt
                 isOpen={isQuizImportOpen}
                 setIsOpen={(value) => setIsQuizImportOpen(value)}
                 onImport={(data) => {
                   quizFieldArray.remove();
-                  quizFieldArray.append(data);
+                  // This is a workaround to make sure the form is updated
+                  // Before we remove the quizzes and append but it not working properly
+                  // So we need to add a delay to make sure the form is updated
+                  setTimeout(() => {
+                    quizFieldArray.append(data);
+                  }, 100); 
 
                   toast({
                     title: "Success",
                     description: "Quizzes imported successfully",
                   });
                 }}
-              >
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    onImportHandler().then((result) => {
-                      setParseResult(result);
-                      setIsQuizImportOpen(true);
-                    });
-                  }}
-                >
-                  Import Quizzes
-                </Button>
-              </QuizImportCSV>
+              />
               <Button>Create</Button>
             </div>
           </div>
