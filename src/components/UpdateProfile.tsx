@@ -21,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { systemAxiosInstance } from "@modules/shared";
 import { basicResponseSchema } from "@models";
 import { Label } from "./ui/label";
+import { toast } from "./ui/use-toast";
 
 async function onUpdateProfileHandler(
   data: z.infer<typeof updateProfileSchema>,
@@ -73,12 +74,20 @@ export function UpdateProfile({ defaultValues, refetch }: UpdateProfileProps) {
             onSubmit={form.handleSubmit((v) => {
               onUpdateProfileHandler(v)
                 .then(() => {
-                  // TODO: show success message
+                  toast({
+                    title: "Success",
+                    description: "Your profile has been updated successfully.",
+                  });
                   setOpen(false);
                   refetch?.();
                 })
                 .catch(() => {
-                  // TODO: show error message
+                  toast({
+                    title: "Error",
+                    description:
+                      "An error occurred while updating your profile.",
+                    variant: "destructive",
+                  });
                 });
             }, console.log)}
           >

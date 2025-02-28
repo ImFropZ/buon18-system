@@ -21,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { systemAxiosInstance } from "@modules/shared";
 import { basicResponseSchema } from "@models";
 import { Label } from "./ui/label";
+import { toast } from "./ui/use-toast";
 
 async function onUpdatePasswordHandler(
   data: z.infer<typeof updatePasswordSchema>,
@@ -73,12 +74,19 @@ export function UpdatePassword() {
             onSubmit={form.handleSubmit((v) => {
               onUpdatePasswordHandler(v)
                 .then(() => {
-                  // TODO: show success message
+                  toast({
+                    title: "Success",
+                    description: "Your password has been updated successfully.",
+                  });
                   form.reset();
                   setOpen(false);
                 })
                 .catch(() => {
-                  // TODO: show error message
+                  toast({
+                    title: "Error",
+                    description: "Failed to update password.",
+                    variant: "destructive",
+                  });
                 });
             }, console.log)}
           >
