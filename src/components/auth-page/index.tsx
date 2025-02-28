@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useLogin } from "@refinedev/core";
-import { LoginForm, LoginFormSchema } from "@models/auth";
+import { LoginForm, loginFormSchema } from "@models/auth";
 import { LucideLockKeyhole, LucideMail } from "lucide-react";
 import Image from "next/image";
 import { useToast } from "@components/ui/use-toast";
@@ -22,7 +22,7 @@ export function AuthPage() {
   const { mutate: login } = useLogin<LoginForm>();
   const { toast } = useToast();
   const form = useForm<LoginForm>({
-    resolver: zodResolver(LoginFormSchema),
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "",
       password: "",

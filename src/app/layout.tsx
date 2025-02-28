@@ -1,4 +1,3 @@
-import { DevtoolsProvider } from "@providers/devtools";
 import { Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import routerProvider from "@refinedev/nextjs-router";
@@ -66,28 +65,24 @@ export default function RootLayout({
       <body>
         <Suspense>
           <RefineKbarProvider>
-            <DevtoolsProvider>
-              <QueryClientContextProvider>
-                <Refine
-                  routerProvider={routerProvider}
-                  authProvider={authProvider}
-                  resources={[
-                    ...installedModules.flatMap(
-                      (m) => m.module.manifest.routes,
-                    ),
-                  ]}
-                  options={{
-                    syncWithLocation: true,
-                    warnWhenUnsavedChanges: true,
-                    useNewQueryKeys: true,
-                    projectId: "KHj5hP-vK2ueq-vDwC4U",
-                  }}
-                >
-                  <TooltipProvider>{children}</TooltipProvider>
-                  <RefineKbar />
-                </Refine>
-              </QueryClientContextProvider>
-            </DevtoolsProvider>
+            <QueryClientContextProvider>
+              <Refine
+                routerProvider={routerProvider}
+                authProvider={authProvider}
+                resources={[
+                  ...installedModules.flatMap((m) => m.module.manifest.routes),
+                ]}
+                options={{
+                  syncWithLocation: true,
+                  warnWhenUnsavedChanges: true,
+                  useNewQueryKeys: true,
+                  projectId: "KHj5hP-vK2ueq-vDwC4U",
+                }}
+              >
+                <TooltipProvider>{children}</TooltipProvider>
+                <RefineKbar />
+              </Refine>
+            </QueryClientContextProvider>
           </RefineKbarProvider>
         </Suspense>
         <Toaster />

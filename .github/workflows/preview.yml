@@ -1,0 +1,48 @@
+name: Deploy preview to vercel
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build_and_dev_deploy:
+    if: github.event_name == 'push'
+    permissions: write-all
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-version: 28.18.4
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID}}
+          vercel-project-id: ${{ secrets.PROJECT_ID}}
+          alias-domains: |
+            preview-system-buon18.vercel.app
+      - name: Output the preview URL
+        run: |
+          echo https://preview-system-buon18.vercel.app
+  build_and_pull_reqeust_deploy:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-version: 28.18.4
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID}}
+          vercel-project-id: ${{ secrets.PROJECT_ID}}
+          alias-domains: |
+            pr-${{ github.event.pull_request.number }}-system-buon18.vercel.app
+      - name: Output the preview URL
+        run: |
+          echo ${{ steps.vercel-deploy.outputs.preview-url }} and https://pr-${{ github.event.pull_request.number }}-system-buon18.vercel.app
