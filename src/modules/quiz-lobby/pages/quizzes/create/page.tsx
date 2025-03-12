@@ -239,7 +239,7 @@ export default function Page() {
                 return (
                   <div className="flex flex-col gap-2 border p-2" key={index}>
                     <div className="flex justify-between">
-                      <p className="rounded bg-gray-300 px-2 text-sm">
+                      <p className="rounded bg-[#98CB33] px-2 text-white">
                         #{index + 1}
                       </p>
                     </div>

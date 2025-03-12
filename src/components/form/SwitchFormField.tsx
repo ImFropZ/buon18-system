@@ -35,10 +35,11 @@ export function SwitchFormField({
               field.onChange(e);
             }}
             className={cn(
-              `border border-gray-300 bg-gray-300 aria-[checked="true"]:bg-gray-400`,
+              `border border-gray-300 bg-gray-300 aria-[checked="true"]:bg-[#98CB33]`,
               !!errorField && "outline outline-1 outline-red-600",
             )}
             aria-readonly
+            type="button"
           />
         </CustomErrorTooltipWrapper>
       </FormControl>
