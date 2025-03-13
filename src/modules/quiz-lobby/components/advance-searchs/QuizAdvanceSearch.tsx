@@ -147,6 +147,7 @@ export function QuizAdvanceSearch({
               }}
               onSelected={(d) => {
                 setProfessor({ id: d.id, full_name: d.full_name });
+                setSubject(null);
               }}
               optionLabel="full_name"
               optionValue="id"
@@ -157,6 +158,7 @@ export function QuizAdvanceSearch({
               disabled={!professor}
               onClick={() => {
                 setProfessor(null);
+                setSubject(null);
               }}
             >
               Clear
@@ -167,10 +169,13 @@ export function QuizAdvanceSearch({
           <Label>Subject</Label>
           <div className="flex gap-2">
             <SearchPopover
-              id="subject"
+              id={"subject" + (professor ? professor.id : "")}
               fetchResource={async (searchPharse) => {
                 const res = await axiosInstance.get(`/admin/subjects`, {
-                  params: { ["name:ilike"]: searchPharse },
+                  params: {
+                    ["name:ilike"]: searchPharse,
+                    ["professor-id:eq"]: professor ? professor.id : undefined,
+                  },
                 });
                 return res.data.data.subjects;
               }}
