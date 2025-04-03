@@ -105,7 +105,9 @@ export function SubjectAdvanceSearch({
               onSelected={(d) => {
                 setMajor({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name}`;
+              }}
               optionValue="id"
               value={major}
               placeholder="Select major"
@@ -134,7 +136,9 @@ export function SubjectAdvanceSearch({
               onSelected={(d) => {
                 setSchool({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name}`;
+              }}
               optionValue="id"
               value={school}
               placeholder="Select school"

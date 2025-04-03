@@ -61,7 +61,9 @@ export function MajorAdvanceSearch({
               onSelected={(d) => {
                 setSchool({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name}`;
+              }}
               optionValue="id"
               value={school}
               placeholder="Select school"
