@@ -172,7 +172,7 @@ export function TransactionCreateSheet({
 }
 
 function TransactionIDInputField(props: {
-  form: UseFormReturn<z.infer<typeof createTransactionsSchema>, any, undefined>;
+  form: UseFormReturn<z.infer<typeof createTransactionsSchema>, any, any>;
   index: number;
 }) {
   const [isIDLoading, setIsIDLoading] = React.useState(false);
