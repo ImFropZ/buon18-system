@@ -15,7 +15,7 @@ interface SearchPopoverProps {
   id: string;
   fetchResource: (searchPhase: string) => Promise<any>;
   optionValue: string;
-  optionLabel: string;
+  getLabel: (data: any) => string;
   value?: any;
   placeholder?: string;
   onSelected: (data: any) => void;
@@ -24,9 +24,9 @@ interface SearchPopoverProps {
 export function SearchPopover({
   id,
   fetchResource,
-  optionValue,
-  optionLabel,
   value,
+  optionValue,
+  getLabel,
   placeholder,
   onSelected,
 }: SearchPopoverProps) {
@@ -49,9 +49,7 @@ export function SearchPopover({
     <Popover>
       <PopoverTrigger asChild>
         <Button type="button" variant="outline" className="w-full">
-          {value
-            ? `${value[optionValue]} - ${value[optionLabel]}`
-            : placeholder || "Search"}
+          {value ? getLabel(value) : placeholder || "Search"}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="min-w-[40ch]">
@@ -75,12 +73,7 @@ export function SearchPopover({
                           }
                           onClick={() => onSelected(data)}
                         >
-                          <p>
-                            {data[optionValue]} -{" "}
-                            {data[optionLabel].length > 29
-                              ? data[optionLabel].slice(0, 30) + " ..."
-                              : data[optionLabel]}
-                          </p>
+                          <p>{getLabel(data)}</p>
                         </div>
                       </PopoverClose>
                     );

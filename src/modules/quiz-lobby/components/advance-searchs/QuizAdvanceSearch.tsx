@@ -149,7 +149,9 @@ export function QuizAdvanceSearch({
                 setProfessor({ id: d.id, full_name: d.full_name });
                 setSubject(null);
               }}
-              optionLabel="full_name"
+              getLabel={(d) => {
+                return `${d.id} ${d.full_name}`;
+              }}
               optionValue="id"
               value={professor}
               placeholder="Select professor"
@@ -182,7 +184,9 @@ export function QuizAdvanceSearch({
               onSelected={(d) => {
                 setSubject({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name} (semester:${d.semester}-year:${d.year})`;
+              }}
               optionValue="id"
               value={subject}
               placeholder="Select subject"
@@ -239,7 +243,9 @@ export function QuizAdvanceSearch({
               onSelected={(d) => {
                 setMajor({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name}`;
+              }}
               optionValue="id"
               value={major}
               placeholder="Select major"
@@ -268,7 +274,9 @@ export function QuizAdvanceSearch({
               onSelected={(d) => {
                 setSchool({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name}`;
+              }}
               optionValue="id"
               value={school}
               placeholder="Select school"

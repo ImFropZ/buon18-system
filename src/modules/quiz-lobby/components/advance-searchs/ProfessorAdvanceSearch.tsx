@@ -127,7 +127,9 @@ export function ProfessorAdvanceSearch({
               onSelected={(d) => {
                 setSubject({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name}`;
+              }}
               optionValue="id"
               value={subject}
               placeholder="Select subject"
@@ -184,7 +186,9 @@ export function ProfessorAdvanceSearch({
               onSelected={(d) => {
                 setMajor({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name}`;
+              }}
               optionValue="id"
               value={major}
               placeholder="Select major"
@@ -213,7 +217,9 @@ export function ProfessorAdvanceSearch({
               onSelected={(d) => {
                 setSchool({ id: d.id, name: d.name });
               }}
-              optionLabel="name"
+              getLabel={(d) => {
+                return `${d.id} ${d.name}`;
+              }}
               optionValue="id"
               value={school}
               placeholder="Select school"
